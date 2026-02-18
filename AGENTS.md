@@ -10,8 +10,9 @@
 
 ## Project Context - Read First
 
-- **PRD.md**: Product requirements, feature specifications, and UX guidelines
-- **TODO.json** / **TODO.md**: Current task progress - always read these at session start to understand what's done and what's pending
+- **PRD.md**: Product requirements and user stories
+- **ARCHITECTURE.md**: Technical architecture, data model, and UX guidelines
+- **TODO.md**: Current task progress - always read these at session start to understand what's done and what's pending
 
 ## Build / Lint / Test Commands
 

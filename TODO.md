@@ -11,19 +11,19 @@ _Core features - survival essentials for the first few weeks_
 
 - [ ] p1-1: Initialize Rails 8 app with TailwindCSS
 - [ ] p1-2: Set up PostgreSQL database and schema
-- [ ] p1-3: Configure ActsAsTenant for family scoping
+- [ ] p1-3: Set up family-based scoping (simple current_user.family approach)
 - [ ] p1-4: Create Family, User, Baby models with associations
 - [ ] p1-5: Create Activity model with Delegated Types (Feeding, Diaper, Sleep)
 - [ ] p1-6: Build authentication (signup/login for 2 parents)
 - [ ] p1-7: Create baby setup flow (name, birth date)
 - [ ] p1-8: Build unified chronological timeline view
-- [ ] p1-9: Implement real-time sync with ActionCable/Turbo Streams
-- [ ] p1-10: Build dark mode UI (night-safe colors)
-- [ ] p1-11: Create feeding log (breast sides + duration, bottle volume)
-- [ ] p1-12: Create diaper log (wet/dirty/both, color)
-- [ ] p1-13: Create sleep log (start/stop timer)
-- [ ] p1-14: Optimize UI for one-handed thumb-zone operation
-- [ ] p1-15: Add bottom navigation and FAB for quick logging
+- [ ] p1-9: Build dark mode UI (night-safe colors)
+- [ ] p1-10: Create feeding log (breast sides + duration, bottle volume)
+- [ ] p1-11: Create diaper log (wet/dirty/both, color)
+- [ ] p1-12: Create sleep log (start/stop timer)
+- [ ] p1-13: Optimize UI for one-handed thumb-zone operation
+- [ ] p1-14: Add bottom navigation and FAB for quick logging
+- [ ] p1-15: Implement real-time sync with ActionCable/Turbo Streams
 
 ---
 
@@ -54,5 +54,3 @@ _Polish before pediatrician visits_
 | [ ] | Not started |
 | [x] | Completed |
 | → | In progress |
-
-**LLM Agents**: Read `TODO.json` for structured task list with IDs.
