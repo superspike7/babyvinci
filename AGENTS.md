@@ -358,6 +358,7 @@ SECRET_KEY_BASE = ENV.fetch("SECRET_KEY_BASE")
 ### Gems
 
 Keep dependencies minimal. Only add gems when:
+- Use Rails Default gems
 - It solves a problem that vanilla Rails cannot
 - The gem is well-maintained
 - The benefit significantly outweighs the complexity
