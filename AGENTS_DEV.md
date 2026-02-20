@@ -1,6 +1,3 @@
-
----
-
 ## Development Server
 
 **Always assume a Rails development server is running on `localhost:3000`**
@@ -16,3 +13,4 @@ rails server
 # or
 rails server -p 3000
 ```
+
