@@ -1,16 +1,22 @@
 class HomeController < ApplicationController
+  VISIBLE_EVENT_SKEW = 10.minutes
+
   def show
     redirect_to new_baby_path unless current_baby
 
     return unless current_baby
 
-    @recent_care_events = current_baby.care_events.includes(:user).chronological_desc.limit(8)
+    @recent_care_events = visible_care_events.limit(8)
     @last_feed = latest_started_event_for("feed")
     @last_diaper = latest_started_event_for("diaper")
   end
 
   private
+    def visible_care_events
+      current_baby.care_events.includes(:user).started_on_or_before(Time.current + VISIBLE_EVENT_SKEW).chronological_desc
+    end
+
     def latest_started_event_for(kind)
-      current_baby.care_events.for_kind(kind).started_on_or_before(Time.current).chronological_desc.first
+      visible_care_events.for_kind(kind).first
     end
 end

@@ -41,6 +41,7 @@ A newborn tracking app for co-parents, designed for use in complete darkness wit
 
 ## Verification
 - Don't assume code works. Always verify or ask how to verify.
+- Do not add Rails system tests. Prefer integration/controller/model tests for app coverage, and use `agent-browser` for end-to-end verification.
 - For `agent-browser` verification, first look for an existing local server on port `3000` and use it if available.
 - Only create a temporary verification server on port `3001` when no usable port `3000` server exists.
 

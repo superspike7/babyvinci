@@ -9,5 +9,5 @@
     <p class="text-sm text-vinci-text"><%= care_event_author(event) %></p>
   </div>
 
-  <p class="shrink-0 text-sm font-medium text-vinci-label"><%= time_ago_in_words(event.started_at) %> ago</p>
+  <p class="shrink-0 text-sm font-medium text-vinci-label"><%= care_event_elapsed_label(event.started_at) %></p>
 </article>

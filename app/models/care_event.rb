@@ -4,6 +4,7 @@ class CareEvent < ApplicationRecord
   KINDS = (FEED_KINDS + DIAPER_KINDS).freeze
   FEED_MODES = %w[breast bottle_breastmilk formula].freeze
   FEED_SIDES = %w[left right both].freeze
+  DIAPER_TYPES = %w[wet poop both].freeze
 
   belongs_to :baby
   belongs_to :user
@@ -15,6 +16,7 @@ class CareEvent < ApplicationRecord
   validates :feed_side, inclusion: { in: FEED_SIDES }, allow_blank: true, if: :feed?
   validates :feed_amount_ml, numericality: { only_integer: true, greater_than: 0 }, allow_blank: true, if: :feed?
   validates :feed_duration_min, numericality: { only_integer: true, greater_than: 0 }, allow_blank: true, if: :feed?
+  validates :diaper_type, presence: true, inclusion: { in: DIAPER_TYPES }, if: :diaper?
 
   scope :chronological_desc, -> { order(started_at: :desc, id: :desc) }
   scope :for_kind, ->(kind) { where(kind: kind) }
@@ -42,5 +44,25 @@ class CareEvent < ApplicationRecord
 
   def feed_duration_min
     payload["duration_min"]
+  end
+
+  def diaper_type
+    return "both" if diaper_pee? && diaper_poop?
+    return "wet" if diaper_pee?
+    return "poop" if diaper_poop?
+
+    nil
+  end
+
+  def diaper_pee?
+    ActiveModel::Type::Boolean.new.cast(payload["pee"])
+  end
+
+  def diaper_poop?
+    ActiveModel::Type::Boolean.new.cast(payload["poop"])
+  end
+
+  def diaper_color
+    payload["color"]
   end
 end

@@ -16,6 +16,21 @@ class RoutesTest < ActionDispatch::IntegrationTest
     assert_match "Log feed", response.body
   end
 
+  test "diaper route serves the new diaper page for signed in parents" do
+    user = users(:one)
+    BabyCreator.create!(
+      user: user,
+      first_name: "Milo",
+      birth_at: Time.zone.local(2026, 3, 20, 3, 45)
+    )
+
+    post session_path, params: { email: user.email, password: "password" }
+    get new_diaper_path
+
+    assert_response :success
+    assert_match "Log diaper", response.body
+  end
+
   test "login alias serves the sign in page" do
     get login_path
 

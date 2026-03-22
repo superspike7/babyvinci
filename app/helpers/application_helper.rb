@@ -55,6 +55,19 @@ module ApplicationHelper
     end
   end
 
+  def diaper_type_label(diaper_type)
+    case diaper_type
+    when "wet"
+      "Wet"
+    when "poop"
+      "Poop"
+    when "both"
+      "Both"
+    else
+      diaper_type.to_s.humanize
+    end
+  end
+
   def recent_timeline_title(care_events)
     care_events.any? ? nil : "Nothing logged yet"
   end
@@ -62,7 +75,13 @@ module ApplicationHelper
   def latest_care_event_label(event)
     return "No #{yield} yet" unless event
 
-    "#{time_ago_in_words(event.started_at)} ago"
+    care_event_elapsed_label(event.started_at)
+  end
+
+  def care_event_elapsed_label(time)
+    return "just now" if time > Time.current
+
+    "#{time_ago_in_words(time)} ago"
   end
 
   private
@@ -78,9 +97,13 @@ module ApplicationHelper
     end
 
     def diaper_detail(event)
-      parts = []
-      parts << "Wet" if ActiveModel::Type::Boolean.new.cast(event.payload["pee"])
-      parts << "stool" if ActiveModel::Type::Boolean.new.cast(event.payload["poop"])
-      parts.presence&.join(" + ") || "Diaper"
+      base = []
+      base << "Wet" if event.diaper_pee?
+      base << "stool" if event.diaper_poop?
+
+      detail = base.presence&.join(" + ") || "Diaper"
+      return detail if event.diaper_color.blank?
+
+      "#{detail}, #{event.diaper_color}"
     end
 end

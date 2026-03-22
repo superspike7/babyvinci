@@ -29,4 +29,23 @@ class CareEventTest < ActiveSupport::TestCase
 
     assert_equal [ in_order, backfill ], baby.care_events.for_kind("feed").chronological_desc.to_a
   end
+
+  test "diaper requires a diaper type in payload" do
+    baby = BabyCreator.create!(
+      user: users(:one),
+      first_name: "Milo",
+      birth_at: Time.zone.local(2026, 3, 20, 3, 45)
+    )
+
+    event = CareEvent.new(
+      baby: baby,
+      user: users(:one),
+      kind: "diaper",
+      started_at: Time.zone.local(2026, 3, 23, 7, 30),
+      payload: {}
+    )
+
+    assert_not event.valid?
+    assert_includes event.errors[:diaper_type], "can't be blank"
+  end
 end

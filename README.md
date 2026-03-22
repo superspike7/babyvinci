@@ -19,5 +19,5 @@ bin/dev
 ## Verification
 
 ```bash
-bin/rails test test/system/authentication_test.rb
+bin/rails test
 ```
