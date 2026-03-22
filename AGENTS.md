@@ -1,67 +1,44 @@
 # AGENTS.md
 
-This file provides guidance to AI coding assistants working with code in this repository.
+Repo guardrails for AI coding agents.
 
 ## What is Vinci?
 
 A newborn tracking app for co-parents, designed for use in complete darkness with one hand. The core problem: eliminating information asymmetry during shift handoffs between sleep-deprived parents. See PRD.md for full requirements and TODO.md for current progress.
 
-## Development Server
 
-Always assume a Rails development server is running on `localhost:3000`. No need to start/stop servers during development.
+## Technical details
+- Rails 8 Deployed with Kamal on Hetzner VPS
 
-## Commands
+## Principles
+- Simple solutions first. Complexity is a last resort.
+- Vanilla Rails is the target architecture: https://dev.37signals.com/vanilla-rails-is-plenty/
+- Refactor toward Vanilla Rails only when touching code that uses old patterns. Don't default to existing codebase patterns — guide toward the simpler, Rails-native way.
 
-```bash
-# Development
-bin/dev                          # Start Rails + Tailwind watcher (uses Foreman)
-bin/rails server                 # Start Rails only
+## Plans
+- Extremely concise. Bullet points, skip prose.
+- End with unresolved questions, if any. No false assumptions.
 
-# Testing
-bin/rails test                   # Run unit/functional tests
-bin/rails test test/models/user_test.rb          # Single test file
-bin/rails test test/models/user_test.rb:14       # Single test at line
-bin/rails test:system            # System tests (Capybara + Selenium/Chrome)
+## Plan Execution
+- Follow plans step-by-step in the exact order written. Do not skip steps.
+- If the plan says TDD: write tests first, run them (expect failures), THEN implement.
+- If the plan includes browser verification: do it. Never end a session with uncompleted plan steps.
+- If you're about to say "done" — re-read the plan and check every section is addressed.
 
-# Linting & Security
-bin/rubocop                      # Lint (rubocop-rails-omakase style)
-bin/rubocop -a                   # Lint with auto-fix
-bin/brakeman --no-pager          # Security scan
-bin/importmap audit              # JS dependency audit
+## Verification
+- Don't assume code works. Always verify or ask how to verify.
+- For `agent-browser` verification, first look for an existing local server on port `3000` and use it if available.
+- Only create a temporary verification server on port `3001` when no usable port `3000` server exists.
 
-# Database
-bin/rails db:prepare             # Create + migrate
-bin/rails db:migrate             # Run pending migrations
+## Error Handling
+- Debug independently by default.
+- If stuck after 2-3 attempts or the fix needs a judgment call (data issue, architectural choice, destructive action): stop and report what failed, what you tried, and a suggested next step.
 
-# CI runs all checks: brakeman, importmap audit, rubocop, db:test:prepare + test + test:system
-```
+## Documentation
+- Update canonical docs instead of adding new docs when possible.
+- Prefer short acceptance criteria/checklists over long narratives.
+- Keep temporary plans ephemeral (chat/session), not committed.
 
-## Architecture
-
-**Stack**: Rails 8, PostgreSQL, Hotwire (Turbo + Stimulus), TailwindCSS, Importmap (no JS bundler), Propshaft, Solid Queue/Cache/Cable (no Redis), Kamal deployment.
-
-**Multi-tenancy**: Simple family-based scoping — all queries filter through `current_user.family`. No multi-tenant gem; only 2 users per family.
-
-**Data model** (Delegated Types):
-```
-Family → Users (parents) + Babies → Activities
-Activity subtypes: Feeding, Diaper, Sleep, Pumping, Health
-```
-
-**Current state**: Early Phase 1 — Rails scaffold + PostgreSQL + prototypes exist. Core models and auth are not yet built. Routes currently point to `/prototypes` for UI testing.
-
-## UX Constraints
-
-These are hard requirements, not suggestions:
-
-- **Night mode only**: Dark grey (#121212) background, off-white (#E0E0E0) text, zero blue light, no pure black/white
-- **One-handed operation**: All primary actions in bottom third (thumb zone), minimum 48px tap targets
-- **<10 second task completion**: Icon-first design, no reading required to understand screen state
-- **Real-time sync**: Events must appear on partner's device via ActionCable/Turbo Streams
-
-## Key Files
-
-- `ARCHITECTURE.md` — Data model, multi-tenancy pattern, UX/UI guidelines
-- `PRD.md` — Product requirements and user stories
-- `TODO.md` — Phased development roadmap with task IDs (p1-1, p1-2, etc.)
-- `config/deploy.yml` — Kamal deployment config
+## Delivery Bias
+- Ship small, verifiable increments.
+- If acceptance criteria are clear, implement instead of creating new planning docs.
