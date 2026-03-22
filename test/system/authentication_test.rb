@@ -13,8 +13,15 @@ class AuthenticationTest < ApplicationSystemTestCase
     fill_in "Confirm password", with: "password123"
     click_on "Create account"
 
-    assert_text "You're signed in"
+    assert_text "Create your baby's profile"
     assert_text "Alex Parent"
+
+    fill_in "Baby's first name", with: "Milo"
+    fill_in "Birth date", with: Date.new(2026, 3, 20)
+    fill_in "Birth time", with: "03:45"
+    click_on "Save baby profile"
+
+    assert_text "Milo"
 
     click_on "Sign out"
 
@@ -23,7 +30,7 @@ class AuthenticationTest < ApplicationSystemTestCase
     fill_in "Password", with: "password123"
     click_on "Sign in"
 
-    assert_text "You're signed in"
+    assert_text "Milo"
   end
 
   test "parent sees a helpful error for bad credentials" do
@@ -48,6 +55,7 @@ class AuthenticationTest < ApplicationSystemTestCase
     fill_in "Password", with: "password123"
     click_on "Sign in"
 
-    assert_text "You're signed in"
+    assert_text "Create your baby's profile"
+    assert_text "Alex Parent"
   end
 end

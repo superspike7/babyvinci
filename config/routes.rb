@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   get "sign_up", to: "users#new"
   resources :users, only: :create
   resource :session
+  resources :babies, only: %i[new create]
   resources :passwords, param: :token
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

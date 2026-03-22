@@ -5,6 +5,7 @@ module Authentication
     before_action :require_authentication
     helper_method :authenticated?
     helper_method :current_user
+    helper_method :current_baby
   end
 
   class_methods do
@@ -20,6 +21,10 @@ module Authentication
 
     def current_user
       Current.user
+    end
+
+    def current_baby
+      @current_baby ||= current_user&.babies&.includes(:created_by_user)&.first
     end
 
     def require_authentication

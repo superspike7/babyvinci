@@ -1,23 +1,24 @@
 <section class="space-y-6">
-  <header class="rounded-[26px] border border-vinci-border bg-vinci-base p-6 shadow-[0_22px_70px_rgba(17,63,72,0.10)]">
+  <header class="rounded-[26px] border border-vinci-border bg-vinci-base p-6">
     <p class="text-sm font-semibold uppercase tracking-[0.24em] text-vinci-label">Shared log</p>
-    <div class="mt-3 flex items-start justify-between gap-4">
-      <div>
-        <h1 class="text-3xl font-semibold tracking-tight text-vinci-ink">You're signed in</h1>
-        <p class="mt-2 text-base text-vinci-text">
-          Welcome, <%= current_user.name %>. Parent sign up and sign in are ready.
+    <div class="mt-3 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div class="space-y-2">
+        <h1 class="text-3xl font-semibold tracking-tight text-vinci-ink"><%= current_baby.first_name %></h1>
+        <p class="max-w-[18rem] text-base leading-7 text-vinci-text">
+          <%= current_user.name %> is ready to start the shared baby log.
         </p>
       </div>
 
-      <span class="rounded-full bg-vinci-accent-tint px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-vinci-accent">
-        Parent account
-      </span>
+      <div class="self-start rounded-2xl border border-vinci-border bg-vinci-surface px-4 py-3 text-sm text-vinci-text sm:min-w-36">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-vinci-label">Status</p>
+        <p class="mt-1 font-medium text-vinci-ink">Baby profile ready</p>
+      </div>
     </div>
   </header>
 
   <section class="rounded-[26px] border border-vinci-border bg-vinci-accent p-6 text-vinci-surface shadow-[0_22px_70px_rgba(17,63,72,0.10)]">
     <p class="text-sm font-semibold uppercase tracking-[0.24em] text-vinci-accent-tint">Next up</p>
-    <p class="mt-3 text-lg leading-7">Create the baby's shared profile so both parents can start logging together.</p>
+    <p class="mt-3 text-lg leading-7">Baby profile is set. Feed, diaper, timeline, and invite flows come next.</p>
   </section>
 
   <%= button_to "Sign out", session_path, method: :delete, class: "w-full rounded-full border border-vinci-border bg-vinci-base px-4 py-4 text-base font-semibold text-vinci-ink" %>
