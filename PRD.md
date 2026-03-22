@@ -24,33 +24,33 @@ Active canonical product spec
 
 ### Phase 1 tracker
 - [ ] P1-01 Parent sign up / sign in
-- [ ] P1-02 Invite second parent
-- [ ] P1-03 Create one baby profile
+- [ ] P1-02 Create one baby profile
+- [ ] P1-03 Today dashboard
 - [ ] P1-04 Shared timeline
 - [ ] P1-05 Quick log: feed
 - [ ] P1-06 Quick log: diaper
-- [ ] P1-07 Today dashboard
-- [ ] P1-08 Edit and delete recent events
+- [ ] P1-07 Edit and delete recent events
+- [ ] P1-08 Invite second parent
 - [ ] P1-09 Mobile-first layout
-- [ ] P1-10 Installable PWA shell
+- [ ] P1-10 Phase 1 launch polish / QA
 
 ### Phase 2 tracker
 - [ ] P2-01 Sleep start / end flow
 - [ ] P2-02 Today sleep state
-- [ ] P2-03 Guidance card engine
+- [ ] P2-03 Guidance notes on Today
 - [ ] P2-04 Guidance content seeds
 
 ### Phase 3 tracker
-- [ ] P3-01 Concern flow runner
+- [ ] P3-01 Fixed concern flows
 - [ ] P3-02 Initial concern content set
-- [ ] P3-03 Concern session history
-- [ ] P3-04 Doctor summary export
+- [ ] P3-03 Doctor summary export
+- [ ] P3-04 Concern history / saved results
 
 ### Phase 4 tracker
-- [ ] P4-01 Appointments
-- [ ] P4-02 Milestones
-- [ ] P4-03 Offline core event queue
-- [ ] P4-04 Pending sync and retry UX
+- [ ] P4-01 Appointments (optional)
+- [ ] P4-02 Milestones (optional)
+- [ ] P4-03 Offline core event queue (optional)
+- [ ] P4-04 Pending sync and retry UX (optional)
 
 ## Purpose
 Build a brain-dead simple shared app for two parents to care for one infant from birth onward.
@@ -108,7 +108,7 @@ The app may guide and escalate. It must not pretend to diagnose.
 ### 6. Every phase shippable
 No long setup phase. No hidden “foundation” milestone that users cannot benefit from.
 
-### 7. PWA first, native later if ever
+### 7. Mobile web first, native later if ever
 Fast deployment matters more than store packaging.
 
 ---
@@ -156,8 +156,8 @@ Fast deployment matters more than store packaging.
 ## Delivery Model
 
 - `PRD.md` is the canonical product spec and execution tracker.
-- Phase 1 is the first launch candidate.
-- Phases 2-4 extend the product after real-world use begins.
+- Phase 1 is the detailed launch target.
+- Phases 2-4 are intentionally lighter until real-world use begins.
 - Do not treat the full product scope as a prerequisite for launch.
 - Build and verify in phase order unless an explicit decision changes priority.
 
@@ -165,21 +165,23 @@ Fast deployment matters more than store packaging.
 
 ## Scope
 
-### In scope across Phases 1-4
-- This is the full intended product envelope for the current PRD.
-- Each phase is independently shippable.
-- Phase 1 is enough to launch and begin real use.
-
+### In scope now (Phase 1 launch)
+- Phase 1 is the launch target.
+- It must be useful before any later-phase work begins.
 - shared baby profile
 - shared timeline of care events
-- quick logging for feed, diaper, sleep
-- dashboard with baby age and latest events
-- age-based guidance cards
-- conservative concern checker
-- doctor summary export
-- lightweight milestones
-- appointments and vaccine notes
-- installable PWA with basic offline support for core logging
+- quick logging for feed and diaper
+- Today screen with baby age, latest feed, latest diaper, and recent events
+- invite second parent
+- edit and delete recent events
+- mobile-first web app
+
+### Likely follow-on scope after launch
+- sleep logging
+- 1-2 age-based guidance notes on Today
+- a small set of conservative concern flows
+- printable doctor summary
+- optional appointments, milestones, and offline experiments only if real use justifies them
 
 ### Out of scope
 - AI chatbot
@@ -219,19 +221,20 @@ Fast deployment matters more than store packaging.
 ### Technical constraints
 - Rails 8 only
 - Hotwire first: Turbo + Stimulus
-- PWA first
+- mobile web first; installability only if cheap and non-blocking
 - minimal JavaScript
 - no React
 - no mobile-native dependency required for v1
 - Postgres is the default deployed database
 - SQLite is acceptable for local development only
-- no websocket complexity required for v1; standard Turbo refresh patterns are enough
-- offline support should focus on core event creation only
+- no websocket complexity required for v1; standard refresh and revisit patterns are enough
+- offline support is deferred until proven necessary
 
 ### Delivery constraints
 - each phase must be independently deployable
 - each phase must contain its own QA checklist
 - after each phase, the app must be usable immediately by the two parents
+- Phase 1 must be useful before installability, offline support, or advanced content systems are considered
 
 ---
 
@@ -249,16 +252,18 @@ Fast deployment matters more than store packaging.
 
 ## Success Criteria
 
-### Primary success
+### Phase 1 launch success
 Within the first week of use, both parents can answer these questions in under 10 seconds:
 - When was the last feed?
 - When was the last diaper?
 - What happened in the last 12 hours?
+
+### Later product success
 - What matters at this age right now?
 
 ### Secondary success
 - A parent can log a core event in under 5 seconds
-- A second parent sees the new event quickly without confusion
+- A second parent sees the new event quickly after refresh or revisit without confusion
 - The app remains understandable at 3 AM
 - The app feels calmer than Notes app + chat messages
 
@@ -323,28 +328,30 @@ Preferred direction:
 - sticky bottom quick actions on mobile
 - soft radius, not overly round
 - use icons only when they make actions faster
-- dark mode supported early
+- single calm default theme first; dark mode can wait
 
 ### Information architecture
 Top-level navigation should stay tiny:
 - Today
 - Timeline
-- Quick Log
-- Guidance
 - More
+
+Persistent mobile actions should handle:
+- Feed
+- Diaper
 
 “More” can contain:
 - Baby profile
-- Appointments
-- Milestones
-- Export
+- Invite parent
 - Settings
+
+Later-phase features can live under `More` until they prove they deserve top-level navigation.
 
 ---
 
 ## Core Data Model
 
-This model should stay intentionally small.
+This model should stay intentionally small until later phases earn more tables.
 
 ### `User`
 - id
@@ -358,8 +365,6 @@ This model should stay intentionally small.
 - id
 - first_name
 - birth_at
-- birth_weight_grams (optional)
-- sex / notes optional
 - created_by_user_id
 
 ### `BabyMembership`
@@ -369,13 +374,13 @@ This model should stay intentionally small.
 - role (`parent`)
 
 ### `CareEvent`
-Single table for almost all logging.
+Single table for core logging.
 
 Fields:
 - id
 - baby_id
 - user_id
-- kind (`feed`, `diaper`, `sleep`)
+- kind (`feed`, `diaper` in Phase 1; add `sleep` only when Phase 2 starts)
 - started_at
 - ended_at nullable
 - payload json
@@ -385,63 +390,13 @@ Fields:
 Payload examples:
 - feed: `{ mode: breast|bottle_breastmilk|formula, amount_ml?, side?, duration_min? }`
 - diaper: `{ pee: true|false, poop: true|false, color? }`
-- sleep: `{ quality?: short_note }`
-
-### `GuidanceCard`
-- id
-- starts_day
-- ends_day
-- category
-- title
-- body
-- priority
-- active
-
-### `ConcernFlow`
-- id
-- slug
-- title
-- active
-
-### `ConcernStep`
-- id
-- concern_flow_id
-- position
-- prompt
-- response_type
-- options json
-- outcome_map json
-
-### `ConcernSession`
-- id
-- baby_id
-- user_id
-- concern_flow_id
-- answers json
-- disposition (`watch`, `call_today`, `urgent_now`)
-- created_at
-
-### `Appointment`
-- id
-- baby_id
-- kind (`checkup`, `vaccine`, `other`)
-- scheduled_at
-- status (`scheduled`, `done`, `cancelled`)
-- notes
-
-### `MilestoneCheck`
-- id
-- baby_id
-- age_months (`2`, `4`, `6`)
-- item_key
-- status (`observed`, `not_yet`, `unsure`)
-- recorded_by_user_id
-- recorded_at
 
 ### Model notes
 - Use a native JSON column type supported by the deployed database.
+- Do not add future-phase tables until the active phase clearly needs them.
+- Guidance can start as seeded content in code or YAML.
+- Concern flows can start as fixed POROs or plain Ruby structures.
 - Do not add soft delete in the initial build unless a real product need appears.
-- Concern sessions stay separate from `CareEvent`; if needed, render them into the timeline as derived items.
 
 ---
 
@@ -458,40 +413,38 @@ Without this phase, the rest is decoration.
 
 #### Features
 - parent sign up / sign in
-- invite second parent
 - create one baby profile
+- Today screen
 - shared timeline
 - quick log: feed
 - quick log: diaper
-- dashboard showing:
-  - baby age in days/weeks/months
-  - latest feed
-  - latest diaper
-  - recent timeline entries
 - edit and delete recent events
+- invite second parent
 - mobile-first layout
-- installable PWA shell
 
 #### Explicit exclusions in Phase 1
 - sleep logging
+- guidance cards
 - concern checker
 - milestones
 - appointments
 - export
+- installability if it delays shipping
 - offline queued writes beyond very basic browser form resilience
 
 #### User stories
-- As a parent, I can invite my partner so we share the same baby timeline.
 - As a parent, I can log a feed in a few taps.
 - As a parent, I can log a diaper in a few taps.
 - As a parent, I can open the app and know the last feed and diaper instantly.
 - As a parent, I can correct a mistaken entry without confusion.
+- As a parent, I can invite my partner once the app is already useful.
 
 #### Functional specifications
 
 ### Auth and family setup
 - User can create an account.
 - User can create one baby.
+- User can start logging before inviting the second parent.
 - User can invite one other parent by email.
 - Invited parent joins the same baby workspace.
 - Both parents have equal permissions in v1.
@@ -530,7 +483,7 @@ Show:
 - time since last feed
 - time since last diaper
 - recent 8 timeline entries
-- primary CTA buttons: Feed, Diaper
+- sticky primary action buttons: Feed, Diaper
 
 ### Timeline
 - reverse chronological
@@ -542,38 +495,42 @@ Show:
 #### Screens
 - Sign in
 - Create baby
-- Invite parent
 - Today
 - Timeline
-- Quick log feed
-- Quick log diaper
+- Feed form
+- Diaper form
 - Edit event
+- Invite parent
+- More / Settings
 
 #### Acceptance criteria
+- A single parent can create an account, create a baby, and log the first event without inviting anyone first.
 - Two separate accounts can see the same baby data.
 - A feed can be logged in under 5 seconds on mobile.
 - A diaper can be logged in under 5 seconds on mobile.
-- The dashboard updates correctly after a new event.
+- A second parent can understand the last 12 hours in under 10 seconds.
 - The timeline is understandable with no onboarding needed.
-- The app is installable as a PWA on mobile.
+- The app is useful in a mobile browser without installation.
 
 #### QA / verification
 
 ### Manual QA checklist
 - Create parent A account.
 - Create baby.
+- Log a feed before inviting parent B.
+- Log a diaper before inviting parent B.
 - Invite parent B.
 - Accept invite from a different browser/device.
-- Log feed from parent A.
-- Confirm feed appears for parent B.
+- Refresh or revisit and confirm parent B sees the existing feed.
 - Log diaper from parent B.
-- Confirm diaper appears for parent A.
+- Refresh or revisit and confirm parent A sees the new diaper.
 - Edit an event.
 - Delete an event.
 - Verify age label shows correctly.
 - Verify mobile layout on common phone widths.
 
 ### Edge cases
+- Invite is sent later, not during first session.
 - Parent B opens invite twice.
 - Network interruption on save.
 - Two events logged close together.
@@ -593,84 +550,28 @@ Make the app feel like a calm companion, not only a logger.
 #### Why this phase exists
 Logging alone is helpful, but the product becomes much better once it tells parents what matters at the current age.
 
-#### Features
-- quick log: sleep start / sleep end
-- dashboard now shows latest sleep
-- age-based guidance cards on Today screen
-- guidance categories:
-  - feeding
-  - sleep safety
-  - development/play
-  - care basics
-- admin/seeds for guidance card content
+#### What ships
+- sleep start / sleep end
+- Today shows active sleep state or latest sleep
+- Today shows up to 2 short age-based guidance notes
 
-#### Explicit exclusions in Phase 2
-- concern checker
-- export
-- appointments
-- milestones
-- advanced sleep analytics
-- wake window recommendations
-
-#### User stories
-- As a parent, I can log sleep start and wake with minimal taps.
-- As a parent, I can see one or two useful guidance cards for my baby’s current age.
-- As a parent, I can learn something useful today without reading a long article.
-
-#### Functional specifications
-
-### Sleep logging
-Actions:
-- Start sleep now
-- End current sleep now
-- Manual sleep entry for missed logs
-
-Rules:
-- there can be at most one active sleep event per baby
-- if a sleep is active, Today screen should show `Sleeping since ...`
-- ending sleep should be one tap from Today
-
-### Guidance card engine
-- Each card has a day-range window.
-- Today screen shows up to 2 cards max.
-- One card should be practical guidance.
-- One card may be safety or development guidance.
-- No endless feed of cards.
-
-### Content constraints
-- Cards must be short.
-- Cards must be scannable in under 15 seconds.
-- No article page required in v1 unless a card has a small `Learn more` detail page.
-- No search required.
-
-#### Screens
-- Sleep quick action state on Today
-- Manual sleep entry
-- Guidance card detail (optional lightweight screen)
+#### Keep it simple
+- no guidance CMS required at first
+- guidance can be seeded by age buckets in code or YAML
+- one active sleep max per baby
+- no wake-window coaching or sleep analytics
 
 #### Acceptance criteria
 - Parent can start or end sleep from Today in one tap.
 - Only one active sleep can exist.
-- Today screen shows age-appropriate cards.
-- Guidance remains useful even if parent has not logged much that day.
-- The screen still feels calm and uncluttered.
+- Today shows age-appropriate guidance without feeling cluttered.
+- Guidance is still useful even if logging is incomplete.
 
 #### QA / verification
-
-### Manual QA checklist
-- Start sleep.
-- Refresh Today.
-- Confirm active sleep state persists.
-- End sleep.
-- Confirm elapsed duration is correct.
-- Backdate baby age and verify different guidance cards appear.
-- Verify only 2 cards max are shown.
-- Verify cards do not overflow awkwardly on mobile.
-
-### Edge cases
-- sleep started accidentally twice
-- sleep ended with no active sleep
-- baby age crosses from one content window to another
+- Start sleep and confirm the active state persists after refresh.
+- End sleep and confirm the elapsed duration looks correct.
+- Backdate baby age and confirm different guidance appears.
+- Verify only 2 guidance notes max are shown.
 
 #### Release check
 If this phase is done, the app becomes both a tracker and a calm daily companion.
@@ -686,99 +587,42 @@ Add the highest-leverage support feature without pretending to be a doctor.
 #### Why this phase exists
 This phase addresses the real parent fear loop: “Is this normal or do we need help?”
 
-#### Features
-- concern entry point from Today
-- small set of conservative, rules-based concern flows
-- dispositions:
-  - watch closely
-  - call pediatrician today
-  - seek urgent care now
-- saved concern sessions in timeline or More section
-- doctor summary export for recent history
+#### What ships
+- concern entry point from Today or `More`
+- 3-5 conservative concern flows with fixed copy
+- dispositions: watch closely, call pediatrician today, seek urgent care now
+- printable web summary for recent history
 
-## Concern categories for v1 only
-Keep the scope very small:
+#### Keep it simple
+- no freeform AI triage
+- no open-ended symptom parser
+- no generic workflow builder required at first
+- printable HTML first; add PDF only if the web version proves insufficient
+
+#### Suggested first concern set
 - fever / feels too hot
 - too sleepy to feed / hard to wake
 - fewer wet diapers / dehydration concern
 - trouble breathing / breathing seems wrong
 - repeated vomiting / not keeping feeds down
-- yellow skin or eyes getting worse
-
-#### Explicit exclusions in Phase 3
-- freeform AI triage
-- open-ended symptom parser
-- diagnosis suggestions
-- broad condition library
-- medication dosing guidance
-
-#### User stories
-- As a worried parent, I can choose a concern and get a clear next step.
-- As a parent, I can see a conservative recommendation without reading a long medical article.
-- As a parent, I can export a clean summary before seeing the doctor.
-
-#### Functional specifications
-
-### Concern flows
-- Concern flows are finite, not open text.
-- Each flow is a small decision tree.
-- End states are only: watch, call today, urgent now.
-- Every flow includes a final disclaimer that the app does not replace medical care.
-- The app must always favor clarity over nuance.
-
-### Concern UX rules
-- One question per screen.
-- Large answer buttons.
-- No percentages.
-- No scary color overload.
-- Urgent states may use stronger color and icon treatment, but still remain readable and calm.
-
-### Doctor summary export
-Export content:
-- baby basic info
-- recent feeds summary
-- recent diaper summary
-- recent sleep summary
-- logged concerns
-- notes entered during concern sessions
-
-Formats:
-- printable web page first
-- simple PDF later only if needed
-
-Date windows:
-- last 24 hours
-- last 3 days
-- last 7 days
-- custom if cheap to add
-
-#### Screens
-- Concern entry
-- Concern flow question screen
-- Concern result screen
-- Export preview
 
 #### Acceptance criteria
 - Parent can start a concern flow in under 2 taps.
-- Concern flows never accept freeform symptom text as the primary input.
+- Concern flows never accept freeform symptom text as primary input.
 - Every concern ends with a clear next step.
 - Export is understandable by a parent and useful in a clinic visit.
 
 #### QA / verification
-
-### Manual QA checklist
 - Run each concern flow from start to finish.
 - Verify every answer path ends in a valid disposition.
-- Verify no dead-end screens.
-- Verify urgent result is visually distinct.
+- Verify urgent results are visually distinct but still calm.
 - Generate each export window and validate event counts.
-- Confirm concern sessions are stored correctly.
 
-### Safety QA
+#### Safety QA
 - Review all concern copy for false certainty.
-- Review all urgent outcomes for explicit action language.
+- Review urgent outcomes for explicit action language.
 - Confirm no flow claims diagnosis.
-- Confirm every result suggests contacting local professional care when appropriate.
+- Confirm every result points back to local professional care when appropriate.
 
 #### Release check
 If this phase is done, the app becomes meaningfully more valuable in real life.
@@ -789,84 +633,33 @@ It is still narrow enough to remain trustworthy.
 ### Phase 4 — Appointments + Milestones + Offline Core
 
 #### Goal
-Round out the product without bloating it.
+Round out the product only if real use proves these additions matter.
 
 #### Why this phase exists
 These features help with continuity of care, but they are weaker than the earlier phases, so they come later.
 
-#### Features
-- appointment list
-- vaccine / checkup notes
+#### What may ship
+- simple appointments list with notes
 - milestone check-ins at 2, 4, and 6 months
 - basic offline support for creating core care events
-- sync queued events when connection returns
 
-#### Explicit exclusions in Phase 4
-- deep vaccine schedule intelligence
-- milestone scoring
-- developmental comparison dashboard
-- advanced offline conflict resolution UI
-
-#### User stories
-- As a parent, I can note upcoming visits.
-- As a parent, I can record whether we observed a few milestone items.
-- As a parent, I can still log essentials when connectivity is weak.
-
-#### Functional specifications
-
-### Appointments
-- simple list view
-- create/edit appointment
-- mark done
-- optional notes
-
-### Milestones
-- checkpoint ages: 2 months, 4 months, 6 months
-- each item can be marked:
-  - observed
-  - not yet
-  - unsure
-- language must encourage discussion, not judgment
-- milestone results should not appear as a score
-
-### Offline core
-Support offline creation only for:
-- feed
-- diaper
-- sleep start/end
-
-Rules:
-- queued entries show pending state
-- on reconnect, queued entries sync automatically or on refresh
-- if sync fails, user gets plain retry option
-
-#### Screens
-- Appointments list/detail
-- Milestones check-in
-- Pending sync indicator
+#### Keep it simple
+- no deep vaccine schedule intelligence
+- no milestone scoring or comparison dashboard
+- no advanced offline conflict-resolution UI
+- do not build offline unless real users actually hit this problem
 
 #### Acceptance criteria
-- Parent can create and complete appointments.
-- Milestones do not use “behind” language.
-- Feed/diaper/sleep logs can be created offline and later synced.
-- Failed sync states are visible and recoverable.
+- Parent can create and complete appointments if appointments ship.
+- Milestones do not use "behind" language if milestones ship.
+- Core logs can be created offline and later retried if offline support ships.
+- Failed sync states are visible and recoverable if offline support ships.
 
 #### QA / verification
-
-### Manual QA checklist
-- Add appointment.
-- Mark appointment complete.
-- Complete milestone check at each age bucket.
-- Go offline.
-- Create feed, diaper, sleep entries.
-- Restore network.
-- Confirm queued entries sync correctly.
-- Confirm no duplicate events are created.
-
-### Edge cases
-- two queued entries with same time
-- app closed before sync
-- user edits an event before queued sync resolves
+- Add and complete an appointment if appointments ship.
+- Complete milestone check-ins for each age bucket if milestones ship.
+- Go offline, create core events, restore network, and confirm sync if offline support ships.
+- Confirm no duplicate events are created during retry.
 
 #### Release check
 If this phase is done, the app is a strong private family tool and can be used with confidence day to day.
@@ -876,31 +669,31 @@ If this phase is done, the app is a strong private family tool and can be used w
 ## Recommended Build Order Inside Rails
 
 ### Suggested order
-1. auth + baby membership
+1. auth + baby creation
 2. care event model + timeline
-3. dashboard queries
+3. Today dashboard queries
 4. feed and diaper forms
-5. sleep state logic
-6. guidance seed content
-7. concern engine
-8. export view
-9. appointments
-10. milestones
-11. service worker / offline queue
+5. invite second parent
+6. sleep state logic if Phase 2 starts
+7. seeded guidance notes if Phase 2 starts
+8. fixed concern flows if Phase 3 starts
+9. printable export view if Phase 3 starts
+10. appointments, milestones, and offline only after real use proves they matter
 
 ### Keep implementation boring
 Prefer:
 - conventional controllers
-- small POROs for concern logic
+- small POROs for concern logic when Phase 3 starts
 - server-rendered Turbo flows
 - a tiny Stimulus layer for quick interactions
 - Prefer Sandi Metz OOD
-- Basecamp/37Signals style coding 
+- Basecamp/37Signals style coding
 - Vanilla Rails
 
 Avoid:
 - frontend state machines unless needed
 - over-abstracted service object forests
+- content engines before seeded content feels insufficient
 - giant event bus architecture
 - premature domain micro-objects everywhere
 
@@ -914,13 +707,9 @@ Keep route surface tiny.
 - `/timeline`
 - `/feeds/new`
 - `/diapers/new`
-- `/sleep`
-- `/guidance`
-- `/concerns`
-- `/appointments`
-- `/milestones`
-- `/export`
 - `/settings`
+
+Add later-phase routes only when those features actually ship.
 
 ---
 
