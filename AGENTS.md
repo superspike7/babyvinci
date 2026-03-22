@@ -24,6 +24,13 @@ A newborn tracking app for co-parents, designed for use in complete darkness wit
 - If the plan includes browser verification: do it. Never end a session with uncompleted plan steps.
 - If you're about to say "done" — re-read the plan and check every section is addressed.
 
+## PRD Task Workflow
+- Start by reading `PRD.md` and implement the current PRD task unless the user names a different one.
+- Treat user-stated technical preferences as optional constraints for that task, not default architecture policy.
+- Default PRD task order: write the quick task contract first, run it, implement to green, add/update written specs, review/refactor, then run `agent-browser` verification.
+- The quick task contract is not the written spec: it is a short high-level executable contract for the current PRD task.
+- Definition of done for PRD tasks: `agent-browser` QA succeeds and `PRD.md` progress tracker is updated.
+
 ## Verification
 - Don't assume code works. Always verify or ask how to verify.
 - For `agent-browser` verification, first look for an existing local server on port `3000` and use it if available.
