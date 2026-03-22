@@ -46,6 +46,15 @@ module ApplicationHelper
     "Logged by #{event.user.name}"
   end
 
+  def feed_mode_label(mode)
+    case mode
+    when "bottle_breastmilk"
+      "Breastmilk bottle"
+    else
+      mode.to_s.humanize
+    end
+  end
+
   def recent_timeline_title(care_events)
     care_events.any? ? nil : "Nothing logged yet"
   end
@@ -62,7 +71,7 @@ module ApplicationHelper
     end
 
     def feed_detail(event)
-      parts = [ humanize_feed_mode(event.payload["mode"]) ]
+      parts = [ feed_mode_label(event.payload["mode"]) ]
       parts << "#{event.payload["amount_ml"]} ml" if event.payload["amount_ml"].present?
       parts << "#{event.payload["duration_min"]} min" if event.payload["duration_min"].present?
       parts.join(", ")
@@ -73,14 +82,5 @@ module ApplicationHelper
       parts << "Wet" if ActiveModel::Type::Boolean.new.cast(event.payload["pee"])
       parts << "stool" if ActiveModel::Type::Boolean.new.cast(event.payload["poop"])
       parts.presence&.join(" + ") || "Diaper"
-    end
-
-    def humanize_feed_mode(mode)
-      case mode
-      when "bottle_breastmilk"
-        "Breastmilk bottle"
-      else
-        mode.to_s.humanize.presence || "Feed"
-      end
     end
 end

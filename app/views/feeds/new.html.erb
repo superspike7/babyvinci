@@ -1,0 +1,79 @@
+<% content_for :title, "Log feed | BabyVinci" %>
+
+<section class="space-y-6">
+  <header class="space-y-4 border-b border-vinci-border/80 pb-5">
+    <div>
+      <%= secondary_nav_link_to("Back to today", today_path) %>
+    </div>
+
+    <div class="flex items-start justify-between gap-4">
+      <div class="space-y-2">
+        <p class="text-sm font-semibold uppercase tracking-[0.24em] text-vinci-label">Shared log</p>
+        <h1 class="text-3xl font-semibold tracking-tight text-vinci-ink">Log feed</h1>
+      </div>
+
+      <span class="shrink-0 rounded-full bg-vinci-accent-tint px-3 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-vinci-accent">
+        Now
+      </span>
+    </div>
+
+    <p class="max-w-[19rem] text-base leading-7 text-vinci-text">Capture the latest feed in one save.</p>
+  </header>
+
+  <%= form_with model: @care_event, url: feeds_path, class: "space-y-5", html: { novalidate: true } do |form| %>
+    <section class="rounded-[26px] border border-vinci-border bg-vinci-base p-5 sm:p-6">
+      <p class="text-sm font-semibold uppercase tracking-[0.18em] text-vinci-label">Required</p>
+
+      <div class="mt-4 space-y-5">
+        <div class="space-y-2">
+          <%= form.label :started_at, "Time", class: "text-sm font-medium text-vinci-ink" %>
+          <%= form.datetime_local_field :started_at, required: true, value: (@care_event.started_at || Time.zone.now.change(sec: 0)).strftime("%Y-%m-%dT%H:%M"), class: "w-full rounded-2xl border border-vinci-border bg-vinci-surface px-4 py-4 text-base text-vinci-ink outline-none transition focus:border-vinci-accent focus:ring-2 focus:ring-vinci-accent/10" %>
+        </div>
+
+        <fieldset class="space-y-3">
+          <legend class="text-sm font-medium text-vinci-ink">Mode</legend>
+          <div class="grid gap-3">
+            <% CareEvent::FEED_MODES.each do |mode| %>
+              <% selected = @care_event.payload["mode"] == mode %>
+              <label class="flex min-h-12 items-center gap-3 rounded-2xl border px-4 py-4 text-base transition <%= selected ? "border-vinci-accent bg-vinci-accent-tint text-vinci-accent" : "border-vinci-border bg-vinci-surface text-vinci-ink" %>">
+                <%= form.radio_button :mode, mode, required: true, checked: selected, class: "h-4 w-4 border-vinci-border text-vinci-accent focus:ring-vinci-accent" %>
+                <span><%= feed_mode_label(mode) %></span>
+              </label>
+            <% end %>
+          </div>
+        </fieldset>
+      </div>
+    </section>
+
+    <section class="rounded-[26px] border border-vinci-border bg-vinci-base p-5 sm:p-6">
+      <p class="text-sm font-semibold uppercase tracking-[0.18em] text-vinci-label">Optional</p>
+
+      <div class="mt-4 space-y-4">
+        <div class="space-y-2">
+          <%= form.label :amount_ml, "Amount (ml)", class: "text-sm font-medium text-vinci-ink" %>
+          <%= form.number_field :amount_ml, min: 1, step: 1, value: @care_event.payload["amount_ml"], class: "w-full rounded-2xl border border-vinci-border bg-vinci-surface px-4 py-4 text-base text-vinci-ink outline-none transition focus:border-vinci-accent focus:ring-2 focus:ring-vinci-accent/10" %>
+        </div>
+
+        <div class="space-y-2">
+          <%= form.label :side, class: "text-sm font-medium text-vinci-ink" %>
+          <%= form.select :side, options_for_select([["Choose a side", ""]] + CareEvent::FEED_SIDES.map { |side| [ side.capitalize, side ] }, @care_event.payload["side"]), {}, class: "w-full rounded-2xl border border-vinci-border bg-vinci-surface px-4 py-4 text-base text-vinci-ink outline-none transition focus:border-vinci-accent focus:ring-2 focus:ring-vinci-accent/10" %>
+        </div>
+
+        <div class="space-y-2">
+          <%= form.label :duration_min, "Duration (min)", class: "text-sm font-medium text-vinci-ink" %>
+          <%= form.number_field :duration_min, min: 1, step: 1, value: @care_event.payload["duration_min"], class: "w-full rounded-2xl border border-vinci-border bg-vinci-surface px-4 py-4 text-base text-vinci-ink outline-none transition focus:border-vinci-accent focus:ring-2 focus:ring-vinci-accent/10" %>
+        </div>
+      </div>
+    </section>
+
+    <% if @care_event.errors.any? %>
+      <section class="rounded-[20px] border border-vinci-urgent/20 bg-red-50 px-4 py-3 text-sm text-vinci-urgent">
+        <%= @care_event.errors.full_messages.to_sentence %>
+      </section>
+    <% end %>
+
+    <div class="sticky bottom-4 z-10 -mx-1 border-t border-vinci-border/80 bg-vinci-surface/95 px-1 pt-4 backdrop-blur-sm">
+      <%= form.submit "Save feed", class: "w-full rounded-full bg-vinci-accent px-4 py-4 text-base font-semibold text-vinci-surface transition hover:bg-vinci-ink focus:outline-none focus:ring-2 focus:ring-vinci-accent/20" %>
+    </div>
+  <% end %>
+</section>
