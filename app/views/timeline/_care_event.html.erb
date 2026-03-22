@@ -1,0 +1,13 @@
+<article class="flex items-start justify-between gap-4 py-4 first:pt-4 last:pb-0">
+  <div class="min-w-0 space-y-1">
+    <div class="flex items-center gap-3">
+      <p class="text-base font-semibold text-vinci-ink"><%= care_event_name(event) %></p>
+      <p class="text-sm text-vinci-text"><%= care_event_time(event) %></p>
+    </div>
+
+    <p class="text-sm leading-6 text-vinci-text"><%= care_event_detail(event) %></p>
+    <p class="text-sm text-vinci-text"><%= care_event_author(event) %></p>
+  </div>
+
+  <p class="shrink-0 text-sm font-medium text-vinci-label"><%= time_ago_in_words(event.started_at) %> ago</p>
+</article>

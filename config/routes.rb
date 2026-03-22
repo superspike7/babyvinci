@@ -1,9 +1,12 @@
 Rails.application.routes.draw do
   root "home#show"
-  get "today", to: "home#show"
+  resource :today, only: :show, controller: :home
+  resource :timeline, only: :show, controller: :timeline
 
-  get "sign_up", to: "users#new"
-  resources :users, only: :create
+  get "login", to: "sessions#new", as: :login
+  get "signup", to: "users#new", as: :signup
+
+  resources :users, only: %i[new create]
   resource :session
   resources :babies, only: %i[new create]
   resources :passwords, param: :token

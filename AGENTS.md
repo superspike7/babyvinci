@@ -31,6 +31,14 @@ A newborn tracking app for co-parents, designed for use in complete darkness wit
 - The quick task contract is not the written spec: it is a short high-level executable contract for the current PRD task.
 - Definition of done for PRD tasks: `agent-browser` QA succeeds and `PRD.md` progress tracker is updated.
 
+## Anti-Laziness Guardrails
+- Do not mark work done if it only works in isolation; verify the real user flow.
+- Test how the feature is actually reached and used, not just the direct endpoint or happy-path unit.
+- Cover both empty and populated states when the feature behavior changes across them.
+- Verify acceptance criteria, automated checks, and manual/browser QA before updating progress.
+- For non-trivial work, get an independent review when an appropriate reviewer is available.
+- If a requirement is unverified, say so plainly and keep the task in progress.
+
 ## Verification
 - Don't assume code works. Always verify or ask how to verify.
 - For `agent-browser` verification, first look for an existing local server on port `3000` and use it if available.

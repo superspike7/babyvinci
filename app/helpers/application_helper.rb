@@ -1,6 +1,18 @@
 module ApplicationHelper
+  def secondary_nav_link_to(name, path)
+    link_to(
+      name,
+      path,
+      class: "inline-flex min-h-11 items-center text-sm font-semibold text-vinci-accent underline decoration-vinci-accent/60 decoration-2 underline-offset-4 transition-colors hover:text-vinci-ink hover:decoration-vinci-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vinci-accent/25"
+    )
+  end
+
   def baby_age_label(baby)
     "Day #{baby_age_in_days(baby)}"
+  end
+
+  def timeline_day_label(date)
+    date.strftime("%A, %B %-d")
   end
 
   def baby_age_in_words(baby)
@@ -12,8 +24,63 @@ module ApplicationHelper
     "#{days} days old"
   end
 
+  def care_event_name(event)
+    event.kind.capitalize
+  end
+
+  def care_event_time(event)
+    event.started_at.strftime("%-I:%M %p").downcase.sub("am", "AM").sub("pm", "PM")
+  end
+
+  def care_event_detail(event)
+    if event.feed?
+      feed_detail(event)
+    elsif event.diaper?
+      diaper_detail(event)
+    else
+      event.kind.capitalize
+    end
+  end
+
+  def care_event_author(event)
+    "Logged by #{event.user.name}"
+  end
+
+  def recent_timeline_title(care_events)
+    care_events.any? ? nil : "Nothing logged yet"
+  end
+
+  def latest_care_event_label(event)
+    return "No #{yield} yet" unless event
+
+    "#{time_ago_in_words(event.started_at)} ago"
+  end
+
   private
     def baby_age_in_days(baby)
       ((Time.zone.today - baby.birth_at.to_date).to_i + 1).clamp(0, Float::INFINITY)
+    end
+
+    def feed_detail(event)
+      parts = [ humanize_feed_mode(event.payload["mode"]) ]
+      parts << "#{event.payload["amount_ml"]} ml" if event.payload["amount_ml"].present?
+      parts << "#{event.payload["duration_min"]} min" if event.payload["duration_min"].present?
+      parts.join(", ")
+    end
+
+    def diaper_detail(event)
+      parts = []
+      parts << "Wet" if ActiveModel::Type::Boolean.new.cast(event.payload["pee"])
+      parts << "stool" if ActiveModel::Type::Boolean.new.cast(event.payload["poop"])
+      parts.presence&.join(" + ") || "Diaper"
+    end
+
+    def humanize_feed_mode(mode)
+      case mode
+      when "bottle_breastmilk"
+        "Breastmilk bottle"
+      else
+        mode.to_s.humanize.presence || "Feed"
+      end
     end
 end

@@ -2,6 +2,7 @@ class User < ApplicationRecord
   has_secure_password
   has_many :sessions, dependent: :destroy
   has_many :baby_memberships, dependent: :destroy
+  has_many :care_events, dependent: :destroy
   has_many :babies, through: :baby_memberships
 
   normalizes :email, with: ->(value) { normalize_email(value) }

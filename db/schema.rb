@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_03_23_120001) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_23_123000) do
   create_table "activities", force: :cascade do |t|
     t.bigint "baby_id", null: false
     t.string "activity_type", null: false
@@ -45,6 +45,21 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_23_120001) do
     t.index ["baby_id", "user_id"], name: "index_baby_memberships_on_baby_id_and_user_id", unique: true
     t.index ["baby_id"], name: "index_baby_memberships_on_baby_id"
     t.index ["user_id"], name: "index_baby_memberships_on_user_id"
+  end
+
+  create_table "care_events", force: :cascade do |t|
+    t.integer "baby_id", null: false
+    t.integer "user_id", null: false
+    t.string "kind", null: false
+    t.datetime "started_at", null: false
+    t.datetime "ended_at"
+    t.json "payload", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["baby_id", "started_at"], name: "index_care_events_on_baby_id_and_started_at"
+    t.index ["baby_id"], name: "index_care_events_on_baby_id"
+    t.index ["kind"], name: "index_care_events_on_kind"
+    t.index ["user_id"], name: "index_care_events_on_user_id"
   end
 
   create_table "diapers", force: :cascade do |t|
@@ -104,5 +119,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_23_120001) do
   add_foreign_key "babies", "users", column: "created_by_user_id"
   add_foreign_key "baby_memberships", "babies"
   add_foreign_key "baby_memberships", "users"
+  add_foreign_key "care_events", "babies"
+  add_foreign_key "care_events", "users"
   add_foreign_key "sessions", "users"
 end

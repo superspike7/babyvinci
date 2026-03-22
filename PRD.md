@@ -19,7 +19,7 @@ Active canonical product spec
 
 - Current phase: Phase 1 - Shared Essential Logging MVP
 - Current milestone: Phase 1 in progress
-- Current task: P1-04 Shared timeline
+- Current task: P1-05 Quick log: feed
 - Blockers: None
 - Last updated: 2026-03-23
 
@@ -27,7 +27,7 @@ Active canonical product spec
 - [x] P1-01 Parent sign up / sign in
 - [x] P1-02 Create one baby profile
 - [x] P1-03 Today dashboard
-- [ ] P1-04 Shared timeline
+- [x] P1-04 Shared timeline
 - [ ] P1-05 Quick log: feed
 - [ ] P1-06 Quick log: diaper
 - [ ] P1-07 Edit and delete recent events
