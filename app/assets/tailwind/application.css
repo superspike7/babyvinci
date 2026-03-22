@@ -1,1 +1,15 @@
 @import "tailwindcss";
+
+@theme {
+  --color-vinci-canvas: #eef5f4;
+  --color-vinci-surface: #f7fbfb;
+  --color-vinci-base: #ffffff;
+  --color-vinci-ink: #102126;
+  --color-vinci-text: #4f6b71;
+  --color-vinci-label: #66858b;
+  --color-vinci-accent: #10343c;
+  --color-vinci-accent-tint: #dcebea;
+  --color-vinci-border: #d7e5e6;
+  --color-vinci-urgent: #b9382f;
+  --color-vinci-caution: #a56a1f;
+}

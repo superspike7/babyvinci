@@ -6,9 +6,8 @@ Repo guardrails for AI coding agents.
 
 A newborn tracking app for co-parents, designed for use in complete darkness with one hand. The core problem: eliminating information asymmetry during shift handoffs between sleep-deprived parents. See PRD.md for full requirements and TODO.md for current progress.
 
-
 ## Technical details
-- Rails 8 Deployed with Kamal on Hetzner VPS
+- Rails 8 (Will be Deployed with Kamal on Hetzner VPS)
 
 ## Principles
 - Simple solutions first. Complexity is a last resort.
@@ -42,3 +41,6 @@ A newborn tracking app for co-parents, designed for use in complete darkness wit
 ## Delivery Bias
 - Ship small, verifiable increments.
 - If acceptance criteria are clear, implement instead of creating new planning docs.
+
+## UI Design Preference
+@DESIGN.md

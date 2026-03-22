@@ -3,9 +3,10 @@ title: BabyVinci PRD
 status: active
 canonical: true
 source_of_truth: PRD.md
+design_reference: DESIGN.md
 progress_tracker: PRD.md#progress-tracker
 current_phase: "Phase 1 - Shared Essential Logging MVP"
-last_updated: 2026-03-22
+last_updated: 2026-03-23
 agent_instruction: "Use this file as the canonical product spec and progress tracker. Continue in phase order unless explicitly directed otherwise. Update the progress tracker after completed work."
 ---
 
@@ -20,7 +21,7 @@ Active canonical product spec
 - Current milestone: Not started
 - Current task: P1-01 Parent sign up / sign in
 - Blockers: None
-- Last updated: 2026-03-22
+- Last updated: 2026-03-23
 
 ### Phase 1 tracker
 - [ ] P1-01 Parent sign up / sign in
@@ -302,33 +303,8 @@ Bad:
 - “Risk score: 61%.”
 - “You failed to log today.”
 
-### Visual direction
-Avoid the usual AI-slop baby app look:
-- no random pastel gradients everywhere
-- no over-illustrated nursery theme
-- no floating glassmorphism cards
-- no Dribbble-style decoration that slows use
-- no cartoon overload
-
-Preferred direction:
-- clean typography
-- quiet spacing
-- mostly neutral backgrounds
-- one accent color only
-- high contrast
-- information-led layout
-- subtle warmth, not cuteness overload
-
-### Design system guidance
-- 8px spacing scale
-- 16px or larger primary body text
-- 44px minimum tap targets
-- system font stack or one neutral sans
-- cards only when they create separation
-- sticky bottom quick actions on mobile
-- soft radius, not overly round
-- use icons only when they make actions faster
-- single calm default theme first; dark mode can wait
+### Visual system
+- See `DESIGN.md` for canonical visual direction, component rules, and design tokens.
 
 ### Information architecture
 Top-level navigation should stay tiny:
@@ -742,79 +718,10 @@ Add later-phase routes only when those features actually ship.
 
 ---
 
-## Design Guide
+## Visual Reference
 
-### Product feel
-This should look like a serious, calm family tool.
-Not a toy.
-Not a hospital portal.
-Not a startup landing page.
-
-### Layout guidance
-- mobile-first single column
-- sticky bottom action bar on phone
-- top summary block on Today
-- event list below summary
-- use section labels sparingly
-- preserve whitespace generously
-
-### Component guidance
-
-### Summary blocks
-Use for:
-- time since last feed
-- time since last diaper
-- current sleep state
-
-Should be:
-- bold value
-- quiet label
-- no needless icon decoration
-
-### Event rows
-Each row should show:
-- event type
-- compact details
-- time
-- author
-
-Must be readable in under 2 seconds.
-
-### Quick actions
-Should always remain visible or near-visible on mobile.
-Primary actions only.
-Do not place low-priority actions beside them.
-
-### Empty states
-Calm and matter-of-fact.
-Example:
-- “No feeds logged yet today.”
-- “Start with the next feed.”
-
-Avoid:
-- “Looks empty here 😢”
-- “Let’s get productive!”
-
-### Motion
-- minimal
-- mostly instant
-- subtle Turbo transitions okay
-- no celebratory animation
-
-### Color
-- one calm accent
-- neutral canvas
-- urgent state red reserved for urgent concern results only
-- yellow/orange can be used sparingly for caution states
-
-### Typography
-- prioritize legibility over personality
-- strong numeric rendering for time and age
-- clear hierarchy:
-  - page title
-  - status numbers
-  - event labels
-  - help text
+- Canonical visual design reference: `DESIGN.md`
+- `PRD.md` owns product scope, behavior, and acceptance criteria.
 
 ---
 
