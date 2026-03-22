@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   root "home#show"
+  get "today", to: "home#show"
 
   get "sign_up", to: "users#new"
   resources :users, only: :create

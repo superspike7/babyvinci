@@ -1,25 +1,57 @@
+<% content_for :title, "Today | BabyVinci" %>
+
 <section class="space-y-6">
-  <header class="rounded-[26px] border border-vinci-border bg-vinci-base p-6">
-    <p class="text-sm font-semibold uppercase tracking-[0.24em] text-vinci-label">Shared log</p>
-    <div class="mt-3 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+  <header class="space-y-3 border-b border-vinci-border/80 pb-5">
+    <div class="flex items-start justify-between gap-4">
       <div class="space-y-2">
-        <h1 class="text-3xl font-semibold tracking-tight text-vinci-ink"><%= current_baby.first_name %></h1>
-        <p class="max-w-[18rem] text-base leading-7 text-vinci-text">
-          <%= current_user.name %> is ready to start the shared baby log.
-        </p>
+        <p class="text-sm font-semibold uppercase tracking-[0.24em] text-vinci-label">Shared log</p>
+        <h1 class="text-3xl font-semibold tracking-tight text-vinci-ink">Today</h1>
       </div>
 
-      <div class="self-start rounded-2xl border border-vinci-border bg-vinci-surface px-4 py-3 text-sm text-vinci-text sm:min-w-36">
-        <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-vinci-label">Status</p>
-        <p class="mt-1 font-medium text-vinci-ink">Baby profile ready</p>
+      <div class="flex flex-col items-end gap-2">
+        <span class="shrink-0 rounded-full bg-vinci-accent-tint px-3 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-vinci-accent">
+          <%= baby_age_label(current_baby) %>
+        </span>
+
+        <%= button_to "Sign out", session_path, method: :delete, class: "text-sm font-medium text-vinci-text" %>
       </div>
     </div>
+
+    <p class="max-w-[18rem] text-base leading-7 text-vinci-text">
+      <span class="font-medium text-vinci-ink"><%= current_baby.first_name %></span>
+      is <%= baby_age_in_words(current_baby) %>.
+    </p>
   </header>
 
-  <section class="rounded-[26px] border border-vinci-border bg-vinci-accent p-6 text-vinci-surface shadow-[0_22px_70px_rgba(17,63,72,0.10)]">
-    <p class="text-sm font-semibold uppercase tracking-[0.24em] text-vinci-accent-tint">Next up</p>
-    <p class="mt-3 text-lg leading-7">Baby profile is set. Feed, diaper, timeline, and invite flows come next.</p>
+  <section class="grid gap-4 sm:grid-cols-2">
+    <article class="rounded-[26px] border border-vinci-border bg-vinci-base p-5 sm:p-6">
+      <p class="text-sm font-semibold uppercase tracking-[0.18em] text-vinci-label">Last feed</p>
+      <p class="mt-3 text-2xl font-semibold tracking-tight text-vinci-ink">No feed yet</p>
+    </article>
+
+    <article class="rounded-[26px] border border-vinci-border bg-vinci-base p-5 sm:p-6">
+      <p class="text-sm font-semibold uppercase tracking-[0.18em] text-vinci-label">Last diaper</p>
+      <p class="mt-3 text-2xl font-semibold tracking-tight text-vinci-ink">No diaper yet</p>
+    </article>
   </section>
 
-  <%= button_to "Sign out", session_path, method: :delete, class: "w-full rounded-full border border-vinci-border bg-vinci-base px-4 py-4 text-base font-semibold text-vinci-ink" %>
+  <section class="rounded-[26px] border border-vinci-border bg-vinci-accent p-6 text-vinci-surface shadow-[0_22px_70px_rgba(17,63,72,0.10)]">
+    <p class="text-sm font-semibold uppercase tracking-[0.24em] text-vinci-accent-tint">What matters now</p>
+    <p class="mt-3 text-lg leading-7">Log the latest feed or diaper.</p>
+  </section>
+
+  <section class="rounded-[26px] border border-vinci-border bg-vinci-base p-5 sm:p-6">
+    <p class="text-sm font-semibold uppercase tracking-[0.18em] text-vinci-label">Recent activity</p>
+
+    <div class="mt-4 rounded-[20px] border border-dashed border-vinci-border bg-vinci-surface px-4 py-5">
+      <p class="text-base font-medium text-vinci-ink">Nothing logged yet</p>
+    </div>
+  </section>
+
+  <div class="sticky bottom-4 z-10 -mx-1 border-t border-vinci-border/80 bg-vinci-surface/95 px-1 pt-4 backdrop-blur-sm">
+    <div class="grid grid-cols-2 gap-3">
+      <button type="button" disabled class="flex min-h-12 items-center justify-center rounded-full bg-vinci-accent px-4 py-4 text-base font-semibold text-vinci-surface opacity-55">Feed</button>
+      <button type="button" disabled class="flex min-h-12 items-center justify-center rounded-full border border-vinci-border bg-vinci-base px-4 py-4 text-base font-semibold text-vinci-ink opacity-55">Diaper</button>
+    </div>
+  </div>
 </section>

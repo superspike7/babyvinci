@@ -10,7 +10,7 @@ class BabiesController < ApplicationController
 
     if @baby.valid?
       BabyCreator.create!(user: current_user, first_name: @baby.first_name, birth_at: @baby.birth_at)
-      redirect_to root_path, notice: "Baby profile ready."
+      redirect_to today_path, notice: "Baby profile ready."
     else
       render :new, status: :unprocessable_entity
     end
@@ -28,6 +28,6 @@ class BabiesController < ApplicationController
     end
 
     def redirect_if_baby_exists
-      redirect_to root_path if current_baby.present?
+      redirect_to today_path if current_baby.present?
     end
 end
