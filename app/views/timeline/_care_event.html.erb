@@ -9,5 +9,8 @@
     <p class="text-sm text-vinci-text"><%= care_event_author(event) %></p>
   </div>
 
-  <p class="shrink-0 text-sm font-medium text-vinci-label"><%= care_event_elapsed_label(event.started_at) %></p>
+  <div class="shrink-0 text-right">
+    <p class="text-sm font-medium text-vinci-label"><%= care_event_elapsed_label(event.started_at) %></p>
+    <%= link_to "Edit", edit_care_event_path(event, return_to: request.fullpath), class: "mt-2 inline-flex min-h-11 items-center text-sm font-semibold text-vinci-accent underline decoration-vinci-accent/60 decoration-2 underline-offset-4 transition-colors hover:text-vinci-ink hover:decoration-vinci-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vinci-accent/25" %>
+  </div>
 </article>

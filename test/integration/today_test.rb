@@ -290,6 +290,59 @@ class TodayTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "parent can edit a recent feed from today and return to today" do
+    travel_to Time.zone.local(2026, 3, 23, 8, 0) do
+      user = users(:one)
+      baby = BabyCreator.create!(
+        user: user,
+        first_name: "Milo",
+        birth_at: Time.zone.local(2026, 3, 20, 3, 45)
+      )
+
+      feed = CareEvent.create!(
+        baby: baby,
+        user: user,
+        kind: "feed",
+        started_at: Time.zone.local(2026, 3, 23, 7, 54),
+        payload: { "mode" => "formula", "amount_ml" => 90 }
+      )
+
+      post session_path, params: { email: user.email, password: "password" }
+      get today_path
+
+      assert_response :success
+      assert_match "Edit", response.body
+      assert_includes response.body, edit_care_event_path(feed, return_to: today_path)
+
+      get edit_care_event_path(feed), params: { return_to: today_path }
+
+      assert_response :success
+      assert_match "Edit feed", response.body
+      assert_match "Delete feed", response.body
+
+      patch care_event_path(feed), params: {
+        return_to: today_path,
+        care_event: {
+          started_at: "2026-03-23T07:50",
+          mode: "breast",
+          amount_ml: "",
+          side: "left",
+          duration_min: "12"
+        }
+      }
+
+      assert_redirected_to today_path
+      follow_redirect!
+
+      assert_match "Feed updated", response.body
+      assert_match "10 minutes ago", response.body
+      assert_match "Breast, 12 min", response.body
+      assert_equal "breast", feed.reload.feed_mode
+      assert_equal "left", feed.feed_side
+      assert_equal 12, feed.feed_duration_min
+    end
+  end
+
   test "today shows a near-future diaper as just now but still hides later events" do
     travel_to Time.zone.local(2026, 3, 23, 4, 22) do
       user = users(:one)

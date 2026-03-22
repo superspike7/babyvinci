@@ -1,0 +1,11 @@
+<%= render "diapers/form",
+  care_event: @care_event,
+  form_url: care_event_path(@care_event),
+  back_path: @return_path,
+  back_label: @return_label,
+  page_title: "Edit diaper",
+  chip_label: "Recent event",
+  intro: "Update this diaper or remove it if it was logged by mistake.",
+  submit_label: "Save changes",
+  delete_url: care_event_path(@care_event),
+  return_to: @return_path %>

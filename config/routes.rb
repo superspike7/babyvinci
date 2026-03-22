@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   resource :timeline, only: :show, controller: :timeline
   resources :feeds, only: %i[new create]
   resources :diapers, only: %i[new create]
+  resources :care_events, only: %i[edit update destroy]
 
   get "login", to: "sessions#new", as: :login
   get "signup", to: "users#new", as: :signup

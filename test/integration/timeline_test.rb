@@ -123,4 +123,47 @@ class TimelineTest < ActionDispatch::IntegrationTest
       assert_match "Formula, 80 ml", response.body
     end
   end
+
+  test "parent can delete an event from timeline and stay in shared history" do
+    travel_to Time.zone.local(2026, 3, 23, 8, 0) do
+      user = users(:one)
+      baby = BabyCreator.create!(
+        user: user,
+        first_name: "Milo",
+        birth_at: Time.zone.local(2026, 3, 20, 3, 45)
+      )
+
+      CareEvent.create!(
+        baby: baby,
+        user: user,
+        kind: "feed",
+        started_at: Time.zone.local(2026, 3, 23, 7, 30),
+        payload: { "mode" => "formula", "amount_ml" => 80 }
+      )
+      diaper = CareEvent.create!(
+        baby: baby,
+        user: user,
+        kind: "diaper",
+        started_at: Time.zone.local(2026, 3, 23, 6, 50),
+        payload: { "pee" => true, "poop" => true }
+      )
+
+      post session_path, params: { email: user.email, password: "password" }
+      get timeline_path
+
+      assert_response :success
+      assert_includes response.body, edit_care_event_path(diaper, return_to: timeline_path)
+
+      assert_difference -> { baby.care_events.count }, -1 do
+        delete care_event_path(diaper), params: { return_to: timeline_path }
+      end
+
+      assert_redirected_to timeline_path
+      follow_redirect!
+
+      assert_match "Diaper deleted", response.body
+      assert_match "Formula, 80 ml", response.body
+      assert_no_match "Wet \+ stool", response.body
+    end
+  end
 end
