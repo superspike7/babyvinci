@@ -225,8 +225,8 @@ Fast deployment matters more than store packaging.
 - minimal JavaScript
 - no React
 - no mobile-native dependency required for v1
-- Postgres is the default deployed database
-- SQLite is acceptable for local development only
+- SQLite is the default database in development, test, and production
+- production SQLite files must live on persistent mounted storage and be included in backups
 - no websocket complexity required for v1; standard refresh and revisit patterns are enough
 - offline support is deferred until proven necessary
 
@@ -392,7 +392,7 @@ Payload examples:
 - diaper: `{ pee: true|false, poop: true|false, color? }`
 
 ### Model notes
-- Use a native JSON column type supported by the deployed database.
+- Keep `payload` portable across SQLite-backed environments; favor Rails `json` attributes and small structured values.
 - Do not add future-phase tables until the active phase clearly needs them.
 - Guidance can start as seeded content in code or YAML.
 - Concern flows can start as fixed POROs or plain Ruby structures.
