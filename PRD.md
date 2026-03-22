@@ -156,11 +156,18 @@ Fast deployment matters more than store packaging.
 
 ## Delivery Model
 
-- `PRD.md` is the canonical product spec and execution tracker.
+- `PRD.md` is the canonical product spec, task contract source, and execution tracker.
 - Phase 1 is the detailed launch target.
 - Phases 2-4 are intentionally lighter until real-world use begins.
 - Do not treat the full product scope as a prerequisite for launch.
 - Build and verify in phase order unless an explicit decision changes priority.
+
+## Task Contract Rules
+
+- Every tracked task below must be executable from this document without inventing a separate quick task contract.
+- If a task is ambiguous, clarify the task or update `PRD.md` before coding.
+- Each task should define four things: contract, expected behavior, written test proof, and QA evidence.
+- Completion proof for a PRD task is: code matches the task contract, written tests prove the core behavior, and `agent-browser` QA verifies the end-to-end flow.
 
 ---
 
@@ -387,7 +394,7 @@ Ship the minimum version that both parents can use immediately for daily baby ca
 This phase solves the core memory problem first.
 Without this phase, the rest is decoration.
 
-#### Features
+#### What ships
 - parent sign up / sign in
 - create one baby profile
 - Today screen
@@ -415,71 +422,161 @@ Without this phase, the rest is decoration.
 - As a parent, I can correct a mistaken entry without confusion.
 - As a parent, I can invite my partner once the app is already useful.
 
-#### Functional specifications
+#### Task contracts
 
-### Auth and family setup
-- User can create an account.
-- User can create one baby.
-- User can start logging before inviting the second parent.
-- User can invite one other parent by email.
-- Invited parent joins the same baby workspace.
-- Both parents have equal permissions in v1.
+##### P1-01 Parent sign up / sign in
+- Contract: A parent can create an account, sign in later, and land in the correct next step without confusion.
+- Expected behavior:
+  - Unauthenticated access to baby data routes redirects to sign in.
+  - A first-time parent with no baby goes to baby creation after auth.
+  - A returning parent with a baby goes to `Today` after auth.
+  - Invalid auth attempts use calm error copy and do not expose whether an email exists.
+- Written test proof:
+  - Account creation succeeds.
+  - Valid sign in succeeds.
+  - Invalid sign in fails safely.
+  - Post-auth redirect behavior matches setup state.
+- QA evidence:
+  - Create a new account in the browser.
+  - Sign out and sign back in.
+  - Confirm redirect behavior for first-time and returning states.
 
-### Feed logging
-Required:
-- timestamp default `now`
-- mode: breast / bottle breastmilk / formula
+##### P1-02 Create one baby profile
+- Contract: The first parent creates exactly one baby workspace for v1 and becomes its first parent member.
+- Expected behavior:
+  - Required baby fields are `first_name` and `birth_at`.
+  - Successful creation immediately makes the baby workspace usable.
+  - Main v1 UX does not allow creating a second baby.
+  - The baby age label is available as soon as creation succeeds.
+- Written test proof:
+  - Baby creation creates the baby and membership.
+  - Required field validation works.
+  - Second-baby creation is blocked in the main flow.
+- QA evidence:
+  - Create a baby from a fresh account.
+  - Confirm landing on a usable `Today` screen with baby identity visible.
 
-Optional:
-- amount_ml
-- side (`left`, `right`, `both`)
-- duration_min
+##### P1-03 Today dashboard
+- Contract: `Today` answers what matters now at a glance for a tired parent.
+- Expected behavior:
+  - Shows baby name, age label, time since last feed, time since last diaper, and the recent 8 timeline entries.
+  - Sticky primary actions `Feed` and `Diaper` stay easy to reach on mobile.
+  - Empty states stay useful and calm when no events exist yet.
+  - Refresh or revisit shows the latest shared data without requiring interpretation.
+- Written test proof:
+  - Empty `Today` state renders.
+  - Populated `Today` state renders the latest feed, diaper, and recent entries correctly.
+  - Dashboard data is scoped to the signed-in parent's baby workspace.
+- QA evidence:
+  - Open `Today` before any logs exist.
+  - Add logs and confirm the screen becomes immediately useful.
 
-Rules:
-- only one required field beyond timestamp: mode
-- saving should take 1 screen and 1 submit
-- last used mode may be preselected if safe
+##### P1-04 Shared timeline
+- Contract: Both parents can read a single shared reverse-chronological history without onboarding.
+- Expected behavior:
+  - Events are ordered newest first and grouped by day.
+  - Each row shows timestamp, concise event summary, and author.
+  - Only events for the shared baby are visible.
+  - Tapping an event leads to edit/delete actions.
+- Written test proof:
+  - Timeline ordering is reverse chronological.
+  - Day grouping is correct.
+  - Event attribution is visible.
+  - Membership scoping prevents access to other babies' data.
+- QA evidence:
+  - Log events from two different accounts and confirm both see the same timeline.
 
-### Diaper logging
-Required:
-- timestamp default `now`
-- type: wet / poop / both
+##### P1-05 Quick log: feed
+- Contract: A parent can log a feed in one screen and one submit, fast enough for one-handed use.
+- Expected behavior:
+  - Timestamp defaults to `now`.
+  - Only `mode` is required beyond timestamp.
+  - Supported modes are `breast`, `bottle_breastmilk`, and `formula`.
+  - Optional fields are `amount_ml`, `side`, and `duration_min` and may be left blank.
+  - Save returns the parent to a useful context with the new feed visible.
+  - Last-used mode may be preselected only when doing so is clearly safe.
+- Written test proof:
+  - A feed saves with only required fields.
+  - Optional values persist when provided.
+  - Missing `mode` shows validation failure.
+- QA evidence:
+  - Log a feed on a phone-width viewport in under 5 seconds.
+  - Refresh another parent session and confirm the feed appears.
 
-Optional:
-- poop color note
+##### P1-06 Quick log: diaper
+- Contract: A parent can log a diaper faster than opening Notes.
+- Expected behavior:
+  - Timestamp defaults to `now`.
+  - Required diaper type is `wet`, `poop`, or `both` and should be selectable in one tap.
+  - Optional poop color note may be left blank.
+  - Save returns the parent to a useful context with the new diaper visible.
+- Written test proof:
+  - `wet`, `poop`, and `both` diaper events save correctly.
+  - Missing type shows validation failure.
+  - Optional note persists when provided.
+- QA evidence:
+  - Log each diaper type and confirm the timeline summary is clear.
 
-Rules:
-- one tap to choose type
-- save should feel faster than opening Notes
+##### P1-07 Edit and delete recent events
+- Contract: Either parent can correct mistaken shared events without confusion.
+- Expected behavior:
+  - Both parents can edit and delete Phase 1 shared care events.
+  - Edit uses the same core fields as the create flow for that event type.
+  - Delete requires a clear confirmation step to avoid accidental loss.
+  - After edit or delete, `Today` and `Timeline` reflect the updated state on refresh or redirect.
+- Written test proof:
+  - Authorized parents can edit shared events.
+  - Authorized parents can delete shared events.
+  - Non-members cannot modify events.
+- QA evidence:
+  - Edit one feed or diaper event.
+  - Delete one event and confirm the removal is reflected everywhere.
 
-### Dashboard
-Show:
-- baby name
-- age label
-- time since last feed
-- time since last diaper
-- recent 8 timeline entries
-- sticky primary action buttons: Feed, Diaper
+##### P1-08 Invite second parent
+- Contract: The first parent can invite exactly one second parent into the same baby workspace after the app is already useful.
+- Expected behavior:
+  - Invite is email-based and targets one second-parent seat only.
+  - Invitation tokens are single-use and expire.
+  - The invited parent can accept the invite and join the existing baby workspace.
+  - Both parents have equal permissions after acceptance.
+  - A third parent cannot be added through the main v1 UX.
+  - Reopening a used or expired invite shows a calm, clear dead-end state.
+- Written test proof:
+  - Invite creation works for an eligible workspace.
+  - Invite acceptance adds the second parent to the correct baby.
+  - Used or expired invites are rejected.
+  - Membership limit stays at two parents.
+- QA evidence:
+  - Send the invite from parent A.
+  - Accept it from a separate browser or device as parent B.
+  - Confirm both parents see the same existing and newly created events.
 
-### Timeline
-- reverse chronological
-- grouped by day
-- simple event rows
-- event author visible in small text
-- tap to edit / delete
+##### P1-09 Mobile-first layout
+- Contract: All Phase 1 flows remain usable in a mobile browser with one hand and no installation.
+- Expected behavior:
+  - Core screens work cleanly at common phone widths from 320px to 430px.
+  - No horizontal scrolling is required for primary flows.
+  - Tap targets for primary actions feel generous.
+  - Feed and diaper actions remain easy to reach from the primary surfaces.
+- Written test proof:
+  - Core routes render the expected mobile-first surfaces and actions.
+  - Layout-critical regressions are covered by written tests where practical; end-to-end mobile QA remains mandatory.
+- QA evidence:
+  - Verify `Today`, `Timeline`, feed, diaper, invite, and `More` on common phone widths with `agent-browser`.
 
-#### Screens
-- Sign in
-- Create baby
-- Today
-- Timeline
-- Feed form
-- Diaper form
-- Edit event
-- Invite parent
-- More / Settings
+##### P1-10 Phase 1 launch polish / QA
+- Contract: Phase 1 is only complete when the full two-parent daily flow is proven end to end.
+- Expected behavior:
+  - Empty and populated states both feel calm and usable.
+  - Errors are recoverable and do not trap the parent.
+  - Navigation has no dead ends in the shipped Phase 1 flows.
+  - All Phase 1 acceptance criteria are demonstrably satisfied.
+- Written test proof:
+  - All written tests covering Phase 1 behavior pass.
+- QA evidence:
+  - Run the full Phase 1 checklist end to end with `agent-browser` and record contract evidence against the Phase 1 tasks.
 
-#### Acceptance criteria
+#### Phase acceptance criteria
 - A single parent can create an account, create a baby, and log the first event without inviting anyone first.
 - Two separate accounts can see the same baby data.
 - A feed can be logged in under 5 seconds on mobile.
@@ -488,7 +585,7 @@ Show:
 - The timeline is understandable with no onboarding needed.
 - The app is useful in a mobile browser without installation.
 
-#### QA / verification
+#### Phase QA / verification
 
 ### Manual QA checklist
 - Create parent A account.
@@ -537,6 +634,59 @@ Logging alone is helpful, but the product becomes much better once it tells pare
 - one active sleep max per baby
 - no wake-window coaching or sleep analytics
 
+#### Task contracts
+
+##### P2-01 Sleep start / end flow
+- Contract: A parent can start sleep and end that same sleep later without extra setup or interpretation.
+- Expected behavior:
+  - Start defaults to `now`.
+  - End resolves the current active sleep for the baby.
+  - Only one active sleep can exist at a time.
+  - Overlapping active sleeps are blocked.
+- Written test proof:
+  - Sleep start creates one active sleep.
+  - Sleep end closes the active sleep correctly.
+  - A second active sleep cannot start while one is open.
+- QA evidence:
+  - Start sleep, refresh, and confirm it stays active.
+  - End sleep and confirm the result looks correct.
+
+##### P2-02 Today sleep state
+- Contract: `Today` clearly shows whether the baby is sleeping now or what the latest sleep was.
+- Expected behavior:
+  - Active sleep state is prominent and calm.
+  - If no sleep is active, `Today` shows the latest completed sleep summary.
+  - Sleep state shares the screen cleanly with feed, diaper, and timeline content.
+- Written test proof:
+  - `Today` renders active-sleep and recent-sleep states correctly.
+  - Sleep state is scoped to the correct baby workspace.
+- QA evidence:
+  - Verify `Today` before starting sleep, during active sleep, and after ending sleep.
+
+##### P2-03 Guidance notes on Today
+- Contract: `Today` shows up to two short age-relevant guidance notes without making the screen feel crowded.
+- Expected behavior:
+  - Guidance is short, supportive, and non-diagnostic.
+  - Zero to two notes may display depending on the age bucket.
+  - Guidance remains useful even when logging is incomplete.
+- Written test proof:
+  - Age-bucket selection works.
+  - No more than two notes render.
+- QA evidence:
+  - Change baby age and confirm the visible guidance updates.
+
+##### P2-04 Guidance content seeds
+- Contract: Phase 2 ships with a tiny curated guidance set that can live in code or YAML until proven insufficient.
+- Expected behavior:
+  - Guidance content is age-bucketed and easy to review.
+  - Missing or unused content does not break `Today`.
+  - Copy follows the product tone rules.
+- Written test proof:
+  - Seeded guidance content loads for the defined age buckets.
+  - Missing-content handling fails safely.
+- QA evidence:
+  - Spot-check each seeded age bucket in the browser.
+
 #### Acceptance criteria
 - Parent can start or end sleep from Today in one tap.
 - Only one active sleep can exist.
@@ -582,6 +732,57 @@ This phase addresses the real parent fear loop: “Is this normal or do we need 
 - trouble breathing / breathing seems wrong
 - repeated vomiting / not keeping feeds down
 
+#### Task contracts
+
+##### P3-01 Fixed concern flows
+- Contract: A parent can start a fixed concern flow in under two taps and always reach a clear next step.
+- Expected behavior:
+  - Concern flows are finite and rules-based.
+  - Freeform symptom text is never the primary input.
+  - Every path ends in `watch closely`, `call pediatrician today`, or `seek urgent care now`.
+- Written test proof:
+  - Every answer path resolves to a valid disposition.
+  - Invalid or incomplete states cannot bypass the flow.
+- QA evidence:
+  - Run every concern flow from start to finish.
+
+##### P3-02 Initial concern content set
+- Contract: Phase 3 ships a small reviewed concern set that covers the first high-value parent worries.
+- Expected behavior:
+  - Initial set covers the named concerns in this phase.
+  - Copy avoids diagnosis language and false certainty.
+  - Urgent outcomes end with a plain action statement.
+- Written test proof:
+  - Each required concern definition is present and structurally valid.
+  - Copy/result configuration supports the defined dispositions.
+- QA evidence:
+  - Spot-check each concern and verify the result copy stays calm and explicit.
+
+##### P3-03 Doctor summary export
+- Contract: A parent can generate a printable recent-history summary that is useful in a clinic visit.
+- Expected behavior:
+  - Export contains only the selected baby's data.
+  - Time window is clear.
+  - Event counts and recent-history details are understandable to a parent.
+  - Printable HTML is sufficient unless proven otherwise.
+- Written test proof:
+  - Export data is correctly scoped and counted.
+  - Selected time windows render the expected events.
+- QA evidence:
+  - Generate exports for representative windows and review them in the browser.
+
+##### P3-04 Concern history / saved results
+- Contract: A parent can revisit past concern outcomes and understand what the app advised.
+- Expected behavior:
+  - Saved results show concern type, time, and disposition.
+  - History is scoped to the shared baby and ordered newest first.
+  - Past results are readable without rerunning the flow.
+- Written test proof:
+  - Concern results persist.
+  - History ordering and baby scoping are correct.
+- QA evidence:
+  - Complete concern flows and revisit their saved results.
+
 #### Acceptance criteria
 - Parent can start a concern flow in under 2 taps.
 - Concern flows never accept freeform symptom text as primary input.
@@ -624,6 +825,59 @@ These features help with continuity of care, but they are weaker than the earlie
 - no milestone scoring or comparison dashboard
 - no advanced offline conflict-resolution UI
 - do not build offline unless real users actually hit this problem
+
+#### Task contracts
+
+##### P4-01 Appointments (optional)
+- Contract: If appointments ship, a parent can track upcoming and completed appointments with minimal effort.
+- Expected behavior:
+  - Create an appointment with the smallest useful set of details.
+  - Mark an appointment complete.
+  - Upcoming and completed states are easy to distinguish.
+- Written test proof:
+  - Appointment creation works.
+  - Completion state updates correctly.
+  - Data stays scoped to the correct baby.
+- QA evidence:
+  - Add an appointment and mark it complete.
+
+##### P4-02 Milestones (optional)
+- Contract: If milestones ship, parents can record age-based milestone observations without judgment language.
+- Expected behavior:
+  - Milestone prompts are discussion-oriented, not evaluative.
+  - The first buckets are 2, 4, and 6 months.
+  - No milestone screen uses `behind` language.
+- Written test proof:
+  - Age buckets resolve correctly.
+  - Milestone records persist.
+  - Protected copy rules prevent disallowed language.
+- QA evidence:
+  - Complete milestone check-ins for each shipped bucket.
+
+##### P4-03 Offline core event queue (optional)
+- Contract: If offline support ships, parents can create core care events without connectivity and sync them later.
+- Expected behavior:
+  - Offline queue covers only the shipped core event types.
+  - Queued events retry after connectivity returns.
+  - Retry does not create duplicates.
+- Written test proof:
+  - Events enqueue offline.
+  - Queued events retry successfully.
+  - Duplicate prevention holds during retry.
+- QA evidence:
+  - Go offline, create core events, reconnect, and confirm sync.
+
+##### P4-04 Pending sync and retry UX (optional)
+- Contract: If offline support ships, a parent can see pending or failed sync states and recover without guessing.
+- Expected behavior:
+  - Pending and failed sync states are visible.
+  - Failure copy is calm and action-oriented.
+  - Parent can retry or otherwise recover from failure.
+- Written test proof:
+  - Failed-sync states render.
+  - Recovery and retry flows work.
+- QA evidence:
+  - Simulate a failed sync and verify the recovery flow.
 
 #### Acceptance criteria
 - Parent can create and complete appointments if appointments ship.

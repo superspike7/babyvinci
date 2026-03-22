@@ -27,9 +27,9 @@ A newborn tracking app for co-parents, designed for use in complete darkness wit
 ## PRD Task Workflow
 - Start by reading `PRD.md` and implement the current PRD task unless the user names a different one.
 - Treat user-stated technical preferences as optional constraints for that task, not default architecture policy.
-- Default PRD task order: write the quick task contract first, run it, implement a first pass to satisfy it, add/update written specs after the first pass is correct, review/refactor if needed, then run automated QA and `agent-browser` verification.
-- The quick task contract is a short high-level spec for the current PRD task. It should describe behavior and user-visible outcomes, not implementation details.
-- Definition of done for PRD tasks: `agent-browser` QA succeeds and `PRD.md` progress tracker is updated.
+- Default PRD task order: understand the task contract in `PRD.md` (ask clarifying questions only if needed), implement code to match that contract, write/update written tests, review/refactor if needed, then run automated QA and `agent-browser` end-to-end verification as contract evidence.
+- If a PRD task is underspecified, update `PRD.md` first instead of inventing a separate quick task contract in chat.
+- Definition of done for PRD tasks: written tests pass, `agent-browser` QA succeeds as contract evidence, and `PRD.md` progress tracker is updated.
 
 ## Anti-Laziness Guardrails
 - Do not mark work done if it only works in isolation; verify the real user flow.
