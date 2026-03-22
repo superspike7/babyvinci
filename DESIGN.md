@@ -31,6 +31,33 @@ Active canonical visual and UX design reference.
 - mobile-first, one-hand friendly
 - warmth comes from restraint, not cuteness
 
+## UI Copy Rules
+
+### Priority
+- treat these copy rules as a high-priority design reference for every user-facing screen
+- apply them before inventing new labels, helper text, empty states, or status messages
+
+### Write for the parent, not the builders
+- use product-facing language only
+- never expose roadmap or implementation language in the UI
+- forbidden in interface copy: `Phase`, `MVP`, `task`, `milestone`, ticket ids, or internal project shorthand
+
+### Copy qualities
+- calm, short, clear, practical
+- written for a tired parent using the app at 3 AM
+- state what is happening, what matters now, or what to do next
+- prefer plain words over clever phrasing or startup marketing language
+
+### Good defaults
+- favor state/action copy like `Sign in`, `Create account`, `Shared log`, `Next up`
+- prefer direct reassurance through clarity, not cheerleading
+- if a sentence can be shorter without losing meaning, shorten it
+
+### Final check before shipping
+- would a sleep-deprived parent understand this instantly?
+- does this sound like product copy rather than team/planning language?
+- is this the shortest clear version?
+
 ## Chosen Direction
 
 ### Why this direction won

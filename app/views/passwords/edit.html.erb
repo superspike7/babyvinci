@@ -1,0 +1,24 @@
+<section class="space-y-6">
+  <header class="space-y-2">
+    <h1 class="text-3xl font-semibold tracking-tight text-vinci-ink">Choose a new password</h1>
+    <p class="text-base leading-7 text-vinci-text">Use something you can type half-awake, but still keep secure.</p>
+  </header>
+
+  <%= form_with url: password_path(params[:token]), method: :put, class: "space-y-5" do |form| %>
+    <section class="rounded-[26px] border border-vinci-border bg-vinci-base p-5 shadow-[0_22px_70px_rgba(17,63,72,0.10)]">
+      <div class="space-y-4">
+        <div class="space-y-2">
+          <%= form.label :password, class: "text-sm font-semibold uppercase tracking-[0.18em] text-vinci-label" %>
+          <%= form.password_field :password, required: true, autocomplete: "new-password", maxlength: 72, class: "w-full rounded-2xl border border-vinci-border bg-vinci-surface px-4 py-4 text-base text-vinci-ink outline-none" %>
+        </div>
+
+        <div class="space-y-2">
+          <%= form.label :password_confirmation, "Confirm password", class: "text-sm font-semibold uppercase tracking-[0.18em] text-vinci-label" %>
+          <%= form.password_field :password_confirmation, required: true, autocomplete: "new-password", maxlength: 72, class: "w-full rounded-2xl border border-vinci-border bg-vinci-surface px-4 py-4 text-base text-vinci-ink outline-none" %>
+        </div>
+      </div>
+    </section>
+
+    <%= form.submit "Save password", class: "w-full rounded-full bg-vinci-accent px-4 py-4 text-base font-semibold text-vinci-surface" %>
+  <% end %>
+</section>

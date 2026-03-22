@@ -1,0 +1,17 @@
+<section class="space-y-6">
+  <header class="space-y-2">
+    <h1 class="text-3xl font-semibold tracking-tight text-vinci-ink">Reset password</h1>
+    <p class="text-base leading-7 text-vinci-text">Enter your email and we'll send a fresh reset link.</p>
+  </header>
+
+  <%= form_with url: passwords_path, class: "space-y-5" do |form| %>
+    <section class="rounded-[26px] border border-vinci-border bg-vinci-base p-5 shadow-[0_22px_70px_rgba(17,63,72,0.10)]">
+      <div class="space-y-2">
+        <%= form.label :email, "Email", class: "text-sm font-semibold uppercase tracking-[0.18em] text-vinci-label" %>
+        <%= form.email_field :email, required: true, autofocus: true, autocomplete: "username", value: params[:email], class: "w-full rounded-2xl border border-vinci-border bg-vinci-surface px-4 py-4 text-base text-vinci-ink outline-none" %>
+      </div>
+    </section>
+
+    <%= form.submit "Email reset instructions", class: "w-full rounded-full bg-vinci-accent px-4 py-4 text-base font-semibold text-vinci-surface" %>
+  <% end %>
+</section>

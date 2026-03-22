@@ -22,9 +22,30 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
-    <main class="container mx-auto mt-28 px-5 flex">
-      <%= yield %>
+  <body class="min-h-screen bg-vinci-canvas text-vinci-ink antialiased">
+    <main class="mx-auto flex min-h-screen w-full max-w-5xl items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
+      <div class="grid w-full gap-8 lg:grid-cols-[minmax(0,300px)_minmax(0,430px)] lg:items-center">
+        <section class="hidden space-y-4 lg:block">
+          <p class="text-sm font-semibold uppercase tracking-[0.24em] text-vinci-label">BabyVinci</p>
+          <h1 class="text-4xl font-semibold leading-tight tracking-tight text-vinci-ink">A calm shared memory for exhausted parents.</h1>
+          <p class="max-w-xs text-base leading-7 text-vinci-text">Start with a parent account. Baby setup, shared logging, and invites come next.</p>
+        </section>
+
+        <section class="w-full rounded-[32px] border border-vinci-border bg-vinci-surface p-5 shadow-[0_22px_70px_rgba(17,63,72,0.10)] sm:p-8">
+          <% if notice.present? || alert.present? %>
+            <div class="mb-6 space-y-3">
+              <% if notice.present? %>
+                <p id="notice" class="rounded-[20px] border border-vinci-border bg-vinci-accent-tint px-4 py-3 text-sm font-medium text-vinci-accent"><%= notice %></p>
+              <% end %>
+              <% if alert.present? %>
+                <p id="alert" class="rounded-[20px] border border-vinci-urgent/20 bg-red-50 px-4 py-3 text-sm font-medium text-vinci-urgent"><%= alert %></p>
+              <% end %>
+            </div>
+          <% end %>
+
+          <%= yield %>
+        </section>
+      </div>
     </main>
   </body>
 </html>

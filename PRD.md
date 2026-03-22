@@ -18,13 +18,13 @@ Active canonical product spec
 ## Progress Tracker
 
 - Current phase: Phase 1 - Shared Essential Logging MVP
-- Current milestone: Not started
-- Current task: P1-01 Parent sign up / sign in
+- Current milestone: Phase 1 in progress
+- Current task: P1-02 Create one baby profile
 - Blockers: None
 - Last updated: 2026-03-23
 
 ### Phase 1 tracker
-- [ ] P1-01 Parent sign up / sign in
+- [x] P1-01 Parent sign up / sign in
 - [ ] P1-02 Create one baby profile
 - [ ] P1-03 Today dashboard
 - [ ] P1-04 Shared timeline

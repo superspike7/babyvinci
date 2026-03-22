@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_02_18_103059) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_22_170723) do
   create_table "activities", force: :cascade do |t|
     t.bigint "baby_id", null: false
     t.string "activity_type", null: false
@@ -60,6 +60,15 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_18_103059) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "sessions", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.string "ip_address"
+    t.string "user_agent"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_sessions_on_user_id"
+  end
+
   create_table "sleeps", force: :cascade do |t|
     t.datetime "start_time", null: false
     t.datetime "end_time"
@@ -69,21 +78,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_18_103059) do
   end
 
   create_table "users", force: :cascade do |t|
-    t.string "email", default: "", null: false
-    t.string "encrypted_password", default: "", null: false
-    t.string "reset_password_token"
-    t.datetime "reset_password_sent_at"
-    t.datetime "remember_created_at"
-    t.bigint "family_id", null: false
+    t.string "email", null: false
+    t.string "password_digest", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "name", null: false
+    t.datetime "invited_at"
+    t.datetime "accepted_at"
     t.index ["email"], name: "index_users_on_email", unique: true
-    t.index ["family_id"], name: "index_users_on_family_id"
-    t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
   add_foreign_key "activities", "babies"
   add_foreign_key "activities", "families"
   add_foreign_key "babies", "families"
-  add_foreign_key "users", "families"
+  add_foreign_key "sessions", "users"
 end

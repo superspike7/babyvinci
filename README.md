@@ -1,24 +1,23 @@
-# README
+# BabyVinci
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Shared baby tracking for two sleep-deprived parents.
 
-Things you may want to cover:
+## Current implemented slice
 
-* Ruby version
+- P1-01 Parent sign up / sign in
+- Parent can create an account with name, email, password, and password confirmation.
+- Parent can sign in, sign out, and see a clear error for invalid credentials.
+- Password reset request and reset screens are available through the Rails authentication generator.
 
-* System dependencies
+## Local setup
 
-* Configuration
+```bash
+bin/rails db:migrate
+bin/dev
+```
 
-* Database creation
+## Verification
 
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+```bash
+bin/rails test test/system/authentication_test.rb
+```
