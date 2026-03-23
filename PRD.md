@@ -19,14 +19,16 @@ Active canonical product spec
 
 - Current phase: Phase 1 - Shared Essential Logging MVP
 - Current milestone: Phase 1 complete
-- Current task: Shared access for up to 3 family members
+- Current task: P2-01 Shared next-feed reminder state
 - Blockers: None
-- Last updated: 2026-03-23
+- Last updated: 2026-03-24
 
 ### Latest verification
 - 2026-03-23: `bin/rails test` passed for all written Phase 1 coverage.
 - 2026-03-23: `agent-browser` verified the full shared-family Phase 1 flow on the local server at `http://127.0.0.1:3000`.
 - Browser evidence covered: parent A sign up, baby creation, empty `Today`, pre-invite feed + diaper logging, invite creation, invited member acceptance in a separate session, shared timeline refresh, member logging, parent A refresh, event edit, event delete, age label, and used-invite dead-end state.
+- 2026-03-24: `bin/rails test test/integration/baby_invites_test.rb test/integration/mobile_layout_test.rb` passed for the 3-member sharing change.
+- 2026-03-24: `agent-browser` verified 3 separate accounts sharing one baby on `http://127.0.0.1:3000`, including second invite creation, third-member acceptance, third-member logging, original-member refresh, and the full shared-access state at 3 people.
 
 ### Phase 1 tracker
 - [x] P1-01 Parent sign up / sign in
@@ -41,22 +43,29 @@ Active canonical product spec
 - [x] P1-10 Phase 1 launch polish / QA
 
 ### Phase 2 tracker
-- [ ] P2-01 Sleep start / end flow
-- [ ] P2-02 Today sleep state
-- [ ] P2-03 Guidance notes on Today
-- [ ] P2-04 Guidance content seeds
+- [ ] P2-01 Shared next-feed reminder state
+- [ ] P2-02 Today reminder card
+- [ ] P2-03 Google Calendar connection
+- [ ] P2-04 Reminder calendar sync
+- [ ] P2-05 Reminder delivery polish / QA
 
 ### Phase 3 tracker
-- [ ] P3-01 Fixed concern flows
-- [ ] P3-02 Initial concern content set
-- [ ] P3-03 Doctor summary export
-- [ ] P3-04 Concern history / saved results
+- [ ] P3-01 Sleep start / end flow
+- [ ] P3-02 Today sleep state
+- [ ] P3-03 Guidance notes on Today
+- [ ] P3-04 Guidance content seeds
 
 ### Phase 4 tracker
-- [ ] P4-01 Appointments (optional)
-- [ ] P4-02 Milestones (optional)
-- [ ] P4-03 Offline core event queue (optional)
-- [ ] P4-04 Pending sync and retry UX (optional)
+- [ ] P4-01 Fixed concern flows
+- [ ] P4-02 Initial concern content set
+- [ ] P4-03 Doctor summary export
+- [ ] P4-04 Concern history / saved results
+
+### Phase 5 tracker
+- [ ] P5-01 Appointments (optional)
+- [ ] P5-02 Milestones (optional)
+- [ ] P5-03 Offline core event queue (optional)
+- [ ] P5-04 Pending sync and retry UX (optional)
 
 ## Purpose
 Build a brain-dead simple shared app for two parents to care for one infant from birth onward.
@@ -190,6 +199,8 @@ Fast deployment matters more than store packaging.
 - mobile-first web app
 
 ### Likely follow-on scope after launch
+- shared next-feed reminders
+- Google Calendar-backed reminder delivery
 - sleep logging
 - 1-2 age-based guidance notes on Today
 - a small set of conservative concern flows
@@ -368,7 +379,7 @@ Fields:
 - id
 - baby_id
 - user_id
-- kind (`feed`, `diaper` in Phase 1; add `sleep` only when Phase 2 starts)
+- kind (`feed`, `diaper` in Phase 1; add `sleep` only when Phase 3 starts)
 - started_at
 - ended_at nullable
 - payload json
@@ -628,13 +639,147 @@ The parents can use it as a shared memory system immediately.
 
 ---
 
-### Phase 2 — Sleep + Age-Based Guidance
+### Phase 2 — Shared Reminders + Calendar Sync
+
+#### Goal
+Make the app proactive in the simplest possible way by helping parents remember what should happen next and delivering reminders through tools they already trust.
+
+#### Why this phase exists
+Logging alone is helpful, but handoff moments still break down when nobody knows what is supposed to happen next.
+
+This phase solves that with a shared next-feed reminder first, then makes it useful in real life by mirroring it into each parent's Google Calendar.
+
+#### What ships
+- shared next-feed reminder on Today
+- per-user Google Calendar connection
+- one-way reminder sync from BabyVinci to connected calendars
+- calm reminder sync states and failure handling
+
+#### Keep it simple
+- BabyVinci stays the source of truth
+- Google Calendar is a delivery surface, not the primary data model
+- sync is one-way only; do not import calendar edits back into the app
+- Google is the only calendar provider in the first version
+- no recurring schedules in the first version
+- appointments can reuse this foundation later, but Phase 2 should stay reminder-focused
+
+#### Task contracts
+
+##### P2-01 Shared next-feed reminder state
+- Contract: A parent can set, see, change, or clear one shared reminder for the next feed directly from the shared baby workspace.
+- Expected behavior:
+  - Only one active next-feed reminder can exist per baby.
+  - The reminder stores a target time and is visible to every shared member of that baby workspace.
+  - Any shared member can replace the current reminder with a new time.
+  - Any shared member can clear the reminder once it is no longer useful.
+  - If the reminder time passes, it remains visible as overdue until changed or cleared.
+- Written test proof:
+  - Setting a reminder stores one shared reminder for the signed-in parent's baby workspace.
+  - Updating the reminder replaces the previous time instead of creating duplicates.
+  - Clearing the reminder removes the shared reminder state.
+  - Reminder access remains scoped to the correct baby workspace.
+- QA evidence:
+  - Set a reminder from one account and confirm it appears.
+  - Refresh another member session and confirm the same reminder appears there.
+  - Replace the reminder and confirm both members now see the updated time.
+  - Clear the reminder and confirm the state resets.
+
+##### P2-02 Today reminder card
+- Contract: `Today` exposes the shared next-feed reminder in place of the low-value `What matters now` card.
+- Expected behavior:
+  - When no reminder is set, the card shows a calm empty state.
+  - The card offers quick presets such as `30 min`, `1 hour`, `2 hours`, and `3 hours`.
+  - The card also allows setting an exact reminder time when needed.
+  - When a reminder is active, the card shows the target time and a relative label.
+  - When a reminder is overdue, the card clearly says so without panic language.
+  - The card supports replace and clear actions without sending the parent into a separate management flow.
+- Written test proof:
+  - Empty, active, and overdue reminder states render on `Today`.
+  - Quick preset actions render.
+  - Exact reminder time entry renders.
+- QA evidence:
+  - Open `Today` with no reminder set.
+  - Set a reminder from the card using a preset.
+  - Replace it with a manual time.
+  - Confirm the overdue state stays understandable.
+
+##### P2-03 Google Calendar connection
+- Contract: Each parent can connect or disconnect their own Google Calendar account without affecting other shared members.
+- Expected behavior:
+  - Connection lives at the user level, not the baby level.
+  - A parent can connect a Google account from `More` or `Settings`.
+  - Connected state is visible and calm.
+  - Disconnecting stops future calendar sync for that parent.
+  - The reminder feature still works even if no calendar is connected.
+- Written test proof:
+  - A user can connect a Google Calendar account.
+  - A user can disconnect it safely.
+  - Connection state is scoped to the current user.
+- QA evidence:
+  - Connect one parent's Google account.
+  - Confirm another parent does not appear connected automatically.
+  - Disconnect and confirm the app returns to a disconnected state.
+
+##### P2-04 Reminder calendar sync
+- Contract: When a parent has Google Calendar connected, BabyVinci mirrors the shared next-feed reminder into that parent's calendar so their device can alert them.
+- Expected behavior:
+  - Setting a reminder creates one mirrored calendar event per connected parent.
+  - Updating the reminder updates the existing mirrored event instead of creating duplicates.
+  - Clearing the reminder deletes the mirrored event.
+  - The mirrored event uses calm, practical copy and the reminder time from BabyVinci.
+  - Calendar sync failures do not block saving the in-app reminder.
+  - If sync fails, the app shows a calm sync-state message so the parent understands the reminder still exists in BabyVinci.
+- Written test proof:
+  - Reminder create, update, and clear each call the expected calendar sync behavior.
+  - A failed calendar sync does not lose the BabyVinci reminder.
+  - Duplicate events are not created for repeated updates.
+- QA evidence:
+  - Connect a Google Calendar account.
+  - Set a reminder and confirm a calendar event appears.
+  - Update the reminder and confirm the same event changes.
+  - Clear the reminder and confirm the calendar event disappears.
+
+##### P2-05 Reminder delivery polish / QA
+- Contract: Phase 2 is only complete when the reminder flow is understandable end to end for shared parents and practical on a real phone.
+- Expected behavior:
+  - Reminder copy stays calm and short.
+  - Reminder and sync states never hide the shared app state.
+  - A parent can understand whether the reminder exists in BabyVinci, whether calendar sync is connected, and what to do next if sync fails.
+  - The flow stays useful even when only one parent has Google Calendar connected.
+- Written test proof:
+  - Core reminder and calendar-sync written tests pass.
+- QA evidence:
+  - Run the full shared reminder flow with two accounts.
+  - Verify at least one connected phone receives the mirrored calendar reminder in normal use.
+  - Verify the reminder still remains visible in BabyVinci if calendar sync is unavailable.
+
+#### Acceptance criteria
+- Parent can set, change, and clear one shared next-feed reminder from `Today` in a few taps.
+- Both parents see the same reminder state after refresh or revisit.
+- A connected parent gets a mirrored Google Calendar event for the reminder.
+- Updating the reminder updates the mirrored calendar event instead of creating duplicates.
+- Clearing the reminder removes the mirrored calendar event.
+- The shared in-app reminder still works even if calendar sync fails or is not connected.
+
+#### QA / verification
+- Set a next-feed reminder, refresh another shared session, and confirm both parents see the same state.
+- Verify empty, active, and overdue reminder states on `Today`.
+- Connect one Google Calendar account and confirm reminder create, update, and clear sync correctly.
+- Verify the reminder still exists in BabyVinci when calendar sync is unavailable.
+
+#### Release check
+If this phase is done, the app becomes more than a shared memory system.
+It helps parents remember what is next and delivers that reminder through the tools already on their phones.
+
+---
+
+### Phase 3 — Sleep + Age-Based Guidance
 
 #### Goal
 Make the app feel like a calm companion, not only a logger.
 
 #### Why this phase exists
-Logging alone is helpful, but the product becomes much better once it tells parents what matters at the current age.
+Once reminder delivery is useful, the next step is helping parents understand sleep state and what matters at the current age.
 
 #### What ships
 - sleep start / sleep end
@@ -649,7 +794,7 @@ Logging alone is helpful, but the product becomes much better once it tells pare
 
 #### Task contracts
 
-##### P2-01 Sleep start / end flow
+##### P3-01 Sleep start / end flow
 - Contract: A parent can start sleep and end that same sleep later without extra setup or interpretation.
 - Expected behavior:
   - Start defaults to `now`.
@@ -664,19 +809,19 @@ Logging alone is helpful, but the product becomes much better once it tells pare
   - Start sleep, refresh, and confirm it stays active.
   - End sleep and confirm the result looks correct.
 
-##### P2-02 Today sleep state
+##### P3-02 Today sleep state
 - Contract: `Today` clearly shows whether the baby is sleeping now or what the latest sleep was.
 - Expected behavior:
   - Active sleep state is prominent and calm.
   - If no sleep is active, `Today` shows the latest completed sleep summary.
-  - Sleep state shares the screen cleanly with feed, diaper, and timeline content.
+  - Sleep state shares the screen cleanly with feed, diaper, reminder, and timeline content.
 - Written test proof:
   - `Today` renders active-sleep and recent-sleep states correctly.
   - Sleep state is scoped to the correct baby workspace.
 - QA evidence:
   - Verify `Today` before starting sleep, during active sleep, and after ending sleep.
 
-##### P2-03 Guidance notes on Today
+##### P3-03 Guidance notes on Today
 - Contract: `Today` shows up to two short age-relevant guidance notes without making the screen feel crowded.
 - Expected behavior:
   - Guidance is short, supportive, and non-diagnostic.
@@ -688,8 +833,8 @@ Logging alone is helpful, but the product becomes much better once it tells pare
 - QA evidence:
   - Change baby age and confirm the visible guidance updates.
 
-##### P2-04 Guidance content seeds
-- Contract: Phase 2 ships with a tiny curated guidance set that can live in code or YAML until proven insufficient.
+##### P3-04 Guidance content seeds
+- Contract: Phase 3 ships with a tiny curated guidance set that can live in code or YAML until proven insufficient.
 - Expected behavior:
   - Guidance content is age-bucketed and easy to review.
   - Missing or unused content does not break `Today`.
@@ -718,7 +863,7 @@ It is still shippable and immediately useful.
 
 ---
 
-### Phase 3 — Concern Checker + Doctor Summary Export
+### Phase 4 — Concern Checker + Doctor Summary Export
 
 #### Goal
 Add the highest-leverage support feature without pretending to be a doctor.
@@ -747,7 +892,7 @@ This phase addresses the real parent fear loop: “Is this normal or do we need 
 
 #### Task contracts
 
-##### P3-01 Fixed concern flows
+##### P4-01 Fixed concern flows
 - Contract: A parent can start a fixed concern flow in under two taps and always reach a clear next step.
 - Expected behavior:
   - Concern flows are finite and rules-based.
@@ -759,8 +904,8 @@ This phase addresses the real parent fear loop: “Is this normal or do we need 
 - QA evidence:
   - Run every concern flow from start to finish.
 
-##### P3-02 Initial concern content set
-- Contract: Phase 3 ships a small reviewed concern set that covers the first high-value parent worries.
+##### P4-02 Initial concern content set
+- Contract: Phase 4 ships a small reviewed concern set that covers the first high-value parent worries.
 - Expected behavior:
   - Initial set covers the named concerns in this phase.
   - Copy avoids diagnosis language and false certainty.
@@ -771,7 +916,7 @@ This phase addresses the real parent fear loop: “Is this normal or do we need 
 - QA evidence:
   - Spot-check each concern and verify the result copy stays calm and explicit.
 
-##### P3-03 Doctor summary export
+##### P4-03 Doctor summary export
 - Contract: A parent can generate a printable recent-history summary that is useful in a clinic visit.
 - Expected behavior:
   - Export contains only the selected baby's data.
@@ -784,7 +929,7 @@ This phase addresses the real parent fear loop: “Is this normal or do we need 
 - QA evidence:
   - Generate exports for representative windows and review them in the browser.
 
-##### P3-04 Concern history / saved results
+##### P4-04 Concern history / saved results
 - Contract: A parent can revisit past concern outcomes and understand what the app advised.
 - Expected behavior:
   - Saved results show concern type, time, and disposition.
@@ -820,7 +965,7 @@ It is still narrow enough to remain trustworthy.
 
 ---
 
-### Phase 4 — Appointments + Milestones + Offline Core
+### Phase 5 — Appointments + Milestones + Offline Core
 
 #### Goal
 Round out the product only if real use proves these additions matter.
@@ -841,7 +986,7 @@ These features help with continuity of care, but they are weaker than the earlie
 
 #### Task contracts
 
-##### P4-01 Appointments (optional)
+##### P5-01 Appointments (optional)
 - Contract: If appointments ship, a parent can track upcoming and completed appointments with minimal effort.
 - Expected behavior:
   - Create an appointment with the smallest useful set of details.
@@ -854,7 +999,7 @@ These features help with continuity of care, but they are weaker than the earlie
 - QA evidence:
   - Add an appointment and mark it complete.
 
-##### P4-02 Milestones (optional)
+##### P5-02 Milestones (optional)
 - Contract: If milestones ship, parents can record age-based milestone observations without judgment language.
 - Expected behavior:
   - Milestone prompts are discussion-oriented, not evaluative.
@@ -867,7 +1012,7 @@ These features help with continuity of care, but they are weaker than the earlie
 - QA evidence:
   - Complete milestone check-ins for each shipped bucket.
 
-##### P4-03 Offline core event queue (optional)
+##### P5-03 Offline core event queue (optional)
 - Contract: If offline support ships, parents can create core care events without connectivity and sync them later.
 - Expected behavior:
   - Offline queue covers only the shipped core event types.
@@ -880,7 +1025,7 @@ These features help with continuity of care, but they are weaker than the earlie
 - QA evidence:
   - Go offline, create core events, reconnect, and confirm sync.
 
-##### P4-04 Pending sync and retry UX (optional)
+##### P5-04 Pending sync and retry UX (optional)
 - Contract: If offline support ships, a parent can see pending or failed sync states and recover without guessing.
 - Expected behavior:
   - Pending and failed sync states are visible.
@@ -917,16 +1062,18 @@ If this phase is done, the app is a strong private family tool and can be used w
 3. Today dashboard queries
 4. feed and diaper forms
 5. invite family members
-6. sleep state logic if Phase 2 starts
-7. seeded guidance notes if Phase 2 starts
-8. fixed concern flows if Phase 3 starts
-9. printable export view if Phase 3 starts
-10. appointments, milestones, and offline only after real use proves they matter
+6. shared next-feed reminder state + Today card if Phase 2 starts
+7. Google Calendar connection + one-way reminder sync if Phase 2 starts
+8. sleep state logic if Phase 3 starts
+9. seeded guidance notes if Phase 3 starts
+10. fixed concern flows if Phase 4 starts
+11. printable export view if Phase 4 starts
+12. appointments, milestones, and offline only after real use proves they matter
 
 ### Keep implementation boring
 Prefer:
 - conventional controllers
-- small POROs for concern logic when Phase 3 starts
+- small POROs for concern logic when Phase 4 starts
 - server-rendered Turbo flows
 - a tiny Stimulus layer for quick interactions
 - Prefer Sandi Metz OOD
@@ -1032,15 +1179,17 @@ Ship in this order:
 2. Phase 2
 3. Phase 3
 4. Phase 4
+5. Phase 5
 
 Do not wait for all phases.
 Use it yourselves starting at Phase 1.
 
 ### Why
 - Phase 1 already solves a real pain
-- Phase 2 makes it feel meaningfully better
-- Phase 3 adds trust and utility
-- Phase 4 rounds it out without blocking launch
+- Phase 2 adds practical reminders without splitting the product across multiple apps
+- Phase 3 makes it feel meaningfully better day to day
+- Phase 4 adds trust and utility
+- Phase 5 rounds it out without blocking launch
 
 ---
 
