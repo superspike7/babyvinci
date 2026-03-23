@@ -10,7 +10,7 @@ class Baby < ApplicationRecord
   validates :first_name, presence: true
   validates :birth_at, presence: true
 
-  def parent_limit_reached?
-    users.count >= 2
+  def sharing_limit_reached?
+    users.count >= 3
   end
 end

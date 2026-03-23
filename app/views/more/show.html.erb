@@ -45,17 +45,17 @@
             <%= secondary_nav_link_to("Open invite details", baby_invite_path(@active_invite)) %>
           </div>
         </div>
-      <% elsif current_baby.parent_limit_reached? %>
+      <% elsif current_baby.sharing_limit_reached? %>
         <div class="rounded-[20px] border border-vinci-border bg-vinci-surface px-4 py-4">
-          <p class="text-sm font-medium text-vinci-ink">Both parent seats are in use.</p>
-          <p class="mt-1 text-sm leading-6 text-vinci-text">Both parents already share this baby log.</p>
+          <p class="text-sm font-medium text-vinci-ink">Shared access is full.</p>
+          <p class="mt-1 text-sm leading-6 text-vinci-text">This baby log already has 3 people.</p>
         </div>
       <% else %>
         <div class="rounded-[20px] border border-vinci-border bg-vinci-surface px-4 py-4">
-          <p class="text-sm font-medium text-vinci-ink">Invite the second parent when you are ready.</p>
+          <p class="text-sm font-medium text-vinci-ink">Invite another family member when you are ready.</p>
           <p class="mt-1 text-sm leading-6 text-vinci-text">They will see the same baby timeline and can log events too.</p>
           <div class="mt-4">
-            <%= secondary_nav_link_to("Invite parent", new_baby_invite_path) %>
+            <%= secondary_nav_link_to("Invite family member", new_baby_invite_path) %>
           </div>
         </div>
       <% end %>

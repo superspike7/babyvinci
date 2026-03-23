@@ -19,14 +19,14 @@ Active canonical product spec
 
 - Current phase: Phase 1 - Shared Essential Logging MVP
 - Current milestone: Phase 1 complete
-- Current task: P2-01 Sleep start / end flow
+- Current task: Shared access for up to 3 family members
 - Blockers: None
 - Last updated: 2026-03-23
 
 ### Latest verification
 - 2026-03-23: `bin/rails test` passed for all written Phase 1 coverage.
-- 2026-03-23: `agent-browser` verified the full two-parent Phase 1 flow on the local server at `http://127.0.0.1:3000`.
-- Browser evidence covered: parent A sign up, baby creation, empty `Today`, pre-invite feed + diaper logging, invite creation, parent B acceptance in a separate session, shared timeline refresh, parent B logging, parent A refresh, event edit, event delete, age label, and used-invite dead-end state.
+- 2026-03-23: `agent-browser` verified the full shared-family Phase 1 flow on the local server at `http://127.0.0.1:3000`.
+- Browser evidence covered: parent A sign up, baby creation, empty `Today`, pre-invite feed + diaper logging, invite creation, invited member acceptance in a separate session, shared timeline refresh, member logging, parent A refresh, event edit, event delete, age label, and used-invite dead-end state.
 
 ### Phase 1 tracker
 - [x] P1-01 Parent sign up / sign in
@@ -36,7 +36,7 @@ Active canonical product spec
 - [x] P1-05 Quick log: feed
 - [x] P1-06 Quick log: diaper
 - [x] P1-07 Edit and delete recent events
-- [x] P1-08 Invite second parent
+- [x] P1-08 Invite family members
 - [x] P1-09 Mobile-first layout
 - [x] P1-10 Phase 1 launch polish / QA
 
@@ -185,7 +185,7 @@ Fast deployment matters more than store packaging.
 - shared timeline of care events
 - quick logging for feed and diaper
 - Today screen with baby age, latest feed, latest diaper, and recent events
-- invite second parent
+- invite family members up to 3 total people
 - edit and delete recent events
 - mobile-first web app
 
@@ -218,7 +218,7 @@ Fast deployment matters more than store packaging.
 
 ### Product constraints
 - single baby only in v1
-- exactly two parent accounts supported in the main UX
+- one baby workspace supports up to 3 people in the main UX
 - no feature that requires daily maintenance to feel complete
 - no feature that shames the parent for missing logs
 - no charts as the primary dashboard surface
@@ -246,7 +246,7 @@ Fast deployment matters more than store packaging.
 ### Delivery constraints
 - each phase must be independently deployable
 - each phase must contain its own QA checklist
-- after each phase, the app must be usable immediately by the two parents
+- after each phase, the app must be usable immediately by the small family group sharing the baby log
 - Phase 1 must be useful before installability, offline support, or advanced content systems are considered
 
 ---
@@ -254,7 +254,7 @@ Fast deployment matters more than store packaging.
 ## Privacy and Trust
 
 - no public profiles, social graph, or third-party family sharing in v1
-- exactly two parent accounts can access one baby workspace
+- up to 3 family members can access one baby workspace
 - invitation tokens must be single-use and expire
 - exports should contain only the selected baby data and be generated on demand
 - collect only the data needed for auth, shared care logging, guidance, and export
@@ -276,7 +276,7 @@ Within the first week of use, both parents can answer these questions in under 1
 
 ### Secondary success
 - A parent can log a core event in under 5 seconds
-- A second parent sees the new event quickly after refresh or revisit without confusion
+- Another invited family member sees the new event quickly after refresh or revisit without confusion
 - The app remains understandable at 3 AM
 - The app feels calmer than Notes app + chat messages
 
@@ -330,7 +330,7 @@ Persistent mobile actions should handle:
 
 “More” can contain:
 - Baby profile
-- Invite parent
+- Invite family member
 - Settings
 
 Later-phase features can live under `More` until they prove they deserve top-level navigation.
@@ -393,7 +393,7 @@ Payload examples:
 ### Phase 1 — Shared Essential Logging MVP
 
 #### Goal
-Ship the minimum version that both parents can use immediately for daily baby care.
+Ship the minimum version that a small family group can use immediately for daily baby care.
 
 #### Why this phase exists
 This phase solves the core memory problem first.
@@ -407,7 +407,7 @@ Without this phase, the rest is decoration.
 - quick log: feed
 - quick log: diaper
 - edit and delete recent events
-- invite second parent
+- invite family members up to 3 total people
 - mobile-first layout
 
 #### Explicit exclusions in Phase 1
@@ -425,7 +425,7 @@ Without this phase, the rest is decoration.
 - As a parent, I can log a diaper in a few taps.
 - As a parent, I can open the app and know the last feed and diaper instantly.
 - As a parent, I can correct a mistaken entry without confusion.
-- As a parent, I can invite my partner once the app is already useful.
+- As a parent, I can invite another family member once the app is already useful.
 
 #### Task contracts
 
@@ -537,24 +537,26 @@ Without this phase, the rest is decoration.
   - Edit one feed or diaper event.
   - Delete one event and confirm the removal is reflected everywhere.
 
-##### P1-08 Invite second parent
-- Contract: The first parent can invite exactly one second parent into the same baby workspace after the app is already useful.
+##### P1-08 Invite family members
+- Contract: A signed-in member can invite additional family members into the same baby workspace until the baby log has 3 total people.
 - Expected behavior:
-  - Invite is email-based and targets one second-parent seat only.
+  - Invite is email-based and works for any invited family member.
   - Invitation tokens are single-use and expire.
-  - The invited parent can accept the invite and join the existing baby workspace.
-  - Both parents have equal permissions after acceptance.
-  - A third parent cannot be added through the main v1 UX.
+  - The invited family member can accept the invite and join the existing baby workspace.
+  - All members have equal permissions after acceptance.
+  - A fourth person cannot be added through the main v1 UX.
   - Reopening a used or expired invite shows a calm, clear dead-end state.
 - Written test proof:
   - Invite creation works for an eligible workspace.
-  - Invite acceptance adds the second parent to the correct baby.
+  - Invite acceptance adds the invited family member to the correct baby.
   - Used or expired invites are rejected.
-  - Membership limit stays at two parents.
+  - Membership limit stays at 3 people.
 - QA evidence:
-  - Send the invite from parent A.
-  - Accept it from a separate browser or device as parent B.
-  - Confirm both parents see the same existing and newly created events.
+  - Send the invite from member A.
+  - Accept it from a separate browser or device as member B.
+  - Send another invite from an existing member.
+  - Accept it from a separate browser or device as member C.
+  - Confirm all 3 members see the same existing and newly created events.
 
 ##### P1-09 Mobile-first layout
 - Contract: All Phase 1 flows remain usable in a mobile browser with one hand and no installation.
@@ -570,7 +572,7 @@ Without this phase, the rest is decoration.
   - Verify `Today`, `Timeline`, feed, diaper, invite, and `More` on common phone widths with `agent-browser`.
 
 ##### P1-10 Phase 1 launch polish / QA
-- Contract: Phase 1 is only complete when the full two-parent daily flow is proven end to end.
+- Contract: Phase 1 is only complete when the full shared-family daily flow is proven end to end.
 - Expected behavior:
   - Empty and populated states both feel calm and usable.
   - Errors are recoverable and do not trap the parent.
@@ -586,22 +588,28 @@ Without this phase, the rest is decoration.
 - Two separate accounts can see the same baby data.
 - A feed can be logged in under 5 seconds on mobile.
 - A diaper can be logged in under 5 seconds on mobile.
-- A second parent can understand the last 12 hours in under 10 seconds.
+- Another shared family member can understand the last 12 hours in under 10 seconds.
 - The timeline is understandable with no onboarding needed.
 - The app is useful in a mobile browser without installation.
 
 #### Phase QA / verification
 
 ### Manual QA checklist
+- Verification proof for this change: complete the same flow with 3 separate accounts and confirm the third invited family member can see existing events and log a new one that appears for the original member after refresh.
 - Create parent A account.
 - Create baby.
-- Log a feed before inviting parent B.
-- Log a diaper before inviting parent B.
-- Invite parent B.
+- Log a feed before inviting anyone else.
+- Log a diaper before inviting anyone else.
+- Invite family member B.
 - Accept invite from a different browser/device.
-- Refresh or revisit and confirm parent B sees the existing feed.
-- Log diaper from parent B.
+- Refresh or revisit and confirm family member B sees the existing feed.
+- Log diaper from family member B.
 - Refresh or revisit and confirm parent A sees the new diaper.
+- Invite family member C.
+- Accept invite from a different browser/device.
+- Refresh or revisit and confirm family member C sees the existing feed and diaper.
+- Log feed or diaper from family member C.
+- Refresh or revisit and confirm parent A sees the new event.
 - Edit an event.
 - Delete an event.
 - Verify age label shows correctly.
@@ -609,7 +617,7 @@ Without this phase, the rest is decoration.
 
 ### Edge cases
 - Invite is sent later, not during first session.
-- Parent B opens invite twice.
+- An invited family member opens invite twice.
 - Network interruption on save.
 - Two events logged close together.
 - Optional fields left blank.
@@ -908,7 +916,7 @@ If this phase is done, the app is a strong private family tool and can be used w
 2. care event model + timeline
 3. Today dashboard queries
 4. feed and diaper forms
-5. invite second parent
+5. invite family members
 6. sleep state logic if Phase 2 starts
 7. seeded guidance notes if Phase 2 starts
 8. fixed concern flows if Phase 3 starts

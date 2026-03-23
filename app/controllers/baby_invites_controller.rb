@@ -7,8 +7,8 @@ class BabyInvitesController < ApplicationController
   end
 
   def create
-    if current_baby.parent_limit_reached?
-      redirect_to today_path, alert: "Both parent seats are already in use." and return
+    if current_baby.sharing_limit_reached?
+      redirect_to today_path, alert: "This baby log already has 3 people." and return
     end
 
     if (active_invite = current_baby.baby_invites.active.order(created_at: :desc).first)

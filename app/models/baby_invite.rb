@@ -47,9 +47,9 @@ class BabyInvite < ApplicationRecord
     end
 
     def baby_has_open_parent_seat
-      return unless baby && baby.parent_limit_reached?
+      return unless baby && baby.sharing_limit_reached?
 
-      errors.add(:base, "Both parent seats are already in use.")
+      errors.add(:base, "This baby log already has 3 people.")
     end
 
     def email_not_already_member

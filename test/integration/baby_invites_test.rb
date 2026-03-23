@@ -1,7 +1,7 @@
 require "test_helper"
 
 class BabyInvitesTest < ActionDispatch::IntegrationTest
-  test "eligible parent can create an invite for the open second seat" do
+  test "eligible member can create an invite while the baby log has room" do
     parent = User.create!(name: "Invite Owner", email: "invite-owner@example.com", password: "password123", password_confirmation: "password123")
     baby = BabyCreator.create!(user: parent, first_name: "Milo", birth_at: Time.zone.local(2026, 3, 20, 3, 45))
 
@@ -17,7 +17,7 @@ class BabyInvitesTest < ActionDispatch::IntegrationTest
     follow_redirect!
 
     assert_response :success
-    assert_match "Invite parent", response.body
+    assert_match "Invite family member", response.body
     assert_match "partner@example.com", response.body
     assert_match invite_url(invite.token), response.body
     assert_equal baby, invite.baby
@@ -25,22 +25,24 @@ class BabyInvitesTest < ActionDispatch::IntegrationTest
     assert invite.active?
   end
 
-  test "workspace with two parents cannot create a third-parent invite" do
+  test "workspace with three members cannot create a fourth invite" do
     parent_a = User.create!(name: "Parent A", email: "parent-a@example.com", password: "password123", password_confirmation: "password123")
     parent_b = User.create!(name: "Parent B", email: "parent-b@example.com", password: "password123", password_confirmation: "password123")
+    parent_c = User.create!(name: "Parent C", email: "parent-c@example.com", password: "password123", password_confirmation: "password123")
     baby = BabyCreator.create!(user: parent_a, first_name: "Milo", birth_at: Time.zone.local(2026, 3, 20, 3, 45))
     baby.baby_memberships.create!(user: parent_b, role: "parent")
+    baby.baby_memberships.create!(user: parent_c, role: "parent")
 
     post session_path, params: { email: parent_a.email, password: "password123" }
 
     assert_no_difference -> { BabyInvite.count } do
-      post baby_invites_path, params: { baby_invite: { email: "third@example.com" } }
+      post baby_invites_path, params: { baby_invite: { email: "fourth@example.com" } }
     end
 
     assert_redirected_to today_path
     follow_redirect!
 
-    assert_match "Both parent seats are already in use.", response.body
+    assert_match "This baby log already has 3 people.", response.body
   end
 
   test "invited parent can create an account from the invite and join the baby workspace" do
@@ -70,9 +72,38 @@ class BabyInvitesTest < ActionDispatch::IntegrationTest
     follow_redirect!
 
     assert_response :success
-    assert_match "You&#39;re in. Milo is shared with both parents now.", response.body
+    assert_match "You&#39;re in. Milo&#39;s shared log is ready.", response.body
     assert_match "Formula", response.body
     assert_equal [ owner, User.find_by!(email: "partner@example.com") ].sort_by(&:email), baby.users.order(:email).to_a
+    assert_not invite.reload.active?
+  end
+
+  test "third member can join an existing two-member baby workspace" do
+    owner = User.create!(name: "Owner Parent", email: "owner-three@example.com", password: "password123", password_confirmation: "password123")
+    second_member = User.create!(name: "Second Member", email: "second@example.com", password: "password123", password_confirmation: "password123")
+    baby = BabyCreator.create!(user: owner, first_name: "Milo", birth_at: Time.zone.local(2026, 3, 20, 3, 45))
+    baby.baby_memberships.create!(user: second_member, role: "parent")
+    CareEvent.create!(baby: baby, user: owner, kind: "feed", started_at: Time.zone.local(2026, 3, 23, 7, 30), payload: { "mode" => "formula" })
+    invite = BabyInvite.create!(baby: baby, invited_by_user: second_member, email: "third@example.com", expires_at: 3.days.from_now)
+
+    assert_difference [ -> { User.count }, -> { baby.users.count } ], 1 do
+      post invite_acceptance_path(invite.token), params: {
+        acceptance: {
+          name: "Third Member",
+          email: "third@example.com",
+          password: "password123",
+          password_confirmation: "password123"
+        }
+      }
+    end
+
+    assert_redirected_to today_path
+    follow_redirect!
+
+    assert_response :success
+    assert_match "You&#39;re in. Milo&#39;s shared log is ready.", response.body
+    assert_match "Formula", response.body
+    assert_equal [ "owner-three@example.com", "second@example.com", "third@example.com" ], baby.users.order(:email).pluck(:email)
     assert_not invite.reload.active?
   end
 

@@ -27,7 +27,7 @@ class MobileLayoutTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_match "More", response.body
-    assert_match "Invite parent", response.body
+    assert_match "Invite family member", response.body
     assert_match "Sign out", response.body
     assert_includes response.body, 'href="/feeds/new"'
     assert_includes response.body, 'href="/diapers/new"'
@@ -57,7 +57,7 @@ class MobileLayoutTest < ActionDispatch::IntegrationTest
     get new_baby_invite_path
 
     assert_response :success
-    assert_match "Invite parent", response.body
+    assert_match "Invite family member", response.body
     assert_includes response.body, 'href="/today"'
     assert_includes response.body, 'href="/timeline"'
     assert_includes response.body, 'href="/more"'
@@ -76,16 +76,18 @@ class MobileLayoutTest < ActionDispatch::IntegrationTest
     assert_includes response.body, baby_invite_path(invite)
   end
 
-  test "more page shows the full-seat state when both parents already joined" do
+  test "more page shows the full-seat state when three members already joined" do
     user = sign_in_parent_with_baby!
     baby = user.babies.first
     baby.baby_memberships.create!(user: users(:two), role: "parent")
+    extra_user = User.create!(name: "Third Member", email: "third-mobile@example.com", password: "password123", password_confirmation: "password123")
+    baby.baby_memberships.create!(user: extra_user, role: "parent")
 
     get more_path
 
     assert_response :success
-    assert_match "Both parent seats are in use.", response.body
-    assert_no_match "Invite parent", response.body
+    assert_match "Shared access is full.", response.body
+    assert_no_match "Invite family member", response.body
   end
 
   private

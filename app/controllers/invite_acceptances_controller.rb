@@ -23,7 +23,7 @@ class InviteAcceptancesController < ApplicationController
 
       @invite.accept!(current_user)
       current_user.update_columns(invited_at: current_user.invited_at || @invite.created_at, accepted_at: Time.current)
-      redirect_to today_path, notice: "You're in. #{@invite.baby.first_name} is shared with both parents now."
+      redirect_to today_path, notice: "You're in. #{@invite.baby.first_name}'s shared log is ready."
     rescue ActiveRecord::RecordInvalid
       render_unavailable
     end
@@ -45,7 +45,7 @@ class InviteAcceptancesController < ApplicationController
         start_new_session_for(@acceptance_user)
       end
 
-      redirect_to today_path, notice: "You're in. #{@invite.baby.first_name} is shared with both parents now."
+      redirect_to today_path, notice: "You're in. #{@invite.baby.first_name}'s shared log is ready."
     rescue ActiveRecord::RecordInvalid
       render "invites/show", status: :unprocessable_entity
     end

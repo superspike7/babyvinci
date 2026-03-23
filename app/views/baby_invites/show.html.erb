@@ -6,7 +6,7 @@
 
     <div class="space-y-2">
       <p class="text-sm font-semibold uppercase tracking-[0.24em] text-vinci-label">Shared log</p>
-      <h1 class="text-3xl font-semibold tracking-tight text-vinci-ink">Invite parent</h1>
+      <h1 class="text-3xl font-semibold tracking-tight text-vinci-ink">Invite family member</h1>
       <p class="text-base leading-7 text-vinci-text">Send this link to <span class="font-medium text-vinci-ink"><%= @baby_invite.email %></span>. It works once and expires <%= time_ago_in_words(@baby_invite.expires_at) %> from now.</p>
     </div>
   </header>
@@ -16,7 +16,7 @@
   <section class="rounded-[26px] border border-vinci-border bg-vinci-base p-5 sm:p-6">
     <p class="text-sm font-semibold uppercase tracking-[0.18em] text-vinci-label">Invite link</p>
     <p class="mt-3 break-all rounded-2xl border border-vinci-border bg-vinci-surface px-4 py-4 text-sm leading-6 text-vinci-ink"><%= invite_url(@baby_invite.token) %></p>
-    <p class="mt-3 text-sm leading-6 text-vinci-text">The second parent can open it in another browser, create their account, and join <%= @baby_invite.baby.first_name %>'s shared log.</p>
+    <p class="mt-3 text-sm leading-6 text-vinci-text">Your invited family member can open it in another browser, create their account, and join <%= @baby_invite.baby.first_name %>'s shared log.</p>
   </section>
 
   <%= render "shared/sticky_action_bar" %>
