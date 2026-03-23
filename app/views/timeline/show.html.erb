@@ -27,7 +27,7 @@
   <% if @timeline_days.any? %>
     <section class="space-y-4">
       <% @timeline_days.each do |date, events| %>
-        <section class="rounded-[26px] border border-vinci-border bg-vinci-base p-5 sm:p-6">
+        <section class="rounded-[26px] border border-vinci-border bg-vinci-base p-5">
           <div class="flex items-center justify-between gap-4 border-b border-vinci-border/80 pb-4">
             <h2 class="text-lg font-semibold tracking-tight text-vinci-ink"><%= timeline_day_label(date) %></h2>
             <p class="text-sm text-vinci-text"><%= pluralize(events.size, "log") %></p>
@@ -42,7 +42,7 @@
       <% end %>
     </section>
   <% else %>
-    <section class="rounded-[26px] border border-vinci-border bg-vinci-base p-5 sm:p-6">
+    <section class="rounded-[26px] border border-vinci-border bg-vinci-base p-5">
       <div class="rounded-[20px] border border-dashed border-vinci-border bg-vinci-surface px-4 py-5">
         <p class="text-base font-medium text-vinci-ink">Nothing logged yet</p>
         <p class="mt-1 text-sm leading-6 text-vinci-text">The shared timeline will appear here once a feed or diaper is logged.</p>

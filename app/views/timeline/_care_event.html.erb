@@ -1,5 +1,5 @@
 <article class="py-4 first:pt-4 last:pb-0">
-  <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+  <div class="flex flex-col gap-3">
     <div class="min-w-0 space-y-1">
     <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
       <p class="text-base font-semibold text-vinci-ink"><%= care_event_name(event) %></p>
@@ -10,7 +10,7 @@
     <p class="text-sm text-vinci-text"><%= care_event_author(event) %></p>
     </div>
 
-    <div class="flex items-center justify-between gap-4 sm:shrink-0 sm:flex-col sm:items-end sm:text-right">
+    <div class="flex items-center justify-between gap-4">
       <p class="text-sm font-medium text-vinci-label"><%= care_event_elapsed_label(event.started_at) %></p>
       <%= link_to "Edit", edit_care_event_path(event, return_to: request.fullpath), class: "inline-flex min-h-11 items-center text-sm font-semibold text-vinci-accent underline decoration-vinci-accent/60 decoration-2 underline-offset-4 transition-colors hover:text-vinci-ink hover:decoration-vinci-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vinci-accent/25" %>
     </div>

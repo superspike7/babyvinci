@@ -7,6 +7,8 @@ class MobileLayoutTest < ActionDispatch::IntegrationTest
     get today_path
 
     assert_response :success
+    assert_includes response.body, "max-w-[390px]"
+    assert_no_match(/sm:grid-cols-2/, response.body)
     assert_includes response.body, 'href="/today"'
     assert_includes response.body, 'href="/timeline"'
     assert_includes response.body, 'href="/more"'
@@ -62,6 +64,17 @@ class MobileLayoutTest < ActionDispatch::IntegrationTest
     assert_includes response.body, 'href="/timeline"'
     assert_includes response.body, 'href="/more"'
     assert_match "Create invite", response.body
+  end
+
+  test "baby setup keeps the same single-column layout at desktop widths" do
+    user = users(:one)
+
+    post session_path, params: { email: user.email, password: "password" }
+    get new_baby_path
+
+    assert_response :success
+    assert_includes response.body, "max-w-[390px]"
+    assert_no_match(/sm:grid-cols-2/, response.body)
   end
 
   test "more page shows current invite details when an invite is active" do

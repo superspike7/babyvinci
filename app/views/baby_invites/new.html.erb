@@ -14,7 +14,7 @@
   <%= render "shared/primary_nav", current: :more %>
 
   <% if @active_invite %>
-    <section class="rounded-[26px] border border-vinci-border bg-vinci-base p-5 sm:p-6">
+    <section class="rounded-[26px] border border-vinci-border bg-vinci-base p-5">
       <p class="text-sm font-semibold uppercase tracking-[0.18em] text-vinci-label">Active invite</p>
       <p class="mt-3 text-base text-vinci-ink"><%= @active_invite.email %></p>
       <p class="mt-2 text-sm leading-6 text-vinci-text">Share the same invite until it is accepted or expires.</p>
@@ -37,7 +37,7 @@
         </section>
       <% end %>
 
-      <div class="sticky bottom-0 z-10 -mx-4 border-t border-vinci-border/80 bg-vinci-surface/95 px-4 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))] backdrop-blur-sm sm:-mx-8 sm:px-8">
+      <div class="sticky bottom-0 z-10 -mx-4 border-t border-vinci-border/80 bg-vinci-surface/95 px-4 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))] backdrop-blur-sm">
         <%= form.submit "Create invite", class: "w-full rounded-full bg-vinci-accent px-4 py-4 text-base font-semibold text-vinci-surface" %>
       </div>
     <% end %>

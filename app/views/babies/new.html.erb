@@ -18,7 +18,7 @@
   </header>
 
   <%= form_with model: @baby, class: "space-y-5", html: { novalidate: true } do |form| %>
-    <section class="rounded-[26px] border border-vinci-border bg-vinci-base p-5 sm:p-6">
+    <section class="rounded-[26px] border border-vinci-border bg-vinci-base p-5">
       <p class="text-sm font-semibold uppercase tracking-[0.18em] text-vinci-label">Baby details</p>
 
       <div class="mt-4 space-y-4">
@@ -27,7 +27,7 @@
           <%= form.text_field :first_name, required: true, autofocus: true, autocomplete: "given-name", class: "w-full rounded-2xl border border-vinci-border bg-vinci-surface px-4 py-4 text-base text-vinci-ink outline-none transition focus:border-vinci-accent focus:ring-2 focus:ring-vinci-accent/10" %>
         </div>
 
-        <div class="grid gap-4 sm:grid-cols-2">
+        <div class="grid gap-4">
           <div class="space-y-2">
             <%= form.label :birth_date, "Birth date", class: "text-sm font-medium text-vinci-ink" %>
             <%= form.date_field :birth_date, required: true, max: Date.current, value: @baby.birth_at&.to_date, class: "w-full rounded-2xl border border-vinci-border bg-vinci-surface px-4 py-4 text-base text-vinci-ink outline-none transition focus:border-vinci-accent focus:ring-2 focus:ring-vinci-accent/10" %>

@@ -18,7 +18,7 @@
 
   <%= render "shared/primary_nav", current: :more %>
 
-  <section class="rounded-[26px] border border-vinci-border bg-vinci-base p-5 sm:p-6">
+  <section class="rounded-[26px] border border-vinci-border bg-vinci-base p-5">
     <p class="text-sm font-semibold uppercase tracking-[0.18em] text-vinci-label">Baby profile</p>
 
     <div class="mt-4 flex items-start justify-between gap-4">
@@ -33,7 +33,7 @@
     </div>
   </section>
 
-  <section class="rounded-[26px] border border-vinci-border bg-vinci-base p-5 sm:p-6">
+  <section class="rounded-[26px] border border-vinci-border bg-vinci-base p-5">
     <p class="text-sm font-semibold uppercase tracking-[0.18em] text-vinci-label">Shared access</p>
 
     <div class="mt-4 space-y-4">
@@ -62,7 +62,7 @@
     </div>
   </section>
 
-  <section class="rounded-[26px] border border-vinci-border bg-vinci-base p-5 sm:p-6">
+  <section class="rounded-[26px] border border-vinci-border bg-vinci-base p-5">
     <p class="text-sm font-semibold uppercase tracking-[0.18em] text-vinci-label">Account</p>
     <p class="mt-3 text-sm leading-6 text-vinci-text">Signed in as <span class="font-medium text-vinci-ink"><%= current_user.name %></span>.</p>
     <%= button_to "Sign out", session_path, method: :delete, class: "mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-vinci-accent underline decoration-vinci-accent/60 decoration-2 underline-offset-4 transition-colors hover:text-vinci-ink hover:decoration-vinci-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vinci-accent/25" %>
