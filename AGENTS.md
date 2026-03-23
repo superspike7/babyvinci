@@ -60,3 +60,7 @@ A newborn tracking app for co-parents, designed for use in complete darkness wit
 
 ## UI Design Preference
 @DESIGN.md
+
+## My Production User Credentials
+- email: "spikevinz@gmail.com"
+- password: "^&*#0rIFsxd*rE0q"
