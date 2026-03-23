@@ -21,6 +21,10 @@
       <span class="font-medium text-vinci-ink"><%= current_baby.first_name %></span>
       is <%= baby_age_in_words(current_baby) %>.
     </p>
+
+    <div>
+      <%= secondary_nav_link_to("Invite parent", new_baby_invite_path) %>
+    </div>
   </header>
 
   <section class="grid gap-4 sm:grid-cols-2">

@@ -1,0 +1,4 @@
+invite_ready_owner:
+  baby: invite_ready
+  user: invite_owner
+  role: parent

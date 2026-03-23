@@ -1,0 +1,21 @@
+pending:
+  baby: invite_ready
+  invited_by_user: one
+  email: partner@example.com
+  token: pendingtoken
+  expires_at: <%= 3.days.from_now %>
+
+used:
+  baby: invite_ready
+  invited_by_user: one
+  email: partner@example.com
+  token: usedtoken
+  expires_at: <%= 3.days.from_now %>
+  accepted_at: <%= 1.hour.ago %>
+
+expired:
+  baby: invite_ready
+  invited_by_user: one
+  email: partner@example.com
+  token: expiredtoken
+  expires_at: <%= 1.hour.ago %>

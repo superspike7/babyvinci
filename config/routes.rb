@@ -2,9 +2,12 @@ Rails.application.routes.draw do
   root "home#show"
   resource :today, only: :show, controller: :home
   resource :timeline, only: :show, controller: :timeline
+  resources :baby_invites, only: %i[new create show]
   resources :feeds, only: %i[new create]
   resources :diapers, only: %i[new create]
   resources :care_events, only: %i[edit update destroy]
+  get "join/:token", to: "invites#show", as: :invite
+  post "join/:token", to: "invite_acceptances#create", as: :invite_acceptance
 
   get "login", to: "sessions#new", as: :login
   get "signup", to: "users#new", as: :signup

@@ -9,3 +9,8 @@ two:
   name: Two Parent
   email: two@example.com
   password_digest: <%= password_digest %>
+
+invite_owner:
+  name: Invite Owner
+  email: invite-owner-fixture@example.com
+  password_digest: <%= password_digest %>

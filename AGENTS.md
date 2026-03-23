@@ -4,7 +4,7 @@ Repo guardrails for AI coding agents.
 
 ## What is Vinci?
 
-A newborn tracking app for co-parents, designed for use in complete darkness with one hand. The core problem: eliminating information asymmetry during shift handoffs between sleep-deprived parents. See PRD.md for full requirements and TODO.md for current progress.
+A newborn tracking app for co-parents, designed for use in complete darkness with one hand. The core problem: eliminating information asymmetry during shift handoffs between sleep-deprived parents.
 
 ## Technical details
 - Rails 8 (Will be Deployed with Kamal on Hetzner VPS)
