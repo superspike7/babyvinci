@@ -19,7 +19,7 @@ Active canonical product spec
 
 - Current phase: Phase 1 - Shared Essential Logging MVP
 - Current milestone: Phase 1 in progress
-- Current task: P1-09 Mobile-first layout
+- Current task: P1-10 Phase 1 launch polish / QA
 - Blockers: None
 - Last updated: 2026-03-23
 
@@ -32,7 +32,7 @@ Active canonical product spec
 - [x] P1-06 Quick log: diaper
 - [x] P1-07 Edit and delete recent events
 - [x] P1-08 Invite second parent
-- [ ] P1-09 Mobile-first layout
+- [x] P1-09 Mobile-first layout
 - [ ] P1-10 Phase 1 launch polish / QA
 
 ### Phase 2 tracker

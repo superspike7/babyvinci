@@ -1,0 +1,7 @@
+<nav aria-label="Primary" class="rounded-[20px] border border-vinci-border bg-vinci-accent-tint/60 p-2">
+  <div class="grid grid-cols-3 gap-2">
+    <%= primary_nav_link_to("Today", today_path, current: current == :today) %>
+    <%= primary_nav_link_to("Timeline", timeline_path, current: current == :timeline) %>
+    <%= primary_nav_link_to("More", more_path, current: current == :more) %>
+  </div>
+</nav>

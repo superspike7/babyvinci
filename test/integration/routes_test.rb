@@ -31,6 +31,21 @@ class RoutesTest < ActionDispatch::IntegrationTest
     assert_match "Log diaper", response.body
   end
 
+  test "more route serves the shared access page for signed in parents" do
+    user = users(:one)
+    BabyCreator.create!(
+      user: user,
+      first_name: "Milo",
+      birth_at: Time.zone.local(2026, 3, 20, 3, 45)
+    )
+
+    post session_path, params: { email: user.email, password: "password" }
+    get more_path
+
+    assert_response :success
+    assert_match "More", response.body
+  end
+
   test "login alias serves the sign in page" do
     get login_path
 

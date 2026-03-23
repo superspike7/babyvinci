@@ -7,6 +7,35 @@ module ApplicationHelper
     )
   end
 
+  def primary_nav_link_to(name, path, current: false)
+    link_to(
+      name,
+      path,
+      aria: current ? { current: "page" } : {},
+      class: [
+        "flex min-h-11 items-center justify-center rounded-full px-3 py-3 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vinci-accent/25",
+        current ? "bg-vinci-base text-vinci-ink shadow-sm" : "text-vinci-text hover:bg-vinci-base/80 hover:text-vinci-ink"
+      ].join(" ")
+    )
+  end
+
+  def primary_action_link_to(name, path, style: :primary)
+    style_classes = if style == :secondary
+      "border border-vinci-border bg-vinci-base text-vinci-ink hover:border-vinci-accent hover:text-vinci-accent"
+    else
+      "bg-vinci-accent text-vinci-surface hover:bg-vinci-ink"
+    end
+
+    link_to(
+      name,
+      path,
+      class: [
+        "flex min-h-12 items-center justify-center rounded-full px-4 py-4 text-base font-semibold transition focus:outline-none focus:ring-2 focus:ring-vinci-accent/20",
+        style_classes
+      ].join(" ")
+    )
+  end
+
   def baby_age_label(baby)
     "Day #{baby_age_in_days(baby)}"
   end

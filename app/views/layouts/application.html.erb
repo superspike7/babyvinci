@@ -22,9 +22,9 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="min-h-screen bg-vinci-canvas text-vinci-ink antialiased">
-    <main class="mx-auto flex min-h-screen w-full max-w-5xl items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
-      <section class="w-full max-w-[27rem] rounded-[32px] border border-vinci-border bg-vinci-surface p-5 shadow-[0_22px_70px_rgba(17,63,72,0.10)] sm:p-8">
+  <body class="min-h-dvh bg-vinci-canvas text-vinci-ink antialiased">
+    <main class="mx-auto flex min-h-dvh w-full max-w-5xl items-start justify-center px-3 py-3 sm:px-6 sm:py-8 lg:px-8">
+      <section class="w-full max-w-[27rem] rounded-[28px] border border-vinci-border bg-vinci-surface p-4 shadow-[0_22px_70px_rgba(17,63,72,0.10)] sm:rounded-[32px] sm:p-8">
         <% if notice.present? || alert.present? %>
           <div class="mb-6 space-y-3">
             <% if notice.present? %>

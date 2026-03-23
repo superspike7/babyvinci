@@ -1,0 +1,72 @@
+<% content_for :title, "More | BabyVinci" %>
+
+<section class="space-y-6 pb-28">
+  <header class="space-y-4 border-b border-vinci-border/80 pb-5">
+    <div class="flex items-start justify-between gap-4">
+      <div class="space-y-2">
+        <p class="text-sm font-semibold uppercase tracking-[0.24em] text-vinci-label">Shared log</p>
+        <h1 class="text-3xl font-semibold tracking-tight text-vinci-ink">More</h1>
+      </div>
+
+      <span class="shrink-0 rounded-full bg-vinci-accent-tint px-3 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-vinci-accent">
+        <%= baby_age_label(current_baby) %>
+      </span>
+    </div>
+
+    <p class="max-w-[19rem] text-base leading-7 text-vinci-text">Baby profile, shared access, and the small things you might need next.</p>
+  </header>
+
+  <%= render "shared/primary_nav", current: :more %>
+
+  <section class="rounded-[26px] border border-vinci-border bg-vinci-base p-5 sm:p-6">
+    <p class="text-sm font-semibold uppercase tracking-[0.18em] text-vinci-label">Baby profile</p>
+
+    <div class="mt-4 flex items-start justify-between gap-4">
+      <div class="space-y-2">
+        <p class="text-xl font-semibold tracking-tight text-vinci-ink"><%= current_baby.first_name %></p>
+        <p class="text-sm leading-6 text-vinci-text"><%= baby_age_in_words(current_baby) %></p>
+      </div>
+
+      <span class="shrink-0 rounded-full bg-vinci-accent-tint px-3 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-vinci-accent">
+        <%= baby_age_label(current_baby) %>
+      </span>
+    </div>
+  </section>
+
+  <section class="rounded-[26px] border border-vinci-border bg-vinci-base p-5 sm:p-6">
+    <p class="text-sm font-semibold uppercase tracking-[0.18em] text-vinci-label">Shared access</p>
+
+    <div class="mt-4 space-y-4">
+      <% if @active_invite %>
+        <div class="rounded-[20px] border border-vinci-border bg-vinci-surface px-4 py-4">
+          <p class="text-sm font-medium text-vinci-ink">Invite ready for <%= @active_invite.email %></p>
+          <p class="mt-1 text-sm leading-6 text-vinci-text">Share the current invite link until it is accepted or expires.</p>
+          <div class="mt-4">
+            <%= secondary_nav_link_to("Open invite details", baby_invite_path(@active_invite)) %>
+          </div>
+        </div>
+      <% elsif current_baby.parent_limit_reached? %>
+        <div class="rounded-[20px] border border-vinci-border bg-vinci-surface px-4 py-4">
+          <p class="text-sm font-medium text-vinci-ink">Both parent seats are in use.</p>
+          <p class="mt-1 text-sm leading-6 text-vinci-text">Both parents already share this baby log.</p>
+        </div>
+      <% else %>
+        <div class="rounded-[20px] border border-vinci-border bg-vinci-surface px-4 py-4">
+          <p class="text-sm font-medium text-vinci-ink">Invite the second parent when you are ready.</p>
+          <p class="mt-1 text-sm leading-6 text-vinci-text">They will see the same baby timeline and can log events too.</p>
+          <div class="mt-4">
+            <%= secondary_nav_link_to("Invite parent", new_baby_invite_path) %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </section>
+
+  <section class="rounded-[26px] border border-vinci-border bg-vinci-base p-5 sm:p-6">
+    <p class="text-sm font-semibold uppercase tracking-[0.18em] text-vinci-label">Account</p>
+    <p class="mt-3 text-sm leading-6 text-vinci-text">Signed in as <span class="font-medium text-vinci-ink"><%= current_user.name %></span>.</p>
+    <%= button_to "Sign out", session_path, method: :delete, class: "mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-vinci-accent underline decoration-vinci-accent/60 decoration-2 underline-offset-4 transition-colors hover:text-vinci-ink hover:decoration-vinci-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vinci-accent/25" %>
+  </section>
+
+  <%= render "shared/sticky_action_bar" %>
+</section>

@@ -1,4 +1,4 @@
-<section class="space-y-6">
+<section class="space-y-6 pb-28">
   <header class="space-y-3 border-b border-vinci-border/80 pb-5">
     <div>
       <%= secondary_nav_link_to("Back to today", today_path) %>
@@ -11,9 +11,13 @@
     </div>
   </header>
 
+  <%= render "shared/primary_nav", current: :more %>
+
   <section class="rounded-[26px] border border-vinci-border bg-vinci-base p-5 sm:p-6">
     <p class="text-sm font-semibold uppercase tracking-[0.18em] text-vinci-label">Invite link</p>
     <p class="mt-3 break-all rounded-2xl border border-vinci-border bg-vinci-surface px-4 py-4 text-sm leading-6 text-vinci-ink"><%= invite_url(@baby_invite.token) %></p>
     <p class="mt-3 text-sm leading-6 text-vinci-text">The second parent can open it in another browser, create their account, and join <%= @baby_invite.baby.first_name %>'s shared log.</p>
   </section>
+
+  <%= render "shared/sticky_action_bar" %>
 </section>

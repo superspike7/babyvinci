@@ -1,6 +1,6 @@
 <% content_for :title, "Timeline | BabyVinci" %>
 
-<section class="space-y-6">
+<section class="space-y-6 pb-28">
   <header class="space-y-3 border-b border-vinci-border/80 pb-5">
     <div>
       <%= secondary_nav_link_to("Back to today", today_path) %>
@@ -21,6 +21,8 @@
       Shared care events for <span class="font-medium text-vinci-ink"><%= current_baby.first_name %></span>.
     </p>
   </header>
+
+  <%= render "shared/primary_nav", current: :timeline %>
 
   <% if @timeline_days.any? %>
     <section class="space-y-4">
@@ -48,10 +50,5 @@
     </section>
   <% end %>
 
-  <div class="sticky bottom-4 z-10 -mx-1 border-t border-vinci-border/80 bg-vinci-surface/95 px-1 pt-4 backdrop-blur-sm">
-    <div class="grid grid-cols-2 gap-3">
-      <%= link_to "Feed", new_feed_path, class: "flex min-h-12 items-center justify-center rounded-full bg-vinci-accent px-4 py-4 text-base font-semibold text-vinci-surface transition hover:bg-vinci-ink focus:outline-none focus:ring-2 focus:ring-vinci-accent/20" %>
-      <button type="button" disabled class="flex min-h-12 items-center justify-center rounded-full border border-vinci-border bg-vinci-base px-4 py-4 text-base font-semibold text-vinci-ink opacity-55">Diaper</button>
-    </div>
-  </div>
+  <%= render "shared/sticky_action_bar" %>
 </section>
