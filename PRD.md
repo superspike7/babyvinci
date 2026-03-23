@@ -18,10 +18,15 @@ Active canonical product spec
 ## Progress Tracker
 
 - Current phase: Phase 1 - Shared Essential Logging MVP
-- Current milestone: Phase 1 in progress
-- Current task: P1-10 Phase 1 launch polish / QA
+- Current milestone: Phase 1 complete
+- Current task: P2-01 Sleep start / end flow
 - Blockers: None
 - Last updated: 2026-03-23
+
+### Latest verification
+- 2026-03-23: `bin/rails test` passed for all written Phase 1 coverage.
+- 2026-03-23: `agent-browser` verified the full two-parent Phase 1 flow on the local server at `http://127.0.0.1:3000`.
+- Browser evidence covered: parent A sign up, baby creation, empty `Today`, pre-invite feed + diaper logging, invite creation, parent B acceptance in a separate session, shared timeline refresh, parent B logging, parent A refresh, event edit, event delete, age label, and used-invite dead-end state.
 
 ### Phase 1 tracker
 - [x] P1-01 Parent sign up / sign in
@@ -33,7 +38,7 @@ Active canonical product spec
 - [x] P1-07 Edit and delete recent events
 - [x] P1-08 Invite second parent
 - [x] P1-09 Mobile-first layout
-- [ ] P1-10 Phase 1 launch polish / QA
+- [x] P1-10 Phase 1 launch polish / QA
 
 ### Phase 2 tracker
 - [ ] P2-01 Sleep start / end flow
