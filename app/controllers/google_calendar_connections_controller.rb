@@ -60,7 +60,7 @@ class GoogleCalendarConnectionsController < ApplicationController
     auth_code = OAuth2::Strategy::AuthCode.new(oauth_client)
     response = auth_code.get_token(
       code,
-      redirect_uri: google_calendar_connection_url
+      redirect_uri: google_calendar_connection_callback_url
     )
 
     {
@@ -92,7 +92,7 @@ class GoogleCalendarConnectionsController < ApplicationController
     client = build_oauth_client
     client.auth_code.authorize_url(
       scope: "https://www.googleapis.com/auth/calendar.events",
-      redirect_uri: google_calendar_connection_url,
+      redirect_uri: google_calendar_connection_callback_url,
       access_type: "offline",
       prompt: "consent",
       include_granted_scopes: "true"

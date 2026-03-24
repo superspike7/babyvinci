@@ -5,6 +5,7 @@ Rails.application.routes.draw do
   resource :more, only: :show, controller: :more
   resource :next_feed_reminder, only: %i[create update destroy]
   resource :google_calendar_connection, only: %i[new create destroy]
+  get "google_calendar_connection/callback", to: "google_calendar_connections#create"
   resources :baby_invites, only: %i[new create show]
   resources :feeds, only: %i[new create]
   resources :diapers, only: %i[new create]

@@ -24,7 +24,7 @@ class GoogleCalendarConnectionsTest < ActionDispatch::IntegrationTest
     assert_nil user.google_refresh_token
 
     travel_to Time.zone.local(2026, 3, 24, 10, 0) do
-      post google_calendar_connection_path, params: {
+      get google_calendar_connection_callback_path, params: {
         code: "test_authorization_code"
       }
     end
