@@ -90,13 +90,7 @@ class GoogleCalendarSyncService
       ),
       attendees: connected_family_members,
       reminders: Google::Apis::CalendarV3::Event::Reminders.new(
-        use_default: false,
-        overrides: [
-          Google::Apis::CalendarV3::EventReminder.new(
-            method: "popup",
-            minutes: 0
-          )
-        ]
+        use_default: true
       )
     )
   end
