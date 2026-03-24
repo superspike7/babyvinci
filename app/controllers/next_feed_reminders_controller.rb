@@ -37,12 +37,21 @@ class NextFeedRemindersController < ApplicationController
     end
 
     def reminder_target_at
+      if preset_minutes.present?
+        return Time.current + preset_minutes.minutes
+      end
+
       value = reminder_params[:target_at]
       return nil if value.blank?
 
       Time.zone.parse(value)
     rescue ArgumentError, TypeError
       nil
+    end
+
+    def preset_minutes
+      minutes = params[:preset_minutes].to_i
+      minutes if [ 30, 60, 120, 180 ].include?(minutes)
     end
 
     def require_current_baby

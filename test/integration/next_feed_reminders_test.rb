@@ -25,8 +25,9 @@ class NextFeedRemindersTest < ActionDispatch::IntegrationTest
 
       assert_response :success
       assert_match "Next feed reminder", response.body
+      assert_match "Scheduled", response.body
       assert_match "10:30 AM", response.body
-      assert_match "Due in about 2 hours", response.body
+      assert_match "IN 1H 30M", response.body
     end
   end
 
@@ -64,7 +65,7 @@ class NextFeedRemindersTest < ActionDispatch::IntegrationTest
     assert_redirected_to today_path
     follow_redirect!
     assert_match "Next feed reminder cleared.", response.body
-    assert_match "No reminder set yet.", response.body
+    assert_match "No reminder set", response.body
   end
 
   test "reminder access remains scoped to the correct baby workspace" do
@@ -80,7 +81,7 @@ class NextFeedRemindersTest < ActionDispatch::IntegrationTest
       get today_path
 
       assert_response :success
-      assert_match "No reminder set yet.", response.body
+      assert_match "No reminder set", response.body
       assert_no_match "12:00 PM", response.body
 
       post next_feed_reminder_path, params: {
@@ -90,6 +91,76 @@ class NextFeedRemindersTest < ActionDispatch::IntegrationTest
       assert_redirected_to today_path
       assert_equal Time.zone.local(2026, 3, 24, 10, 45), owner_baby.reload.next_feed_reminder.target_at
       assert_equal Time.zone.local(2026, 3, 24, 12, 0), outsider_baby.reload.next_feed_reminder.target_at
+    end
+  end
+
+  test "today renders the empty reminder card with quick presets and exact time entry" do
+    owner = users(:one)
+    create_baby_for(owner)
+
+    sign_in_as(owner)
+    get today_path
+
+    assert_response :success
+    assert_match "No reminder set", response.body
+    assert_match "Quick presets", response.body
+    assert_match "30 min", response.body
+    assert_match "1 hour", response.body
+    assert_match "2 hours", response.body
+    assert_match "3 hours", response.body
+    assert_match "Exact time", response.body
+    assert_select "input[type='datetime-local'][name='next_feed_reminder[target_at]']", 1
+  end
+
+  test "quick presets schedule from submission time instead of page render time" do
+    owner = users(:one)
+    baby = create_baby_for(owner)
+
+    sign_in_as(owner)
+
+    travel_to Time.zone.local(2026, 3, 24, 9, 0) do
+      get today_path
+    end
+
+    travel_to Time.zone.local(2026, 3, 24, 9, 10) do
+      post next_feed_reminder_path, params: { preset_minutes: 30 }
+    end
+
+    assert_redirected_to today_path
+    assert_equal Time.zone.local(2026, 3, 24, 9, 40), baby.reload.next_feed_reminder.target_at
+  end
+
+  test "today renders the active reminder card state" do
+    travel_to Time.zone.local(2026, 3, 24, 15, 45) do
+      owner = users(:one)
+      baby = create_baby_for(owner)
+      baby.create_next_feed_reminder!(target_at: Time.zone.local(2026, 3, 24, 16, 30))
+
+      sign_in_as(owner)
+      get today_path
+
+      assert_response :success
+      assert_match "Scheduled", response.body
+      assert_match "4:30 PM", response.body
+      assert_match "IN 45M", response.body
+      assert_match "Edit reminder", response.body
+      assert_match "Clear reminder", response.body
+    end
+  end
+
+  test "today renders the overdue reminder card state" do
+    travel_to Time.zone.local(2026, 3, 24, 15, 45) do
+      owner = users(:one)
+      baby = create_baby_for(owner)
+      baby.create_next_feed_reminder!(target_at: Time.zone.local(2026, 3, 24, 15, 0))
+
+      sign_in_as(owner)
+      get today_path
+
+      assert_response :success
+      assert_match "Overdue", response.body
+      assert_match "3:00 PM", response.body
+      assert_match "OVERDUE 45M", response.body
     end
   end
 

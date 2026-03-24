@@ -119,14 +119,19 @@ module ApplicationHelper
     reminder.target_at.strftime("%-I:%M %p").downcase.sub("am", "AM").sub("pm", "PM")
   end
 
-  def next_feed_reminder_status(reminder)
+  def next_feed_reminder_state_label(reminder)
     return unless reminder&.target_at
 
-    if reminder.target_at <= Time.current
-      "Overdue by #{time_ago_in_words(reminder.target_at)}"
-    else
-      "Due in #{distance_of_time_in_words(Time.current, reminder.target_at)}"
-    end
+    reminder.target_at <= Time.current ? "Overdue" : "Scheduled"
+  end
+
+  def next_feed_reminder_compact_status(reminder)
+    return unless reminder&.target_at
+
+    delta = reminder.target_at - Time.current
+    prefix = delta.negative? || delta.zero? ? "OVERDUE" : "IN"
+
+    "#{prefix} #{compact_duration_label(delta.abs)}"
   end
 
   def next_feed_reminder_input_value(reminder)
@@ -134,6 +139,19 @@ module ApplicationHelper
   end
 
   private
+    def compact_duration_label(seconds)
+      total_minutes = (seconds / 60.0).round
+      return "NOW" if total_minutes <= 0
+
+      hours, minutes = total_minutes.divmod(60)
+
+      if hours.positive?
+        [ "#{hours}H", ("#{minutes}M" if minutes.positive?) ].compact.join(" ")
+      else
+        "#{minutes}M"
+      end
+    end
+
     def baby_age_in_days(baby)
       ((Time.zone.today - baby.birth_at.to_date).to_i + 1).clamp(0, Float::INFINITY)
     end
