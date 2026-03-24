@@ -23,7 +23,16 @@ class GoogleCalendarSyncService
       end
       @reminder.update_column(:calendar_sync_failed_at, nil)
     rescue Google::Apis::Error, OAuth2::Error, Net::OpenTimeout, Net::ReadTimeout, Errno::ECONNREFUSED, Errno::ETIMEDOUT => e
-      Rails.logger.error "Google Calendar sync failed for reminder #{@reminder.id}: #{e.class}"
+      error_details = "#{e.class}"
+      if e.respond_to?(:status_code)
+        error_details += " status=#{e.status_code}"
+      end
+      if e.respond_to?(:message) && e.message
+        # Sanitize message to avoid leaking tokens
+        safe_message = e.message.to_s.gsub(/(token|access_token|refresh_token|code)=[^\s&]+/, "[FILTERED]")
+        error_details += " message=#{safe_message[0..100]}"
+      end
+      Rails.logger.error "Google Calendar sync failed for reminder #{@reminder.id}: #{error_details}"
       @reminder.update_column(:calendar_sync_failed_at, Time.current)
     end
   end
