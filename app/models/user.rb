@@ -15,4 +15,17 @@ class User < ApplicationRecord
   def self.normalize_email(value)
     value.to_s.strip.downcase
   end
+
+  def google_calendar_connected?
+    google_access_token.present?
+  end
+
+  def clear_google_calendar_connection!
+    update!(
+      google_access_token: nil,
+      google_refresh_token: nil,
+      google_token_expires_at: nil,
+      google_calendar_email: nil
+    )
+  end
 end

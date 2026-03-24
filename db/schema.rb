@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_03_24_090000) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_24_100000) do
   create_table "activities", force: :cascade do |t|
     t.bigint "baby_id", null: false
     t.string "activity_type", null: false
@@ -135,6 +135,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_24_090000) do
     t.string "name", null: false
     t.datetime "invited_at"
     t.datetime "accepted_at"
+    t.string "google_access_token"
+    t.string "google_refresh_token"
+    t.datetime "google_token_expires_at"
+    t.string "google_calendar_email"
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 

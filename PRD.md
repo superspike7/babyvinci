@@ -19,7 +19,7 @@ Active canonical product spec
 
 - Current phase: Phase 2 - Shared Reminders + Calendar Sync
 - Current milestone: Phase 2 in progress
-- Current task: P2-03 Google Calendar connection
+- Current task: P2-04 Reminder calendar sync
 - Blockers: None
 - Last updated: 2026-03-24
 
@@ -33,6 +33,7 @@ Active canonical product spec
 - 2026-03-24: `agent-browser` verified P2-01 on `http://127.0.0.1:3000` with two shared accounts: member A set the reminder, member B saw it after refresh, member B replaced it, member A saw the updated time after refresh, and member A cleared it with both sessions returning to the empty state.
 - 2026-03-24: `bin/rails test` passed after shipping P2-02 reminder card states, server-timed quick presets, and exact-time entry coverage.
 - 2026-03-24: `agent-browser` verified P2-02 on `http://127.0.0.1:3000`: empty reminder state, active card layout against the provided reference, edit disclosure exposing quick presets and exact time, and the updated scheduled state.
+- 2026-03-24: `bin/rails test` passed after shipping P2-03 Google Calendar connection, including `test/integration/google_calendar_connections_test.rb` with 6 tests and 51 assertions covering connection, disconnection, user-scoped state, and independent access between family members.
 
 ### Phase 1 tracker
 - [x] P1-01 Parent sign up / sign in
@@ -49,7 +50,7 @@ Active canonical product spec
 ### Phase 2 tracker
 - [x] P2-01 Shared next-feed reminder state
 - [x] P2-02 Today reminder card
-- [ ] P2-03 Google Calendar connection
+- [x] P2-03 Google Calendar connection
 - [ ] P2-04 Reminder calendar sync
 - [ ] P2-05 Reminder delivery polish / QA
 
