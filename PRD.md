@@ -726,23 +726,30 @@ This phase solves that with a shared next-feed reminder first, then makes it use
   - Disconnect and confirm the app returns to a disconnected state.
 
 ##### P2-04 Reminder calendar sync
-- Contract: When a parent has Google Calendar connected, BabyVinci mirrors the shared next-feed reminder into that parent's calendar so their device can alert them.
+- Contract: When a parent sets a reminder, BabyVinci creates a single calendar event hosted in that parent's Google Calendar and invites all connected family members as attendees so everyone receives notifications.
 - Expected behavior:
-  - Setting a reminder creates one mirrored calendar event per connected parent.
-  - Updating the reminder updates the existing mirrored event instead of creating duplicates.
-  - Clearing the reminder deletes the mirrored event.
-  - The mirrored event uses calm, practical copy and the reminder time from BabyVinci.
+  - Setting a reminder creates one calendar event in the creating parent's Google Calendar.
+  - All family members with connected calendars are added as attendees with forced notifications (`sendNotifications: true`).
+  - Family members without connected calendars do not block the sync (partial sync).
+  - Updating the reminder updates the existing event (same event ID) instead of creating duplicates.
+  - Clearing the reminder deletes the calendar event.
+  - The event uses calm, practical copy and the reminder time from BabyVinci.
   - Calendar sync failures do not block saving the in-app reminder.
-  - If sync fails, the app shows a calm sync-state message so the parent understands the reminder still exists in BabyVinci.
+  - If sync fails, the app shows a calm sync-state message so parents understand the reminder still exists in BabyVinci.
+  - Event ownership remains with the creating parent (no transfer on edit by others).
 - Written test proof:
-  - Reminder create, update, and clear each call the expected calendar sync behavior.
+  - Reminder create generates one calendar event with multiple attendees.
+  - Reminder update patches the same event without creating duplicates.
+  - Reminder clear deletes the event.
   - A failed calendar sync does not lose the BabyVinci reminder.
-  - Duplicate events are not created for repeated updates.
+  - Partial sync works when only some family members have connected calendars.
 - QA evidence:
-  - Connect a Google Calendar account.
-  - Set a reminder and confirm a calendar event appears.
-  - Update the reminder and confirm the same event changes.
-  - Clear the reminder and confirm the calendar event disappears.
+  - Connect two parents' Google Calendar accounts.
+  - Parent A sets a reminder and confirms one calendar event appears in Parent A's calendar with Parent B as attendee.
+  - Verify both parents receive notifications on their devices.
+  - Parent B updates the reminder and confirm the same event is updated.
+  - Clear the reminder and confirm the calendar event disappears for both parents.
+  - Verify partial sync by testing with only one parent connected.
 
 ##### P2-05 Reminder delivery polish / QA
 - Contract: Phase 2 is only complete when the reminder flow is understandable end to end for shared parents and practical on a real phone.
@@ -761,16 +768,24 @@ This phase solves that with a shared next-feed reminder first, then makes it use
 #### Acceptance criteria
 - Parent can set, change, and clear one shared next-feed reminder from `Today` in a few taps.
 - Both parents see the same reminder state after refresh or revisit.
-- A connected parent gets a mirrored Google Calendar event for the reminder.
-- Updating the reminder updates the mirrored calendar event instead of creating duplicates.
-- Clearing the reminder removes the mirrored calendar event.
+- Setting a reminder creates one calendar event with all connected family members as attendees (forced notifications).
+- Family members without calendar connections do not block sync for connected members.
+- Updating the reminder updates the same calendar event (no duplicates).
+- Clearing the reminder removes the calendar event for all attendees.
 - The shared in-app reminder still works even if calendar sync fails or is not connected.
 
 #### QA / verification
 - Set a next-feed reminder, refresh another shared session, and confirm both parents see the same state.
 - Verify empty, active, and overdue reminder states on `Today`.
-- Connect one Google Calendar account and confirm reminder create, update, and clear sync correctly.
-- Verify the reminder still exists in BabyVinci when calendar sync is unavailable.
+- Connect two parents' Google Calendar accounts.
+- Set a reminder from Parent A and confirm:
+  - One event appears in Parent A's calendar
+  - Parent B receives an invitation/notification
+  - Both parents get device notifications at reminder time
+- Update the reminder from Parent B and confirm the same event is updated (check event ID unchanged).
+- Clear the reminder and confirm the event is removed from both parents' calendars.
+- Verify partial sync by disconnecting Parent B, setting a reminder from Parent A, and confirming it still syncs to Parent A's calendar.
+- Verify the reminder still exists in BabyVinci when calendar sync fails.
 
 #### Release check
 If this phase is done, the app becomes more than a shared memory system.
