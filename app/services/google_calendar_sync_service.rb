@@ -104,6 +104,7 @@ class GoogleCalendarSyncService
   def connected_family_members
     @reminder.baby.users
       .where.not(google_access_token: [ nil, "" ])
+      .where.not(google_calendar_email: [ nil, "" ])
       .map do |user|
         Google::Apis::CalendarV3::EventAttendee.new(
           email: user.google_calendar_email,
