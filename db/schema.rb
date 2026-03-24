@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_03_24_100000) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_24_165325) do
   create_table "activities", force: :cascade do |t|
     t.bigint "baby_id", null: false
     t.string "activity_type", null: false
@@ -107,7 +107,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_24_100000) do
     t.datetime "target_at", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "google_calendar_event_id"
+    t.datetime "calendar_sync_failed_at"
+    t.integer "calendar_owner_user_id"
     t.index ["baby_id"], name: "index_next_feed_reminders_on_baby_id", unique: true
+    t.index ["calendar_sync_failed_at"], name: "index_next_feed_reminders_on_calendar_sync_failed_at"
+    t.index ["google_calendar_event_id"], name: "index_next_feed_reminders_on_google_calendar_event_id"
   end
 
   create_table "sessions", force: :cascade do |t|
@@ -153,5 +158,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_24_100000) do
   add_foreign_key "care_events", "babies"
   add_foreign_key "care_events", "users"
   add_foreign_key "next_feed_reminders", "babies"
+  add_foreign_key "next_feed_reminders", "users", column: "calendar_owner_user_id"
   add_foreign_key "sessions", "users"
 end

@@ -19,7 +19,7 @@ Active canonical product spec
 
 - Current phase: Phase 2 - Shared Reminders + Calendar Sync
 - Current milestone: Phase 2 in progress
-- Current task: P2-04 Reminder calendar sync
+- Current task: P2-05 Reminder delivery polish / QA
 - Blockers: None
 - Last updated: 2026-03-24
 
@@ -34,6 +34,8 @@ Active canonical product spec
 - 2026-03-24: `bin/rails test` passed after shipping P2-02 reminder card states, server-timed quick presets, and exact-time entry coverage.
 - 2026-03-24: `agent-browser` verified P2-02 on `http://127.0.0.1:3000`: empty reminder state, active card layout against the provided reference, edit disclosure exposing quick presets and exact time, and the updated scheduled state.
 - 2026-03-24: `bin/rails test` passed after shipping P2-03 Google Calendar connection, including `test/integration/google_calendar_connections_test.rb` with 6 tests and 51 assertions covering connection, disconnection, user-scoped state, and independent access between family members.
+- 2026-03-24: `bin/rails test` passed after shipping P2-04 reminder calendar sync, including `test/integration/reminder_calendar_sync_test.rb` with 8 tests and 36 assertions covering reminder create with calendar metadata, reminder update patching same event, reminder clear deleting calendar event, failed sync preserving BabyVinci reminder, sync failure UI state, partial sync with mixed member connections, event ownership remaining with creator, and reminder save without calendar connection.
+- 2026-03-25: `agent-browser` verified P2-04 on `http://127.0.0.1:3000`: new account creation, baby profile setup, setting reminder via 1-hour preset, reminder appearing in scheduled state, manually triggering sync failure state, and confirming the calm failure message displays correctly with "Calendar sync failed. Your reminder is saved in BabyVinci." and "Tap edit to try again." guidance.
 
 ### Phase 1 tracker
 - [x] P1-01 Parent sign up / sign in
@@ -51,7 +53,7 @@ Active canonical product spec
 - [x] P2-01 Shared next-feed reminder state
 - [x] P2-02 Today reminder card
 - [x] P2-03 Google Calendar connection
-- [ ] P2-04 Reminder calendar sync
+- [x] P2-04 Reminder calendar sync
 - [ ] P2-05 Reminder delivery polish / QA
 
 ### Phase 3 tracker

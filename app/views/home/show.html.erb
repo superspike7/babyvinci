@@ -53,6 +53,13 @@
       </span>
     </div>
 
+    <% if @next_feed_reminder.persisted? && @next_feed_reminder.calendar_sync_failed_at.present? %>
+      <div class="mt-3 rounded-[20px] border border-vinci-urgent/30 bg-vinci-urgent/10 px-4 py-3">
+        <p class="text-sm text-vinci-urgent">Calendar sync failed. Your reminder is saved in BabyVinci.</p>
+        <p class="mt-1 text-xs text-vinci-text">Tap edit to try again.</p>
+      </div>
+    <% end %>
+
     <% if @next_feed_reminder.persisted? %>
       <div class="relative mt-5">
         <div class="pointer-events-none absolute top-0 left-0 z-10 flex h-[76px] items-center pl-3.5">

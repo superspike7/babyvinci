@@ -6,6 +6,7 @@ class NextFeedRemindersController < ApplicationController
     @next_feed_reminder.target_at = reminder_target_at
 
     if @next_feed_reminder.save
+      sync_calendar
       redirect_to today_path, notice: reminder_notice(@next_feed_reminder.previously_new_record?)
     else
       load_today_state
@@ -18,6 +19,7 @@ class NextFeedRemindersController < ApplicationController
     @next_feed_reminder.target_at = reminder_target_at
 
     if @next_feed_reminder.save
+      sync_calendar
       redirect_to today_path, notice: "Next feed reminder updated."
     else
       load_today_state
@@ -26,7 +28,10 @@ class NextFeedRemindersController < ApplicationController
   end
 
   def destroy
-    current_baby.next_feed_reminder&.destroy
+    if current_baby.next_feed_reminder
+      clear_calendar(current_baby.next_feed_reminder)
+      current_baby.next_feed_reminder.destroy
+    end
 
     redirect_to today_path, notice: "Next feed reminder cleared."
   end
@@ -74,5 +79,20 @@ class NextFeedRemindersController < ApplicationController
 
     def reminder_notice(created)
       created ? "Next feed reminder set." : "Next feed reminder updated."
+    end
+
+    def sync_calendar
+      owner = @next_feed_reminder.calendar_owner || Current.user
+      GoogleCalendarSyncService.sync_reminder(
+        reminder: @next_feed_reminder,
+        creating_user: owner
+      )
+    end
+
+    def clear_calendar(reminder)
+      GoogleCalendarSyncService.clear_reminder(
+        reminder: reminder,
+        creating_user: Current.user
+      )
     end
 end
