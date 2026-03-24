@@ -63,12 +63,35 @@ class GoogleCalendarConnectionsController < ApplicationController
       redirect_uri: google_calendar_connection_callback_url
     )
 
+    email = response.params.dig("id_token_claims", "email")
+
+    # Fallback: fetch email from Userinfo API if not in id_token_claims
+    if email.blank?
+      email = fetch_user_email(response.token)
+    end
+
     {
       access_token: response.token,
       refresh_token: response.refresh_token,
       expires_at: Time.at(response.expires_at),
-      email: response.params.dig("id_token_claims", "email")
+      email: email
     }
+  end
+
+  def fetch_user_email(access_token)
+    uri = URI("https://www.googleapis.com/oauth2/v2/userinfo")
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+    request = Net::HTTP::Get.new(uri)
+    request["Authorization"] = "Bearer #{access_token}"
+    response = http.request(request)
+
+    if response.is_a?(Net::HTTPSuccess)
+      JSON.parse(response.body)["email"]
+    end
+  rescue StandardError => e
+    Rails.logger.error "Failed to fetch user email: #{e.class}"
+    nil
   end
 
   def google_oauth_configured?
@@ -91,7 +114,7 @@ class GoogleCalendarConnectionsController < ApplicationController
   def google_oauth_authorization_url
     client = build_oauth_client
     client.auth_code.authorize_url(
-      scope: "https://www.googleapis.com/auth/calendar.events",
+      scope: "https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/userinfo.email",
       redirect_uri: google_calendar_connection_callback_url,
       access_type: "offline",
       prompt: "consent",
