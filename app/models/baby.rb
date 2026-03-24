@@ -5,6 +5,7 @@ class Baby < ApplicationRecord
   has_many :baby_memberships, dependent: :destroy
   has_many :care_events, dependent: :destroy
   has_many :baby_invites, dependent: :destroy
+  has_one :next_feed_reminder, dependent: :destroy
   has_many :users, through: :baby_memberships
 
   validates :first_name, presence: true

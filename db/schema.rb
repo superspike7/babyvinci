@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_03_23_130000) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_24_090000) do
   create_table "activities", force: :cascade do |t|
     t.bigint "baby_id", null: false
     t.string "activity_type", null: false
@@ -102,6 +102,14 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_23_130000) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "next_feed_reminders", force: :cascade do |t|
+    t.integer "baby_id", null: false
+    t.datetime "target_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["baby_id"], name: "index_next_feed_reminders_on_baby_id", unique: true
+  end
+
   create_table "sessions", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "ip_address"
@@ -140,5 +148,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_23_130000) do
   add_foreign_key "baby_memberships", "users"
   add_foreign_key "care_events", "babies"
   add_foreign_key "care_events", "users"
+  add_foreign_key "next_feed_reminders", "babies"
   add_foreign_key "sessions", "users"
 end

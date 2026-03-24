@@ -3,6 +3,7 @@ Rails.application.routes.draw do
   resource :today, only: :show, controller: :home
   resource :timeline, only: :show, controller: :timeline
   resource :more, only: :show, controller: :more
+  resource :next_feed_reminder, only: %i[create update destroy]
   resources :baby_invites, only: %i[new create show]
   resources :feeds, only: %i[new create]
   resources :diapers, only: %i[new create]

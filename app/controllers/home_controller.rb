@@ -6,6 +6,7 @@ class HomeController < ApplicationController
 
     return unless current_baby
 
+    @next_feed_reminder = current_baby.next_feed_reminder || current_baby.build_next_feed_reminder
     @recent_care_events = visible_care_events.limit(8)
     @last_feed = latest_started_event_for("feed")
     @last_diaper = latest_started_event_for("diaper")

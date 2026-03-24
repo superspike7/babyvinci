@@ -113,6 +113,26 @@ module ApplicationHelper
     "#{time_ago_in_words(time)} ago"
   end
 
+  def next_feed_reminder_label(reminder)
+    return unless reminder&.target_at
+
+    reminder.target_at.strftime("%-I:%M %p").downcase.sub("am", "AM").sub("pm", "PM")
+  end
+
+  def next_feed_reminder_status(reminder)
+    return unless reminder&.target_at
+
+    if reminder.target_at <= Time.current
+      "Overdue by #{time_ago_in_words(reminder.target_at)}"
+    else
+      "Due in #{distance_of_time_in_words(Time.current, reminder.target_at)}"
+    end
+  end
+
+  def next_feed_reminder_input_value(reminder)
+    reminder&.target_at&.strftime("%Y-%m-%dT%H:%M")
+  end
+
   private
     def baby_age_in_days(baby)
       ((Time.zone.today - baby.birth_at.to_date).to_i + 1).clamp(0, Float::INFINITY)

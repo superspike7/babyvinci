@@ -5,7 +5,7 @@ canonical: true
 source_of_truth: PRD.md
 design_reference: DESIGN.md
 progress_tracker: PRD.md#progress-tracker
-current_phase: "Phase 1 - Shared Essential Logging MVP"
+current_phase: "Phase 2 - Shared Reminders + Calendar Sync"
 last_updated: 2026-03-23
 agent_instruction: "Use this file as the canonical product spec and progress tracker. Continue in phase order unless explicitly directed otherwise. Update the progress tracker after completed work."
 ---
@@ -17,9 +17,9 @@ Active canonical product spec
 
 ## Progress Tracker
 
-- Current phase: Phase 1 - Shared Essential Logging MVP
-- Current milestone: Phase 1 complete
-- Current task: P2-01 Shared next-feed reminder state
+- Current phase: Phase 2 - Shared Reminders + Calendar Sync
+- Current milestone: Phase 2 in progress
+- Current task: P2-02 Today reminder card
 - Blockers: None
 - Last updated: 2026-03-24
 
@@ -29,6 +29,8 @@ Active canonical product spec
 - Browser evidence covered: parent A sign up, baby creation, empty `Today`, pre-invite feed + diaper logging, invite creation, invited member acceptance in a separate session, shared timeline refresh, member logging, parent A refresh, event edit, event delete, age label, and used-invite dead-end state.
 - 2026-03-24: `bin/rails test test/integration/baby_invites_test.rb test/integration/mobile_layout_test.rb` passed for the 3-member sharing change.
 - 2026-03-24: `agent-browser` verified 3 separate accounts sharing one baby on `http://127.0.0.1:3000`, including second invite creation, third-member acceptance, third-member logging, original-member refresh, and the full shared-access state at 3 people.
+- 2026-03-24: `bin/rails test` passed after adding shared next-feed reminder state coverage, including `test/integration/next_feed_reminders_test.rb`.
+- 2026-03-24: `agent-browser` verified P2-01 on `http://127.0.0.1:3000` with two shared accounts: member A set the reminder, member B saw it after refresh, member B replaced it, member A saw the updated time after refresh, and member A cleared it with both sessions returning to the empty state.
 
 ### Phase 1 tracker
 - [x] P1-01 Parent sign up / sign in
@@ -43,7 +45,7 @@ Active canonical product spec
 - [x] P1-10 Phase 1 launch polish / QA
 
 ### Phase 2 tracker
-- [ ] P2-01 Shared next-feed reminder state
+- [x] P2-01 Shared next-feed reminder state
 - [ ] P2-02 Today reminder card
 - [ ] P2-03 Google Calendar connection
 - [ ] P2-04 Reminder calendar sync

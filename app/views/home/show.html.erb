@@ -44,8 +44,32 @@
   </section>
 
   <section class="rounded-[26px] border border-vinci-border bg-vinci-accent p-6 text-vinci-surface shadow-[0_22px_70px_rgba(17,63,72,0.10)]">
-    <p class="text-sm font-semibold uppercase tracking-[0.24em] text-vinci-accent-tint">What matters now</p>
-    <p class="mt-3 text-lg leading-7">Log the latest feed or diaper.</p>
+    <p class="text-sm font-semibold uppercase tracking-[0.24em] text-vinci-accent-tint">Next feed reminder</p>
+
+    <% if @next_feed_reminder.persisted? %>
+      <p class="mt-3 text-2xl font-semibold tracking-tight"><%= next_feed_reminder_label(@next_feed_reminder) %></p>
+      <p class="mt-2 text-sm leading-6 text-vinci-accent-tint"><%= next_feed_reminder_status(@next_feed_reminder) %></p>
+    <% else %>
+      <p class="mt-3 text-lg leading-7">No reminder set yet.</p>
+    <% end %>
+
+    <%= form_with model: @next_feed_reminder, url: next_feed_reminder_path, method: @next_feed_reminder.persisted? ? :patch : :post, class: "mt-5 space-y-4" do |form| %>
+      <div>
+        <%= form.label :target_at, (@next_feed_reminder.persisted? ? "Change reminder time" : "Set reminder time"), class: "text-sm font-medium text-vinci-surface" %>
+        <%= form.datetime_local_field :target_at, value: next_feed_reminder_input_value(@next_feed_reminder), class: "mt-2 block min-h-12 w-full rounded-[20px] border border-vinci-surface/25 bg-vinci-surface px-4 py-3 text-base text-vinci-ink focus:border-vinci-surface focus:outline-none focus:ring-2 focus:ring-vinci-surface/30" %>
+        <% if @next_feed_reminder.errors[:target_at].any? %>
+          <p class="mt-2 text-sm text-vinci-surface"><%= @next_feed_reminder.errors.full_messages_for(:target_at).first %></p>
+        <% end %>
+      </div>
+
+      <div class="flex flex-col gap-3 sm:max-w-xs">
+        <%= form.submit(@next_feed_reminder.persisted? ? "Update reminder" : "Set reminder", class: "inline-flex min-h-12 items-center justify-center rounded-full bg-vinci-surface px-4 py-3 text-base font-semibold text-vinci-accent transition hover:bg-vinci-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vinci-surface/40") %>
+      </div>
+    <% end %>
+
+    <% if @next_feed_reminder.persisted? %>
+      <%= button_to "Clear reminder", next_feed_reminder_path, method: :delete, class: "mt-3 inline-flex min-h-12 items-center justify-center rounded-full border border-vinci-surface/35 px-4 py-3 text-base font-semibold text-vinci-surface transition hover:border-vinci-surface hover:bg-vinci-surface/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vinci-surface/40" %>
+    <% end %>
   </section>
 
   <section class="rounded-[26px] border border-vinci-border bg-vinci-base p-5">
