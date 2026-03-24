@@ -35,10 +35,12 @@ class GoogleCalendarSyncService
       end
       Rails.logger.error "Google Calendar sync failed for reminder #{@reminder.id}: #{error_details}"
 
-      # If 403 Forbidden, the token may be revoked - clear the connection and event ID
-      if status_code == 403
-        Rails.logger.warn "Google Calendar access revoked for user #{@creating_user.id}, clearing connection and event ID"
-        @creating_user.clear_google_calendar_connection!
+      # If 403 Forbidden or 404 Not Found, clear the event ID so we create a fresh one
+      if status_code == 403 || status_code == 404
+        Rails.logger.warn "Google Calendar event inaccessible (status #{status_code}) for user #{@creating_user.id}, clearing event ID"
+        if status_code == 403
+          @creating_user.clear_google_calendar_connection!
+        end
         # Clear the event ID so next sync creates a new event with current user as owner
         @reminder.update_columns(
           google_calendar_event_id: nil,
