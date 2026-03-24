@@ -13,13 +13,20 @@ class GoogleCalendarSyncService
   end
 
   def sync
+    Rails.logger.info "GoogleCalendarSync: Starting sync for reminder #{@reminder.id}, user #{@creating_user.id}, event_id=#{@reminder.google_calendar_event_id.inspect}"
+
     return unless should_sync?
+    Rails.logger.info "GoogleCalendarSync: User #{@creating_user.id} can sync, proceeding..."
 
     begin
       if @reminder.google_calendar_event_id.present?
-        update_existing_event
+        Rails.logger.info "GoogleCalendarSync: Updating existing event #{@reminder.google_calendar_event_id}"
+        result = update_existing_event
+        Rails.logger.info "GoogleCalendarSync: Successfully updated event #{result.id}"
       else
-        create_new_event
+        Rails.logger.info "GoogleCalendarSync: Creating new event"
+        result = create_new_event
+        Rails.logger.info "GoogleCalendarSync: Successfully created event #{result.id}"
       end
       @reminder.update_column(:calendar_sync_failed_at, nil)
     rescue Google::Apis::Error, OAuth2::Error, Net::OpenTimeout, Net::ReadTimeout, Errno::ECONNREFUSED, Errno::ETIMEDOUT => e
@@ -79,16 +86,18 @@ class GoogleCalendarSyncService
       google_calendar_event_id: result.id,
       calendar_owner_user_id: @creating_user.id
     )
+    result
   end
 
   def update_existing_event
     event = build_event
-    calendar_service.update_event(
+    result = calendar_service.update_event(
       calendar_id,
       @reminder.google_calendar_event_id,
       event,
       send_notifications: true
     )
+    result
   end
 
   def build_event
