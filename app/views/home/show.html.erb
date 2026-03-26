@@ -51,8 +51,17 @@
           <div>
             <p class="text-[10px] font-bold uppercase tracking-widest text-vinci-label">Next feed reminder</p>
             <p class="text-xl font-black tracking-tight text-vinci-accent">
-              <%= @next_feed_reminder.persisted? ? next_feed_reminder_label(@next_feed_reminder) : "None set" %>
+              <% if @next_feed_reminder.persisted? %>
+                <%= next_feed_reminder_label(@next_feed_reminder) %>
+              <% else %>
+                No reminder set
+              <% end %>
             </p>
+            <% if @next_feed_reminder.persisted? %>
+              <p class="text-[10px] font-bold uppercase tracking-wider <%= @next_feed_reminder.target_at <= Time.current ? 'text-vinci-urgent' : 'text-vinci-text' %>">
+                <%= next_feed_reminder_state_label(@next_feed_reminder) %>
+              </p>
+            <% end %>
           </div>
         </div>
 
@@ -103,7 +112,7 @@
     <div class="rounded-[28px] border border-vinci-border bg-vinci-base p-5 shadow-sm">
       <p class="text-[10px] font-bold uppercase tracking-widest text-vinci-label">Last feed</p>
       <p class="mt-2 text-xl font-black tracking-tight text-vinci-ink">
-        <%= @last_feed ? latest_care_event_label(@last_feed) { "feed" } : "None" %>
+        <%= @last_feed ? latest_care_event_label(@last_feed) { "feed" } : "No feed yet" %>
       </p>
       <% if @last_feed %>
         <p class="mt-1 text-[11px] font-bold leading-tight text-vinci-text/50 line-clamp-1 truncate"><%= care_event_detail(@last_feed) %></p>
@@ -113,7 +122,7 @@
     <div class="rounded-[28px] border border-vinci-border bg-vinci-base p-5 shadow-sm">
       <p class="text-[10px] font-bold uppercase tracking-widest text-vinci-label">Last diaper</p>
       <p class="mt-2 text-xl font-black tracking-tight text-vinci-ink">
-        <%= @last_diaper ? latest_care_event_label(@last_diaper) { "diaper" } : "None" %>
+        <%= @last_diaper ? latest_care_event_label(@last_diaper) { "diaper" } : "No diaper yet" %>
       </p>
       <% if @last_diaper %>
         <p class="mt-1 text-[11px] font-bold leading-tight text-vinci-text/50 line-clamp-1 truncate"><%= care_event_detail(@last_diaper) %></p>
