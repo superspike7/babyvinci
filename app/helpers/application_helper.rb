@@ -66,9 +66,20 @@ module ApplicationHelper
       feed_detail(event)
     elsif event.diaper?
       diaper_detail(event)
+    elsif event.sleep?
+      sleep_detail(event)
     else
       event.kind.capitalize
     end
+  end
+
+  def sleep_detail(event)
+    return "Sleeping now" if event.active_sleep?
+
+    duration = event.duration_minutes
+    return "Sleep ended" unless duration
+
+    sleep_duration_label(duration)
   end
 
   def care_event_author(event)
@@ -136,6 +147,42 @@ module ApplicationHelper
 
   def next_feed_reminder_input_value(reminder)
     reminder&.target_at&.strftime("%Y-%m-%dT%H:%M")
+  end
+
+  def sleep_duration_label(minutes)
+    return nil unless minutes
+
+    hours, mins = minutes.divmod(60)
+
+    if hours.positive? && mins.positive?
+      "#{hours} hr #{mins} min"
+    elsif hours.positive?
+      "#{hours} hr"
+    else
+      "#{mins} min"
+    end
+  end
+
+  def sleep_state_label(active_sleep)
+    return "No sleep yet" unless active_sleep
+
+    if active_sleep.active_sleep?
+      "Sleeping now"
+    else
+      sleep_duration_label(active_sleep.duration_minutes)
+    end
+  end
+
+  def sleep_detail_label(event)
+    return nil unless event&.sleep?
+
+    if event.active_sleep?
+      "Started #{care_event_elapsed_label(event.started_at)}"
+    else
+      time_label = event.ended_at.strftime("%-I:%M %p").downcase.sub("am", "AM").sub("pm", "PM")
+      day_label = event.ended_at.today? ? "Today" : "Yesterday"
+      "#{day_label} at #{time_label}"
+    end
   end
 
   private

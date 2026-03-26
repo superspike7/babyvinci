@@ -48,4 +48,132 @@ class CareEventTest < ActiveSupport::TestCase
     assert_not event.valid?
     assert_includes event.errors[:diaper_type], "can't be blank"
   end
+
+  test "sleep can be created without special payload" do
+    baby = BabyCreator.create!(
+      user: users(:one),
+      first_name: "Milo",
+      birth_at: Time.zone.local(2026, 3, 20, 3, 45)
+    )
+
+    sleep = CareEvent.create!(
+      baby: baby,
+      user: users(:one),
+      kind: "sleep",
+      started_at: Time.zone.local(2026, 3, 23, 7, 30),
+      payload: {}
+    )
+
+    assert sleep.sleep?
+    assert sleep.active_sleep?
+    assert_nil sleep.ended_at
+  end
+
+  test "sleep can be ended" do
+    baby = BabyCreator.create!(
+      user: users(:one),
+      first_name: "Milo",
+      birth_at: Time.zone.local(2026, 3, 20, 3, 45)
+    )
+
+    sleep = CareEvent.create!(
+      baby: baby,
+      user: users(:one),
+      kind: "sleep",
+      started_at: Time.zone.local(2026, 3, 23, 7, 30),
+      payload: {}
+    )
+
+    sleep.update!(ended_at: Time.zone.local(2026, 3, 23, 9, 30))
+
+    assert sleep.completed_sleep?
+    assert_not sleep.active_sleep?
+    assert_equal 120, sleep.duration_minutes
+  end
+
+  test "cannot create overlapping active sleep" do
+    baby = BabyCreator.create!(
+      user: users(:one),
+      first_name: "Milo",
+      birth_at: Time.zone.local(2026, 3, 20, 3, 45)
+    )
+
+    CareEvent.create!(
+      baby: baby,
+      user: users(:one),
+      kind: "sleep",
+      started_at: Time.zone.local(2026, 3, 23, 7, 30),
+      payload: {}
+    )
+
+    second_sleep = CareEvent.new(
+      baby: baby,
+      user: users(:one),
+      kind: "sleep",
+      started_at: Time.zone.local(2026, 3, 23, 8, 30),
+      payload: {}
+    )
+
+    assert_not second_sleep.valid?
+    assert_includes second_sleep.errors[:base], "Cannot start a new sleep while another is active"
+  end
+
+  test "can create new sleep after ending previous one" do
+    baby = BabyCreator.create!(
+      user: users(:one),
+      first_name: "Milo",
+      birth_at: Time.zone.local(2026, 3, 20, 3, 45)
+    )
+
+    first_sleep = CareEvent.create!(
+      baby: baby,
+      user: users(:one),
+      kind: "sleep",
+      started_at: Time.zone.local(2026, 3, 23, 7, 30),
+      payload: {}
+    )
+
+    first_sleep.update!(ended_at: Time.zone.local(2026, 3, 23, 9, 30))
+
+    second_sleep = CareEvent.new(
+      baby: baby,
+      user: users(:one),
+      kind: "sleep",
+      started_at: Time.zone.local(2026, 3, 23, 10, 30),
+      payload: {}
+    )
+
+    assert second_sleep.valid?
+    assert second_sleep.save
+  end
+
+  test "active_sleep scope returns only active sleep events" do
+    baby = BabyCreator.create!(
+      user: users(:one),
+      first_name: "Milo",
+      birth_at: Time.zone.local(2026, 3, 20, 3, 45)
+    )
+
+    # Create completed sleep first (no active sleep yet)
+    completed = CareEvent.create!(
+      baby: baby,
+      user: users(:one),
+      kind: "sleep",
+      started_at: Time.zone.local(2026, 3, 23, 5, 30),
+      ended_at: Time.zone.local(2026, 3, 23, 6, 30),
+      payload: {}
+    )
+
+    # Then create active sleep
+    active = CareEvent.create!(
+      baby: baby,
+      user: users(:one),
+      kind: "sleep",
+      started_at: Time.zone.local(2026, 3, 23, 7, 30),
+      payload: {}
+    )
+
+    assert_equal [ active ], baby.care_events.active_sleep.to_a
+    assert_not_includes baby.care_events.active_sleep, completed
+  end
 end

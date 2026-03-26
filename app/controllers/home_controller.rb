@@ -10,6 +10,8 @@ class HomeController < ApplicationController
     @recent_care_events = visible_care_events.limit(8)
     @last_feed = latest_started_event_for("feed")
     @last_diaper = latest_started_event_for("diaper")
+    @active_sleep = current_baby.care_events.active_sleep.first
+    @last_sleep = latest_started_event_for("sleep")
   end
 
   private

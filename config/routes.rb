@@ -9,6 +9,11 @@ Rails.application.routes.draw do
   resources :baby_invites, only: %i[new create show]
   resources :feeds, only: %i[new create]
   resources :diapers, only: %i[new create]
+  resources :sleeps, only: %i[new create] do
+    collection do
+      post :end_sleep
+    end
+  end
   resources :care_events, only: %i[edit update destroy]
   get "join/:token", to: "invites#show", as: :invite
   post "join/:token", to: "invite_acceptances#create", as: :invite_acceptance

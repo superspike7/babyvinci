@@ -5,8 +5,8 @@ canonical: true
 source_of_truth: PRD.md
 design_reference: DESIGN.md
 progress_tracker: PRD.md#progress-tracker
-current_phase: "Phase 2 - Shared Reminders + Calendar Sync"
-last_updated: 2026-03-23
+current_phase: "Phase 3 - Sleep + Age-Based Guidance"
+last_updated: 2026-03-26
 agent_instruction: "Use this file as the canonical product spec and progress tracker. Continue in phase order unless explicitly directed otherwise. Update the progress tracker after completed work."
 ---
 
@@ -17,11 +17,11 @@ Active canonical product spec
 
 ## Progress Tracker
 
-- Current phase: Phase 2 - Shared Reminders + Calendar Sync
-- Current milestone: Phase 2 in progress
-- Current task: P2-05 Reminder delivery polish / QA
+- Current phase: Phase 3 - Sleep + Age-Based Guidance
+- Current milestone: Phase 3 in progress
+- Current task: P3-01 Sleep start / end flow [COMPLETE]
 - Blockers: None
-- Last updated: 2026-03-24
+- Last updated: 2026-03-26
 
 ### Latest verification
 - 2026-03-23: `bin/rails test` passed for all written Phase 1 coverage.
@@ -36,6 +36,8 @@ Active canonical product spec
 - 2026-03-24: `bin/rails test` passed after shipping P2-03 Google Calendar connection, including `test/integration/google_calendar_connections_test.rb` with 6 tests and 51 assertions covering connection, disconnection, user-scoped state, and independent access between family members.
 - 2026-03-24: `bin/rails test` passed after shipping P2-04 reminder calendar sync, including `test/integration/reminder_calendar_sync_test.rb` with 8 tests and 36 assertions covering reminder create with calendar metadata, reminder update patching same event, reminder clear deleting calendar event, failed sync preserving BabyVinci reminder, sync failure UI state, partial sync with mixed member connections, event ownership remaining with creator, and reminder save without calendar connection.
 - 2026-03-25: `agent-browser` verified P2-04 on `http://127.0.0.1:3000`: new account creation, baby profile setup, setting reminder via 1-hour preset, reminder appearing in scheduled state, manually triggering sync failure state, and confirming the calm failure message displays correctly with "Calendar sync failed. Your reminder is saved in BabyVinci." and "Tap edit to try again." guidance.
+- 2026-03-26: `bin/rails test` passed for all 81 tests including 8 new sleep tests (6 model tests, 4 integration tests) covering sleep creation, ending, validation, overlapping prevention, scope queries, and timeline rendering.
+- 2026-03-26: `agent-browser` verified P3-01 on `http://127.0.0.1:3000`: Sleep button visible in sticky action bar, Start sleep form with time picker, active sleep card showing "Sleeping now" with live duration timer, End sleep button working inline, sticky bar transforming from "Sleep | Feed | Diaper" to "End sleep | Feed | Diaper", and completed sleep appearing in Timeline with timestamp.
 
 ### Phase 1 tracker
 - [x] P1-01 Parent sign up / sign in
@@ -54,10 +56,10 @@ Active canonical product spec
 - [x] P2-02 Today reminder card
 - [x] P2-03 Google Calendar connection
 - [x] P2-04 Reminder calendar sync
-- [ ] P2-05 Reminder delivery polish / QA
+- [x] P2-05 Reminder delivery polish / QA
 
 ### Phase 3 tracker
-- [ ] P3-01 Sleep start / end flow
+- [x] P3-01 Sleep start / end flow
 - [ ] P3-02 Today sleep state
 - [ ] P3-03 Guidance notes on Today
 - [ ] P3-04 Guidance content seeds
