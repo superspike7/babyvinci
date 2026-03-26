@@ -1,7 +1,7 @@
 <div class="fixed bottom-0 left-1/2 z-10 w-full max-w-[390px] -translate-x-1/2 border-t border-vinci-border/80 bg-vinci-surface/95 px-4 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))] backdrop-blur-sm md:rounded-b-[28px]">
   <div class="grid grid-cols-3 gap-3">
     <% if @active_sleep %>
-      <%= button_to end_sleep_sleeps_path, method: :post, class: "flex min-h-12 items-center justify-center rounded-full px-4 py-4 text-base font-semibold transition focus:outline-none focus:ring-2 focus:ring-vinci-accent/20 bg-vinci-accent text-vinci-surface hover:bg-vinci-ink" do %>
+      <%= button_to end_sleep_sleeps_path, method: :post, class: "whitespace-nowrap flex min-h-12 items-center justify-center rounded-full px-4 py-4 text-base font-semibold transition focus:outline-none focus:ring-2 focus:ring-vinci-accent/20 bg-vinci-accent text-vinci-surface hover:bg-vinci-ink" do %>
         End sleep
       <% end %>
     <% else %>
