@@ -111,6 +111,65 @@ class SleepFlowTest < ActionDispatch::IntegrationTest
     assert_select "p", text: /Sleep/i
   end
 
+  test "cannot edit sleep events" do
+    baby = BabyCreator.create!(
+      user: users(:one),
+      first_name: "Milo",
+      birth_at: Time.zone.local(2026, 3, 20, 3, 45)
+    )
+
+    sleep = CareEvent.create!(
+      baby: baby,
+      user: users(:one),
+      kind: "sleep",
+      started_at: 2.hours.ago,
+      payload: {}
+    )
+    sleep.update!(ended_at: 30.minutes.ago)
+
+    sign_in_as(users(:one))
+
+    get edit_care_event_path(sleep)
+    assert_redirected_to timeline_path
+    follow_redirect!
+    assert_match "Sleep events cannot be edited", response.body
+  end
+
+  test "timeline does not show edit link for sleep events" do
+    baby = BabyCreator.create!(
+      user: users(:one),
+      first_name: "Milo",
+      birth_at: Time.zone.local(2026, 3, 20, 3, 45)
+    )
+
+    CareEvent.create!(
+      baby: baby,
+      user: users(:one),
+      kind: "feed",
+      started_at: 1.hour.ago,
+      payload: { "mode" => "formula" }
+    )
+
+    sleep = CareEvent.create!(
+      baby: baby,
+      user: users(:one),
+      kind: "sleep",
+      started_at: 2.hours.ago,
+      payload: {}
+    )
+    sleep.update!(ended_at: 90.minutes.ago)
+
+    sign_in_as(users(:one))
+
+    get timeline_path
+    assert_response :success
+    # Feed should have Edit link (use for_kind scope)
+    feed_event = baby.care_events.for_kind("feed").first
+    assert_select "a[href=?]", edit_care_event_path(feed_event, return_to: timeline_path), text: "Edit"
+    # Sleep should NOT have Edit link
+    assert_select "a[href=?]", edit_care_event_path(sleep, return_to: timeline_path), false
+  end
+
   private
     def sign_in_as(user)
       post session_path, params: { email: user.email, password: "password" }

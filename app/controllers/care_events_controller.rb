@@ -2,6 +2,7 @@ class CareEventsController < ApplicationController
   before_action :require_current_baby
   before_action :set_care_event
   before_action :set_return_path
+  before_action :reject_sleep_edits, only: [ :edit, :update ]
 
   def edit
     render edit_template
@@ -96,5 +97,11 @@ class CareEventsController < ApplicationController
 
     def require_current_baby
       redirect_to new_baby_path unless current_baby
+    end
+
+    def reject_sleep_edits
+      if @care_event.sleep?
+        redirect_to @return_path, alert: "Sleep events cannot be edited."
+      end
     end
 end

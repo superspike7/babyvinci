@@ -9,3 +9,6 @@ application.register("drawer", DrawerController)
 
 import HelloController from "./hello_controller"
 application.register("hello", HelloController)
+
+import SleepTimerController from "./sleep_timer_controller"
+application.register("sleep-timer", SleepTimerController)

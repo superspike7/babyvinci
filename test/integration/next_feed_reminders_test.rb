@@ -164,6 +164,27 @@ class NextFeedRemindersTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "invalid reminder submission renders Today with guidance and sleep state" do
+    travel_to Time.zone.local(2026, 3, 26, 8, 0) do
+      owner = users(:one)
+      baby = create_baby_for(owner, first_name: "Milo")
+
+      sign_in_as(owner)
+
+      # Post with blank target_at (should fail validation)
+      post next_feed_reminder_path, params: {
+        next_feed_reminder: { target_at: "" }
+      }
+
+      assert_response :unprocessable_entity
+      # Verify guidance notes are rendered (Phase 3 regression check)
+      assert_match "At this age", response.body
+      assert_match "Breastfed babies typically feed 10-12 times per 24 hours", response.body
+      # Verify sleep state vars don't crash
+      assert_match "Last sleep", response.body
+    end
+  end
+
   private
     def create_baby_for(user, first_name: "Vinci")
       BabyCreator.create!(
