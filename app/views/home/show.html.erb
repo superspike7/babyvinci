@@ -1,21 +1,20 @@
 <% content_for :title, "Today | BabyVinci" %>
 
 <section class="space-y-6 pb-28">
-  <header class="space-y-3 border-b border-vinci-border/80 pb-5">
-    <div class="flex items-start justify-between gap-4">
-      <div class="space-y-2">
-        <p class="text-sm font-semibold uppercase tracking-[0.24em] text-vinci-label">Shared log</p>
-        <h1 class="text-3xl font-semibold tracking-tight text-vinci-ink">Today</h1>
+  <header class="space-y-4 pb-2">
+    <div class="flex items-center justify-between">
+      <div class="space-y-0.5">
+        <p class="text-[10px] font-black uppercase tracking-[0.3em] text-vinci-label/40 leading-none">Shared Log</p>
+        <h1 class="text-4xl font-black tracking-tighter text-vinci-ink">Today</h1>
       </div>
-
-      <span class="shrink-0 rounded-full bg-vinci-accent-tint px-3 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-vinci-accent">
-        <%= baby_age_label(current_baby) %>
-      </span>
+      <div class="flex flex-col items-end">
+        <div class="rounded-2xl bg-vinci-ink text-white px-4 py-2.5 shadow-lg shadow-vinci-ink/10">
+          <p class="text-[10px] font-black uppercase tracking-widest leading-none"><%= baby_age_label(current_baby).upcase %></p>
+        </div>
+      </div>
     </div>
-
-    <p class="max-w-[18rem] text-base leading-7 text-vinci-text">
-      <span class="font-medium text-vinci-ink"><%= current_baby.first_name %></span>
-      is <%= baby_age_in_words(current_baby) %>.
+    <p class="text-base font-medium text-vinci-text/60">
+      <span class="font-bold text-vinci-ink"><%= current_baby.first_name %></span> is <%= baby_age_in_words(current_baby) %>.
     </p>
   </header>
 
@@ -200,7 +199,7 @@
     <section class="rounded-[28px] border border-vinci-border bg-vinci-base p-5 shadow-sm">
       <div class="flex items-center justify-between gap-4 mb-4">
         <p class="text-[10px] font-black uppercase tracking-widest text-vinci-label">Recent activity</p>
-        <%= link_to "Timeline", timeline_path, class: "text-[10px] font-black uppercase tracking-widest text-vinci-accent underline underline-offset-4" %>
+        <%= link_to "Open timeline", timeline_path, class: "text-[10px] font-black uppercase tracking-widest text-vinci-accent underline underline-offset-4" %>
       </div>
 
       <% if @recent_care_events.any? %>
