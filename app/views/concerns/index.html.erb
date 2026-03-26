@@ -1,0 +1,59 @@
+<% content_for :title, "Check on something | BabyVinci" %>
+
+<section class="space-y-6 pb-28">
+  <header class="space-y-3 border-b border-vinci-border/80 pb-5">
+    <div class="flex items-start justify-between gap-4">
+      <div class="space-y-2">
+        <p class="text-sm font-semibold uppercase tracking-[0.24em] text-vinci-label">Safety check</p>
+        <h1 class="text-3xl font-semibold tracking-tight text-vinci-ink">Check on something</h1>
+      </div>
+    </div>
+
+    <p class="max-w-[18rem] text-base leading-7 text-vinci-text">
+      Quick questions to help you decide what to do next. This is not a diagnosis.
+    </p>
+  </header>
+
+  <%= render "shared/primary_nav", current: :today %>
+
+  <section class="space-y-3">
+    <p class="text-sm font-semibold uppercase tracking-[0.18em] text-vinci-label">Choose a concern</p>
+
+    <div class="space-y-3">
+      <% @concern_flows.each do |flow| %>
+        <%= link_to concern_path(flow), class: "block rounded-[26px] border border-vinci-border bg-vinci-base p-5 transition hover:border-vinci-accent/40 hover:bg-vinci-accent-tint/30" do %>
+          <div class="flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+              <div class="flex size-12 items-center justify-center rounded-full bg-vinci-accent-tint/60">
+                <svg viewBox="0 0 24 24" fill="currentColor" class="size-6 text-vinci-accent">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                </svg>
+              </div>
+              <div>
+                <p class="text-base font-semibold text-vinci-ink"><%= flow.title %></p>
+                <p class="text-sm text-vinci-text"><%= flow.opening %></p>
+              </div>
+            </div>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="size-5 text-vinci-text">
+              <path d="m9 18 6-6-6-6"/>
+            </svg>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </section>
+
+  <section class="rounded-[20px] border border-dashed border-vinci-border bg-vinci-surface px-4 py-5">
+    <div class="flex items-start gap-3">
+      <svg viewBox="0 0 24 24" fill="currentColor" class="mt-0.5 size-5 shrink-0 text-vinci-accent">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+      </svg>
+      <div>
+        <p class="text-base font-medium text-vinci-ink">Not sure?</p>
+        <p class="mt-1 text-sm leading-6 text-vinci-text">Trust your instincts. If something feels wrong, call your pediatrician.</p>
+      </div>
+    </div>
+  </section>
+
+  <%= render "shared/sticky_action_bar" %>
+</section>

@@ -34,6 +34,36 @@
   </section>
 
   <section class="rounded-[26px] border border-vinci-border bg-vinci-base p-5">
+    <p class="text-sm font-semibold uppercase tracking-[0.18em] text-vinci-label">Doctor visit</p>
+    <p class="mt-2 text-sm leading-6 text-vinci-text">Generate a printable summary of recent history for clinic visits.</p>
+    <div class="mt-4">
+      <%= link_to doctor_summary_path, class: "inline-flex min-h-11 items-center justify-center rounded-full bg-vinci-accent px-5 text-sm font-semibold text-white transition-colors hover:bg-vinci-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vinci-accent/25" do %>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="mr-2 size-4">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+          <polyline points="10 9 9 9 8 9"/>
+        </svg>
+        View summary
+      <% end %>
+    </div>
+  </section>
+
+  <section class="rounded-[26px] border border-vinci-border bg-vinci-base p-5">
+    <p class="text-sm font-semibold uppercase tracking-[0.18em] text-vinci-label">Recent concerns</p>
+    <p class="mt-2 text-sm leading-6 text-vinci-text">Safety checks you have completed.</p>
+    <div class="mt-4">
+      <%= link_to concerns_path, class: "inline-flex min-h-11 items-center justify-center rounded-full border border-vinci-border bg-vinci-surface px-5 text-sm font-semibold text-vinci-accent transition hover:bg-vinci-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vinci-accent/15" do %>
+        <svg viewBox="0 0 24 24" fill="currentColor" class="mr-2 size-4 text-vinci-accent">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+        </svg>
+        View concerns
+      <% end %>
+    </div>
+  </section>
+
+  <section class="rounded-[26px] border border-vinci-border bg-vinci-base p-5">
     <p class="text-sm font-semibold uppercase tracking-[0.18em] text-vinci-label">Shared access</p>
 
     <div class="mt-4 space-y-4">

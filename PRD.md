@@ -6,7 +6,7 @@ source_of_truth: PRD.md
 design_reference: DESIGN.md
 progress_tracker: PRD.md#progress-tracker
 current_phase: "Phase 3 - Sleep + Age-Based Guidance"
-last_updated: 2026-03-26
+last_updated: 2026-03-27
 agent_instruction: "Use this file as the canonical product spec and progress tracker. Continue in phase order unless explicitly directed otherwise. Update the progress tracker after completed work."
 ---
 
@@ -19,7 +19,7 @@ Active canonical product spec
 
 - Current phase: Phase 3 - Sleep + Age-Based Guidance
 - Current milestone: Phase 3 in progress
-- Current task: P3-04 Guidance content seeds [COMPLETE]
+- Current task: P4-04 Recent concern results [COMPLETE]
 - Blockers: None
 - Last updated: 2026-03-27
 
@@ -43,6 +43,9 @@ Active canonical product spec
 - 2026-03-26: `bin/rails test` passed for all 100 tests including 19 new guidance tests covering age bucket selection, content loading, max 2 notes enforcement, edge cases (negative ages, ages beyond buckets), and Today page integration.
 - 2026-03-26: `agent-browser` verified P3-03 on `http://127.0.0.1:3000`: "At this age" section now uses accordion/summary UI that expands/collapses on tap, saving screen space. Evidence-based content updated from AAP (American Academy of Pediatrics) and Stanford Medicine Children's Health research. For 6-day-old baby shows: "Breastfed babies typically feed 10-12 times per 24 hours. Bottle-fed babies usually eat every 2-3 hours. Both are normal." and "Newborns sleep about 16-17 hours per day, waking every few hours to eat. This is expected." Sources cited in code: AAP HealthyChildren.org (Dr. Sanjeev Jain, MD, FAAP & Dr. Maya Bunik, MD, MPH, FAAP) and Stanford Medicine Children's Health "Newborn Sleep Patterns". No dosage recommendations included per PRD "no medical theater" principle. Guidance section positioned after reminder card to keep reminders prominent. Accordion uses info icon and rotate chevron for clear affordance.
 - 2026-03-27: `bin/rails test` passed for all 100 tests including 19 guidance tests covering all 8 age buckets (newborn, early_weeks, six_weeks, two_months, three_months, four_months, five_months, six_months). Guidance content is age-bucketed (0-196 days), evidence-based from AAP & Stanford Medicine, follows product tone rules (calm, supportive, non-diagnostic), with no medical advice or dosage recommendations. `agent-browser` verified P3-04 on `http://127.0.0.1:3000`: 7-day-old baby shows correct newborn bucket guidance with accordion expand/collapse working properly. All 16 guidance notes across 8 buckets verified in model. Sources cited: AAP HealthyChildren.org feeding guidance and Stanford Medicine Children's Health newborn sleep patterns.
+- 2026-03-27: `bin/rails test` passed for all 142 tests including 23 new concern flow tests (5 model tests + 8 integration tests) and 7 doctor summary tests covering all 5 fixed concern flows (fever, too_sleepy, fewer_wet_diapers, breathing, vomiting), all three dispositions (watch_closely, call_pediatrician_today, seek_urgent_care_now), doctor summary with 24h/72h/7d windows, printable text format export, and timeline integration.
+- 2026-03-27: `agent-browser` verified P4-01 through P4-04 on `http://127.0.0.1:3000`: Today page shows "Concerned?" section with "Check on something" entry point listing all 5 concern types (fever, too sleepy, fewer diapers, breathing, vomiting). Clicking fever flow completes all 3 questions and shows "Watch closely" disposition with calm copy "Keep watching and log if anything changes." Doctor summary page accessible from More, displays time windows (24h/72h/7d), event counts (13 feeds, 4 diapers, 7 sleeps, 1 concern), recent safety checks with concern title and disposition. More page shows both "Doctor visit" and "Recent concerns" sections with proper navigation.
+- 2026-03-27: UI/UX fixes applied and verified: (1) Session state leak fixed - switching from fever flow (Q2/3) to breathing flow now correctly starts at Q1/2, (2) Multiselect questions now rendering - breathing flow shows all 7 checkbox options, (3) Disposition visual hierarchy improved - "call_pediatrician_today" uses caution amber, "seek_urgent_care_now" uses urgent red, "watch_closely" uses neutral, (4) Today page "Concerned?" section enhanced with left border for visibility, (5) Doctor summary time window selection improved with checkmark icon and stronger active state contrast. All 142 tests pass.
 
 ### Phase 1 tracker
 - [x] P1-01 Parent sign up / sign in
@@ -70,10 +73,10 @@ Active canonical product spec
 - [x] P3-04 Guidance content seeds
 
 ### Phase 4 tracker
-- [ ] P4-01 Fixed concern flows
-- [ ] P4-02 Initial concern content set
-- [ ] P4-03 Doctor summary export
-- [ ] P4-04 Concern history / saved results
+- [x] P4-01 Fixed concern flows
+- [x] P4-02 Initial concern content set
+- [x] P4-03 Doctor summary export
+- [x] P4-04 Recent concern results
 
 ### Phase 5 tracker
 - [ ] P5-01 Appointments (optional)
@@ -356,6 +359,7 @@ Persistent mobile actions should handle:
 “More” can contain:
 - Baby profile
 - Invite family member
+- Recent concern results
 - Settings
 
 Later-phase features can live under `More` until they prove they deserve top-level navigation.
@@ -387,13 +391,13 @@ This model should stay intentionally small until later phases earn more tables.
 - role (`parent`)
 
 ### `CareEvent`
-Single table for core logging.
+Single table for core logging and saved concern results.
 
 Fields:
 - id
 - baby_id
 - user_id
-- kind (`feed`, `diaper` in Phase 1; add `sleep` only when Phase 3 starts)
+- kind (`feed`, `diaper` in Phase 1; add `sleep` only when Phase 3 starts; add `concern` in Phase 4)
 - started_at
 - ended_at nullable
 - payload json
@@ -403,12 +407,14 @@ Fields:
 Payload examples:
 - feed: `{ mode: breast|bottle_breastmilk|formula, amount_ml?, side?, duration_min? }`
 - diaper: `{ pee: true|false, poop: true|false, color? }`
+- concern: `{ flow_key: fever, version: 1, answers: [...], disposition: call_pediatrician_today }`
 
 ### Model notes
 - Keep `payload` portable across SQLite-backed environments; favor Rails `json` attributes and small structured values.
 - Do not add future-phase tables until the active phase clearly needs them.
 - Guidance can start as seeded content in code or YAML.
 - Concern flows can start as fixed POROs or plain Ruby structures.
+- Saved concern results should reuse `CareEvent` rather than a separate concern table.
 - Do not add soft delete in the initial build unless a real product need appears.
 
 ---
@@ -438,7 +444,7 @@ Without this phase, the rest is decoration.
 #### Explicit exclusions in Phase 1
 - sleep logging
 - guidance cards
-- concern checker
+- concern flows
 - milestones
 - appointments
 - export
@@ -898,7 +904,7 @@ It is still shippable and immediately useful.
 
 ---
 
-### Phase 4 — Concern Checker + Doctor Summary Export
+### Phase 4 — Concern Flows + Doctor Summary Export
 
 #### Goal
 Add the highest-leverage support feature without pretending to be a doctor.
@@ -907,18 +913,21 @@ Add the highest-leverage support feature without pretending to be a doctor.
 This phase addresses the real parent fear loop: “Is this normal or do we need help?”
 
 #### What ships
-- concern entry point from Today or `More`
-- 3-5 conservative concern flows with fixed copy
+- primary concern entry point from `Today`
+- secondary concern entry point from `More`
+- exactly 5 fixed concern flows with reviewed copy
+- compact recent concern results
 - dispositions: watch closely, call pediatrician today, seek urgent care now
-- printable web summary for recent history
+- printable web summary for the selected baby's recent history
 
 #### Keep it simple
 - no freeform AI triage
 - no open-ended symptom parser
 - no generic workflow builder required at first
 - printable HTML first; add PDF only if the web version proves insufficient
+- keep concern results in the existing care-event record shape
 
-#### Suggested first concern set
+#### Exact concern set
 - fever / feels too hot
 - too sleepy to feed / hard to wake
 - fewer wet diapers / dehydration concern
@@ -928,26 +937,30 @@ This phase addresses the real parent fear loop: “Is this normal or do we need 
 #### Task contracts
 
 ##### P4-01 Fixed concern flows
-- Contract: A parent can start a fixed concern flow in under two taps and always reach a clear next step.
+- Contract: A parent can start one of the exact concern flows from `Today` in under two taps and always reach a clear next step.
 - Expected behavior:
   - Concern flows are finite and rules-based.
+  - `Today` is the primary entry point; `More` is secondary.
   - Freeform symptom text is never the primary input.
   - Every path ends in `watch closely`, `call pediatrician today`, or `seek urgent care now`.
 - Written test proof:
   - Every answer path resolves to a valid disposition.
   - Invalid or incomplete states cannot bypass the flow.
+  - The primary entry point routes to the right exact flow.
 - QA evidence:
-  - Run every concern flow from start to finish.
+  - Run every exact concern flow from `Today` end to end.
 
 ##### P4-02 Initial concern content set
-- Contract: Phase 4 ships a small reviewed concern set that covers the first high-value parent worries.
+- Contract: Phase 4 ships exactly the concern set above.
 - Expected behavior:
-  - Initial set covers the named concerns in this phase.
+  - Each flow has reviewed opening copy, a short answer path, and a disposition.
+  - The set is intentionally small and does not try to be comprehensive.
   - Copy avoids diagnosis language and false certainty.
   - Urgent outcomes end with a plain action statement.
 - Written test proof:
   - Each required concern definition is present and structurally valid.
-  - Copy/result configuration supports the defined dispositions.
+  - Each concern maps to one of the three dispositions.
+  - Missing or disabled content fails safely.
 - QA evidence:
   - Spot-check each concern and verify the result copy stays calm and explicit.
 
@@ -955,36 +968,42 @@ This phase addresses the real parent fear loop: “Is this normal or do we need 
 - Contract: A parent can generate a printable recent-history summary that is useful in a clinic visit.
 - Expected behavior:
   - Export contains only the selected baby's data.
-  - Time window is clear.
+  - Default window is last 72 hours.
+  - 24-hour and 7-day windows are available.
   - Event counts and recent-history details are understandable to a parent.
   - Printable HTML is sufficient unless proven otherwise.
 - Written test proof:
   - Export data is correctly scoped and counted.
-  - Selected time windows render the expected events.
+  - Default and alternate time windows render the expected events.
 - QA evidence:
-  - Generate exports for representative windows and review them in the browser.
+  - Generate exports for 24h, 72h, and 7d windows and review them in the browser.
 
-##### P4-04 Concern history / saved results
-- Contract: A parent can revisit past concern outcomes and understand what the app advised.
+##### P4-04 Recent concern results
+- Contract: A parent can revisit past concern outcomes from a compact recent-results list without rerunning the flow.
 - Expected behavior:
   - Saved results show concern type, time, and disposition.
   - History is scoped to the shared baby and ordered newest first.
-  - Past results are readable without rerunning the flow.
+  - The list is compact and lives under `More`.
+  - Past results are readable without re-entering answers.
 - Written test proof:
   - Concern results persist.
   - History ordering and baby scoping are correct.
+  - The compact list renders with the expected fields.
 - QA evidence:
-  - Complete concern flows and revisit their saved results.
+  - Complete concern flows and revisit their saved results from `More`.
 
 #### Acceptance criteria
-- Parent can start a concern flow in under 2 taps.
+- Parent can start a concern flow in under 2 taps from `Today`.
+- The shipped concern set is exact and finite.
 - Concern flows never accept freeform symptom text as primary input.
+- Concern results are saved and re-readable without rerunning the flow.
+- Export defaults to last 72 hours and remains useful for a clinic visit.
 - Every concern ends with a clear next step.
-- Export is understandable by a parent and useful in a clinic visit.
 
 #### QA / verification
-- Run each concern flow from start to finish.
+- Run each exact concern flow from start to finish.
 - Verify every answer path ends in a valid disposition.
+- Verify the compact recent-results list shows the saved concern.
 - Verify urgent results are visually distinct but still calm.
 - Generate each export window and validate event counts.
 
@@ -1101,7 +1120,7 @@ If this phase is done, the app is a strong private family tool and can be used w
 7. Google Calendar connection + one-way reminder sync if Phase 2 starts
 8. sleep state logic if Phase 3 starts
 9. seeded guidance notes if Phase 3 starts
-10. fixed concern flows if Phase 4 starts
+10. fixed concern flows + recent concern results if Phase 4 starts
 11. printable export view if Phase 4 starts
 12. appointments, milestones, and offline only after real use proves they matter
 
@@ -1133,6 +1152,8 @@ Keep route surface tiny.
 - `/feeds/new`
 - `/diapers/new`
 - `/settings`
+- `/concerns`
+- `/summary`
 
 Add later-phase routes only when those features actually ship.
 
@@ -1203,6 +1224,12 @@ Response:
 - shared timeline first
 - equal permissions
 - clear event attribution
+
+### Risk 6: concern scope creep
+Response:
+- exact finite flows only
+- compact recent-results list instead of a workflow builder
+- printable HTML first
 
 ---
 

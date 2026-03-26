@@ -54,6 +54,8 @@ module ApplicationHelper
   end
 
   def care_event_name(event)
+    return "Safety check" if event.concern?
+
     event.kind.capitalize
   end
 
@@ -68,6 +70,8 @@ module ApplicationHelper
       diaper_detail(event)
     elsif event.sleep?
       sleep_detail(event)
+    elsif event.concern?
+      concern_detail(event)
     else
       event.kind.capitalize
     end
@@ -219,5 +223,13 @@ module ApplicationHelper
       return detail if event.diaper_color.blank?
 
       "#{detail}, #{event.diaper_color}"
+    end
+
+    def concern_detail(event)
+      flow_title = event.payload["flow_title"] || "Concern"
+      disposition = event.concern_disposition
+      disposition_label = ConcernFlow.disposition_label(disposition) || disposition.to_s.humanize
+
+      "#{flow_title} — #{disposition_label}"
     end
 end

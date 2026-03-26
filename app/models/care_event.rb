@@ -2,7 +2,9 @@ class CareEvent < ApplicationRecord
   FEED_KINDS = %w[feed].freeze
   DIAPER_KINDS = %w[diaper].freeze
   SLEEP_KINDS = %w[sleep].freeze
-  KINDS = (FEED_KINDS + DIAPER_KINDS + SLEEP_KINDS).freeze
+  CONCERN_KINDS = %w[concern].freeze
+  KINDS = (FEED_KINDS + DIAPER_KINDS + SLEEP_KINDS + CONCERN_KINDS).freeze
+  DISPOSITIONS = %w[watch_closely call_pediatrician_today seek_urgent_care_now].freeze
   FEED_MODES = %w[breast bottle_breastmilk formula].freeze
   FEED_SIDES = %w[left right both].freeze
   DIAPER_TYPES = %w[wet poop both].freeze
@@ -23,6 +25,7 @@ class CareEvent < ApplicationRecord
   scope :chronological_desc, -> { order(started_at: :desc, id: :desc) }
   scope :for_kind, ->(kind) { where(kind: kind) }
   scope :started_on_or_before, ->(time) { where(started_at: ..time) }
+  scope :started_after, ->(time) { where(started_at: time..) }
   scope :active_sleep, -> { where(kind: "sleep", ended_at: nil) }
 
   def feed?
@@ -69,6 +72,22 @@ class CareEvent < ApplicationRecord
     payload["color"]
   end
 
+  def concern?
+    kind == "concern"
+  end
+
+  def concern_flow_key
+    payload["flow_key"]
+  end
+
+  def concern_answers
+    payload["answers"] || {}
+  end
+
+  def concern_disposition
+    payload["disposition"]
+  end
+
   def sleep?
     kind == "sleep"
   end
@@ -84,7 +103,7 @@ class CareEvent < ApplicationRecord
   def duration_minutes
     return nil unless sleep?
     end_time = ended_at || Time.current
-    ((end_time - started_at) / 60).round
+    [ ((end_time - started_at) / 60).round, 0 ].max
   end
 
   private

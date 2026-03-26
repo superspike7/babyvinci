@@ -1,0 +1,243 @@
+<% content_for :title, "Doctor Summary | BabyVinci" %>
+
+<section class="space-y-6 pb-28">
+  <header class="space-y-3 border-b border-vinci-border/80 pb-5">
+    <div class="flex items-start justify-between gap-4">
+      <div class="space-y-2">
+        <p class="text-sm font-semibold uppercase tracking-[0.24em] text-vinci-label">Visit prep</p>
+        <h1 class="text-3xl font-semibold tracking-tight text-vinci-ink">Doctor summary</h1>
+      </div>
+
+      <%= link_to doctor_summary_path(format: :text, window: params[:window]), class: "inline-flex min-h-11 items-center justify-center whitespace-nowrap rounded-full border border-vinci-border bg-vinci-base px-4 text-sm font-semibold text-vinci-accent transition hover:bg-vinci-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vinci-accent/15" do %>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="mr-2 size-4">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Print / Save
+      <% end %>
+    </div>
+
+    <p class="max-w-[19rem] text-base leading-7 text-vinci-text">
+      Recent history for <%= current_baby.first_name %> to share with your pediatrician.
+    </p>
+    <p class="max-w-[30rem] text-sm leading-6 text-vinci-label">
+      Parent-generated screening summary, not a diagnosis. It includes the latest context and the exact answers behind concern results.
+    </p>
+  </header>
+
+  <%= render "shared/primary_nav", current: :more %>
+
+  <section class="space-y-8">
+    <%# Clinic Snapshot Section %>
+    <div class="space-y-4">
+      <p class="text-sm font-bold uppercase tracking-[0.12em] text-vinci-label">Clinic snapshot</p>
+      
+      <div class="rounded-3xl border border-vinci-border bg-vinci-base p-6 shadow-sm">
+        <% if @latest_concern.present? %>
+          <div class="space-y-6">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-wider text-vinci-text/60">Chief concern</p>
+              <h2 class="mt-1 text-2xl font-bold tracking-tight text-vinci-ink"><%= @latest_concern_flow&.title || @latest_concern.payload["flow_title"] %></h2>
+              <div class="mt-2 flex flex-wrap items-center gap-3">
+                <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-bold <%= @latest_concern.concern_disposition == "seek_urgent_care_now" ? "bg-vinci-urgent/10 text-vinci-urgent" : (@latest_concern.concern_disposition == "call_pediatrician_today" ? "bg-vinci-caution/15 text-vinci-caution" : "bg-vinci-accent-tint/40 text-vinci-accent") %>">
+                  <%= ConcernFlow.disposition_label(@latest_concern.concern_disposition) %>
+                </span>
+                <span class="text-xs font-medium text-vinci-text/70"><%= @latest_concern.created_at.strftime("%b %-d at %-I:%M %p") %></span>
+              </div>
+            </div>
+
+            <% if @latest_concern_reason.present? %>
+              <div class="border-l-4 border-vinci-accent/20 pl-4 py-1">
+                <p class="text-sm font-bold text-vinci-ink">Primary Trigger</p>
+                <p class="mt-1 text-sm leading-relaxed text-vinci-text"><%= @latest_concern_reason %></p>
+              </div>
+            <% end %>
+
+            <% if @latest_concern_answers.any? %>
+              <div class="space-y-3 pt-4 border-t border-vinci-border/50">
+                <p class="text-xs font-bold uppercase tracking-wider text-vinci-text/60">Supporting context</p>
+                <div class="grid gap-y-3 sm:grid-cols-2 sm:gap-x-8">
+                  <% @latest_concern_answers.each do |item| %>
+                    <div class="text-sm leading-relaxed">
+                      <p class="font-bold text-vinci-ink"><%= item[:question] %></p>
+                      <p class="text-vinci-text"><%= item[:answer] %></p>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="py-2">
+            <p class="text-lg font-semibold text-vinci-ink">No concern check in this window</p>
+            <p class="mt-1 text-sm text-vinci-text">Start a concern flow from Today if something is worrying you.</p>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="rounded-3xl border border-vinci-border bg-vinci-surface/40 p-6">
+        <div class="flex flex-wrap items-center justify-between gap-6">
+          <div class="space-y-1">
+            <p class="text-xs font-semibold uppercase tracking-wider text-vinci-text/60">Baby</p>
+            <p class="text-lg font-bold text-vinci-ink"><%= current_baby.first_name %>, <%= baby_age_in_words(current_baby) %></p>
+          </div>
+          <div class="space-y-1">
+            <p class="text-xs font-semibold uppercase tracking-wider text-vinci-text/60">Window</p>
+            <p class="text-lg font-bold text-vinci-ink"><%= @window_label %></p>
+          </div>
+          <div class="space-y-1">
+            <p class="text-xs font-semibold uppercase tracking-wider text-vinci-text/60">Generated</p>
+            <p class="text-sm font-medium text-vinci-text"><%= Time.current.strftime("%B %-d, %Y at %-I:%M %p") %></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%# Recent Context & Totals %>
+    <div class="space-y-8">
+      <%# Recent Context %>
+      <div class="space-y-4">
+        <p class="text-sm font-bold uppercase tracking-[0.12em] text-vinci-label">Recent status</p>
+        <div class="rounded-3xl border border-vinci-border bg-vinci-base p-6 shadow-sm">
+          <div class="divide-y divide-vinci-border/50">
+            <% [
+              ["Latest feed", @latest_feed],
+              ["Latest diaper", @latest_diaper],
+              ["Latest sleep", @latest_sleep]
+            ].each do |label, event| %>
+              <div class="flex items-center justify-between py-4 first:pt-0 last:pb-0 gap-4">
+                <div class="min-w-0">
+                  <p class="text-xs font-bold uppercase tracking-wider text-vinci-text/60"><%= label %></p>
+                  <% if event.present? %>
+                    <p class="text-base font-bold text-vinci-ink truncate"><%= care_event_detail(event) %></p>
+                    <p class="text-xs font-medium text-vinci-text/70"><%= care_event_time(event) %></p>
+                  <% else %>
+                    <p class="text-base font-medium text-vinci-text/40 italic">No data logged</p>
+                  <% end %>
+                </div>
+                <% if event.present? %>
+                  <div class="shrink-0 self-center">
+                    <span class="rounded-full bg-vinci-accent-tint/30 px-2 py-1 text-[10px] font-bold uppercase tracking-tight text-vinci-accent">Verified</span>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <%# Summary %>
+      <div class="space-y-4">
+        <p class="text-sm font-bold uppercase tracking-[0.12em] text-vinci-label">Window totals</p>
+        <div class="rounded-3xl border border-vinci-border bg-vinci-base p-6 shadow-sm">
+          <div class="grid grid-cols-2 gap-x-8 gap-y-8 sm:grid-cols-4">
+            <% [
+              ["Feeds", @feed_count],
+              ["Diapers", @diaper_count],
+              ["Sleeps", @sleep_count],
+              ["Concerns", @concern_count]
+            ].each do |label, count| %>
+              <div class="space-y-1">
+                <p class="text-3xl font-black tracking-tight text-vinci-ink"><%= count %></p>
+                <p class="text-[10px] font-bold uppercase tracking-widest text-vinci-text/60"><%= label %></p>
+              </div>
+            <% end %>
+          </div>
+
+          <div class="mt-8 pt-6 border-t border-vinci-border/50">
+            <div class="flex flex-wrap items-center gap-4">
+              <p class="text-xs font-bold uppercase tracking-wider text-vinci-text/60">Change window:</p>
+              <div class="flex flex-1 gap-2">
+                <% [["24h", "24h"], ["72h", "72h"], ["7d", "7d"]].each do |label, val| %>
+                  <% is_active = (params[:window] == val) || (params[:window].blank? && val == "72h") %>
+                  <%= link_to doctor_summary_path(window: val), 
+                      class: "flex-1 min-h-10 inline-flex items-center justify-center rounded-full border text-xs font-bold transition-all #{is_active ? 'bg-vinci-ink text-white border-vinci-ink shadow-md' : 'bg-vinci-surface text-vinci-ink border-vinci-border hover:bg-vinci-base'}" do %>
+                    <%= label %>
+                  <% end %>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <% if @recent_concerns.any? %>
+      <section class="space-y-4">
+        <p class="text-sm font-bold uppercase tracking-[0.12em] text-vinci-label">Safety check history</p>
+        <div class="rounded-3xl border border-vinci-border bg-vinci-base p-6 shadow-sm">
+          <div class="divide-y divide-vinci-border/50">
+            <% @recent_concerns.each do |concern| %>
+              <% concern_flow = ConcernFlow.find(concern.concern_flow_key) %>
+              <% answer_summary = concern_flow&.answer_summary(concern.concern_answers) || [] %>
+              <% concern_reason = concern_flow&.result_reason(concern.concern_answers) %>
+            <div class="py-6 first:pt-0 last:pb-0">
+              <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div class="space-y-1">
+                  <p class="text-xs font-bold uppercase tracking-wider text-vinci-text/60"><%= concern.created_at.strftime("%b %-d at %-I:%M %p") %></p>
+                  <p class="text-base font-bold text-vinci-ink"><%= concern.payload["flow_title"] %></p>
+                </div>
+                <div class="shrink-0">
+                  <span class="inline-flex items-center rounded-lg px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-widest <%= concern.concern_disposition == "seek_urgent_care_now" ? "bg-vinci-urgent/10 text-vinci-urgent" : (concern.concern_disposition == "call_pediatrician_today" ? "bg-vinci-caution/15 text-vinci-caution" : "bg-vinci-accent-tint/40 text-vinci-accent") %>">
+                    <%= ConcernFlow.disposition_label(concern.concern_disposition) %>
+                  </span>
+                </div>
+              </div>
+
+                <% if concern_reason.present? %>
+                  <p class="mt-3 text-sm leading-relaxed text-vinci-text"><span class="font-bold text-vinci-ink">Trigger:</span> <%= concern_reason %></p>
+                <% end %>
+
+                <% if answer_summary.any? %>
+                  <details class="group mt-3">
+                    <summary class="flex cursor-pointer list-none items-center text-xs font-bold uppercase tracking-widest text-vinci-text/50 hover:text-vinci-accent transition-colors marker:hidden">
+                      View parent answers
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="ml-1 size-2.5 transition-transform group-open:rotate-180"><polyline points="6 9 12 15 18 9"/></svg>
+                    </summary>
+                    <div class="mt-3 grid gap-3 sm:grid-cols-2 rounded-xl bg-vinci-surface/50 p-4">
+                      <% answer_summary.each do |item| %>
+                        <div class="text-xs leading-relaxed">
+                          <p class="font-bold text-vinci-ink"><%= item[:question] %></p>
+                          <p class="text-vinci-text"><%= item[:answer] %></p>
+                        </div>
+                      <% end %>
+                    </div>
+                  </details>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </section>
+    <% end %>
+
+    <section class="space-y-4">
+      <p class="text-sm font-bold uppercase tracking-[0.12em] text-vinci-label">Timeline</p>
+      <% if @care_events.any? %>
+        <div class="rounded-3xl border border-vinci-border bg-vinci-base px-6 py-2 shadow-sm">
+          <div class="divide-y divide-vinci-border/50">
+            <% @care_events.first(20).each do |event| %>
+              <%= render "timeline/care_event", event: event %>
+            <% end %>
+          </div>
+        </div>
+      <% else %>
+        <div class="rounded-3xl border border-dashed border-vinci-border bg-vinci-base px-6 py-10 text-center">
+          <p class="text-base font-medium text-vinci-text/50">No events in this window</p>
+        </div>
+      <% end %>
+    </section>
+
+    <footer class="rounded-3xl border border-dashed border-vinci-border bg-vinci-surface/30 px-6 py-6 text-center">
+      <p class="text-xs font-bold uppercase tracking-widest text-vinci-text/40">Verified Record</p>
+      <p class="mt-2 text-sm leading-relaxed text-vinci-text/60">
+        Baby: <span class="font-bold text-vinci-ink"><%= current_baby.first_name %></span> • 
+        Age: <span class="font-bold text-vinci-ink"><%= baby_age_in_words(current_baby) %></span><br>
+        Generated: <%= Time.current.strftime("%B %-d, %Y at %-I:%M %p") %>
+      </p>
+    </footer>
+  </section>
+
+  <%= render "shared/sticky_action_bar" %>
+</section>

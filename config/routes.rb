@@ -15,6 +15,12 @@ Rails.application.routes.draw do
     end
   end
   resources :care_events, only: %i[edit update destroy]
+  resources :concerns, only: %i[index show update] do
+    member do
+      get :result
+    end
+  end
+  resource :doctor_summary, only: %i[show], controller: :doctor_summary
   get "join/:token", to: "invites#show", as: :invite
   post "join/:token", to: "invite_acceptances#create", as: :invite_acceptance
 

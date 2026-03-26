@@ -1,0 +1,73 @@
+<% content_for :title, "#{@concern_flow.title} | BabyVinci" %>
+
+<section class="space-y-6 pb-28">
+  <header class="space-y-3 border-b border-vinci-border/80 pb-5">
+    <div class="flex items-center gap-2">
+      <%= link_to concerns_path, class: "text-sm text-vinci-text hover:text-vinci-accent transition" do %>
+        ← Back
+      <% end %>
+    </div>
+
+    <div class="space-y-2">
+      <p class="text-sm font-semibold uppercase tracking-[0.24em] text-vinci-label">Safety check</p>
+      <h1 class="text-2xl font-semibold tracking-tight text-vinci-ink"><%= @concern_flow.title %></h1>
+    </div>
+
+    <p class="max-w-[18rem] text-base leading-7 text-vinci-text">
+      <%= @concern_flow.opening %>
+    </p>
+  </header>
+
+  <% if @current_question %>
+    <section class="space-y-4">
+      <div class="flex items-center gap-2">
+        <span class="rounded-full bg-vinci-accent-tint px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-vinci-accent">
+          Question <%= @current_question_index + 1 %> of <%= @concern_flow.questions.length %>
+        </span>
+      </div>
+
+      <%= form_with url: concern_path(@concern_flow), method: :patch, class: "space-y-5" do |form| %>
+        <div class="rounded-[26px] border border-vinci-border bg-vinci-base p-5">
+          <p class="text-lg font-semibold tracking-tight text-vinci-ink"><%= @current_question[:text] %></p>
+
+          <% if @current_question[:type] == "choice" %>
+            <div class="mt-4 space-y-2">
+              <% @current_question[:options].each do |option| %>
+                <label class="flex cursor-pointer items-center gap-3 rounded-[20px] border border-vinci-border/60 bg-vinci-surface px-4 py-4 transition hover:border-vinci-accent/40">
+                  <%= form.radio_button "answers[#{@current_question[:id]}]", option[:value], 
+                      class: "size-5 text-vinci-accent focus:ring-vinci-accent",
+                      required: true %>
+                  <span class="text-base font-medium text-vinci-ink"><%= option[:label] %></span>
+                </label>
+              <% end %>
+            </div>
+          <% elsif @current_question[:type] == "multiselect" %>
+            <div class="mt-4 space-y-2">
+              <% @current_question[:options].each do |option| %>
+                <label class="flex cursor-pointer items-center gap-3 rounded-[20px] border border-vinci-border/60 bg-vinci-surface px-4 py-4 transition hover:border-vinci-accent/40">
+                  <%= form.check_box "answers[#{@current_question[:id]}][]", { 
+                      class: "size-5 rounded text-vinci-accent focus:ring-vinci-accent",
+                      multiple: true
+                    }, option[:value], nil %>
+                  <span class="text-base font-medium text-vinci-ink"><%= option[:label] %></span>
+                </label>
+              <% end %>
+            </div>
+            <p class="mt-3 text-sm text-vinci-text">Select all that apply</p>
+          <% end %>
+        </div>
+
+        <%= form.submit "Continue →", class: "inline-flex min-h-12 w-full items-center justify-center rounded-full bg-vinci-accent px-4 py-3 text-base font-semibold text-vinci-base transition hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vinci-accent/20" %>
+      <% end %>
+    </section>
+  <% end %>
+
+  <section class="rounded-[20px] border border-dashed border-vinci-border bg-vinci-surface px-4 py-5">
+    <p class="text-sm leading-6 text-vinci-text">
+      This tool helps you decide whether to watch, call, or seek care. 
+      It does not diagnose conditions. When in doubt, contact your pediatrician.
+    </p>
+  </section>
+
+  <%= render "shared/sticky_action_bar" %>
+</section>

@@ -1,0 +1,113 @@
+DOCTOR SUMMARY
+BabyVinci
+
+Parent-generated screening summary, not a diagnosis.
+
+Baby: <%= current_baby.first_name %>
+Age: <%= baby_age_in_words(current_baby) %>
+Window: <%= @window_label %>
+Generated: <%= Time.current.strftime("%B %-d, %Y at %-I:%M %p") %>
+
+CLINIC SNAPSHOT
+---------------
+Chief concern:
+<% if @latest_concern %>
+<%= @latest_concern_flow&.title || @latest_concern.payload["flow_title"] %>
+  Result: <%= ConcernFlow.disposition_label(@latest_concern.concern_disposition) %>
+  Date: <%= @latest_concern.created_at.strftime("%B %-d, %Y at %-I:%M %p") %>
+<% if @latest_concern_reason.present? %>
+  Why this result: <%= @latest_concern_reason %>
+<% end %>
+<% if @latest_concern_answers.any? %>
+  What the parent answered:
+<% @latest_concern_answers.each do |item| %>
+    - <%= item[:question] %>: <%= item[:answer] %>
+<% end %>
+<% end %>
+<% else %>
+No concern check in this window.
+<% end %>
+
+Visit context:
+  Baby: <%= current_baby.first_name %>, <%= baby_age_in_words(current_baby) %>
+  Window: <%= @window_label %>
+  Generated: <%= Time.current.strftime("%B %-d, %Y at %-I:%M %p") %>
+
+RECENT CONTEXT
+--------------
+<% [
+  ["Latest feed", @latest_feed],
+  ["Latest diaper", @latest_diaper],
+  ["Latest sleep", @latest_sleep]
+].each do |label, event| %>
+<% if event %>
+<%= label %>: <%= "#{event.started_at.strftime('%b %-d, %-I:%M %p')} - #{care_event_detail(event)} (#{care_event_author(event)})" %>
+<% else %>
+<%= label %>: No data in this window
+<% end %>
+<% end %>
+
+WINDOW TOTALS
+-------------
+Feeds: <%= @feed_count %>
+Diapers: <%= @diaper_count %>
+Sleeps: <%= @sleep_count %>
+Concerns flagged: <%= @concern_count %>
+
+<% if @recent_concerns.any? %>
+RECENT SAFETY CHECKS
+--------------------
+<% @recent_concerns.each do |concern| %>
+<%= concern.payload["flow_title"] %>
+  Result: <%= ConcernFlow.disposition_label(concern.concern_disposition) %>
+  Date: <%= concern.created_at.strftime("%B %-d, %Y at %-I:%M %p") %>
+<% if concern_flow = ConcernFlow.find(concern.concern_flow_key) %>
+<% answer_summary = concern_flow.answer_summary(concern.concern_answers) %>
+<% concern_reason = concern_flow.result_reason(concern.concern_answers) %>
+<% if concern_reason.present? %>
+  Why this result: <%= concern_reason %>
+<% end %>
+<% if answer_summary.any? %>
+  Parent answers:
+<% answer_summary.each do |item| %>
+    - <%= item[:question] %>: <%= item[:answer] %>
+<% end %>
+<% end %>
+<% end %>
+
+<% end %>
+<% end %>
+
+<% if @care_events.any? %>
+RECENT EVENTS
+-------------
+<% @care_events.first(30).each do |event| %>
+<%= event.started_at.strftime("%Y-%m-%d %H:%M") %> - <%= event.user.name %>
+  <%= case event.kind
+    when "feed"
+      mode = event.payload["mode"]&.humanize || "Feed"
+      details = []
+      details << "#{event.payload["amount_ml"]}ml" if event.payload["amount_ml"]
+      details << "#{event.payload["duration_min"]}min" if event.payload["duration_min"]
+      details << event.payload["side"]&.humanize if event.payload["side"]
+      "#{mode}#{details.any? ? " (#{details.join(", ")})" : ""}"
+    when "diaper"
+      types = []
+      types << "Wet" if event.diaper_pee?
+      types << "Poop" if event.diaper_poop?
+      "Diaper: #{types.join(" + ")}#{event.diaper_color ? " (#{event.diaper_color})" : ""}"
+    when "sleep"
+      duration = event.duration_minutes
+      duration ? "Sleep (#{duration} min)" : "Sleep started"
+    when "concern"
+      "Concern: #{event.payload["flow_title"]} - #{ConcernFlow.disposition_label(event.concern_disposition)}"
+    else
+      event.kind.humanize
+    end %>
+
+<% end %>
+<% end %>
+
+---
+This summary was generated from BabyVinci and covers <%= @window_label.downcase %>.
+For urgent concerns, contact your pediatrician or seek emergency care.

@@ -1,0 +1,69 @@
+<% content_for :title, "Result | #{@concern_flow.title} | BabyVinci" %>
+
+<section class="space-y-6 pb-28">
+  <header class="space-y-3 border-b border-vinci-border/80 pb-5">
+    <div class="flex items-center gap-2">
+      <%= link_to today_path, class: "text-sm text-vinci-text hover:text-vinci-accent transition" do %>
+        ← Back to Today
+      <% end %>
+    </div>
+
+    <div class="space-y-2">
+      <p class="text-sm font-semibold uppercase tracking-[0.24em] text-vinci-label">Safety check result</p>
+      <h1 class="text-2xl font-semibold tracking-tight text-vinci-ink"><%= @concern_flow.title %></h1>
+    </div>
+  </header>
+
+  <section class="rounded-[30px] border border-vinci-border/80 bg-vinci-base p-6">
+    <% disposition_classes = case @disposition
+      when "seek_urgent_care_now" 
+        { bg: "bg-vinci-urgent/15", border: "border-vinci-urgent/40", icon_bg: "bg-vinci-urgent/20", text: "text-vinci-urgent" }
+      when "call_pediatrician_today" 
+        { bg: "bg-vinci-caution/15", border: "border-vinci-caution/40", icon_bg: "bg-vinci-caution/20", text: "text-vinci-caution" }
+      else 
+        { bg: "bg-vinci-surface", border: "border-vinci-border/80", icon_bg: "bg-vinci-accent-tint/60", text: "text-vinci-ink" }
+    end %>
+
+    <div class="rounded-[26px] border <%= disposition_classes[:border] %> <%= disposition_classes[:bg] %> p-5">
+      <div class="flex items-center gap-3">
+        <div class="flex size-12 items-center justify-center rounded-full <%= disposition_classes[:icon_bg] %>">
+          <svg viewBox="0 0 24 24" fill="currentColor" class="size-6 <%= @disposition == "seek_urgent_care_now" ? "text-vinci-urgent" : (@disposition == "call_pediatrician_today" ? "text-vinci-caution" : "text-vinci-accent") %>">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+          </svg>
+        </div>
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-[0.18em] text-vinci-text">Recommendation</p>
+          <p class="text-xl font-semibold tracking-tight <%= disposition_classes[:text] %>"><%= @disposition_label %></p>
+        </div>
+      </div>
+
+      <p class="mt-4 text-base leading-7 text-vinci-ink"><%= @disposition_description %></p>
+    </div>
+
+    <div class="mt-5 space-y-3">
+      <% if @disposition == "seek_urgent_care_now" %>
+        <p class="text-base leading-7 text-vinci-ink">
+          <span class="font-semibold">If you cannot get there quickly,</span> call your local emergency number or pediatrician's after-hours line.
+        </p>
+      <% elsif @disposition == "call_pediatrician_today" %>
+        <p class="text-base leading-7 text-vinci-ink">
+          <span class="font-semibold">Call your pediatrician's office today.</span> If after hours, use their on-call service or nurse line.
+        </p>
+      <% else %>
+        <p class="text-base leading-7 text-vinci-ink">
+          <span class="font-semibold">Watch your baby closely.</span> Keep logging feeds and diapers. Contact your pediatrician if anything changes.
+        </p>
+      <% end %>
+    </div>
+  </section>
+
+  <section class="rounded-[26px] border border-vinci-border bg-vinci-base p-5">
+    <p class="text-sm font-semibold uppercase tracking-[0.18em] text-vinci-label">What you told us</p>
+    <p class="mt-3 text-base leading-6 text-vinci-text">
+      <%= @concern_flow.title %> • Completed <%= @care_event.created_at.strftime("%B %-d at %-I:%M %p") %>
+    </p>
+    <%= link_to "See all recent concerns →", more_path, class: "mt-3 inline-block text-sm font-semibold text-vinci-accent underline decoration-vinci-accent/60 decoration-2 underline-offset-4 transition-colors hover:text-vinci-ink" %>
+  </section>
+
+  <%= render "shared/sticky_action_bar" %>
+</section>

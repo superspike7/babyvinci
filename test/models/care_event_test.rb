@@ -91,6 +91,25 @@ class CareEventTest < ActiveSupport::TestCase
     assert_equal 120, sleep.duration_minutes
   end
 
+  test "sleep duration does not go negative" do
+    baby = BabyCreator.create!(
+      user: users(:one),
+      first_name: "Milo",
+      birth_at: Time.zone.local(2026, 3, 20, 3, 45)
+    )
+
+    sleep = CareEvent.create!(
+      baby: baby,
+      user: users(:one),
+      kind: "sleep",
+      started_at: Time.zone.local(2026, 3, 23, 9, 30),
+      ended_at: Time.zone.local(2026, 3, 23, 7, 30),
+      payload: {}
+    )
+
+    assert_equal 0, sleep.duration_minutes
+  end
+
   test "cannot create overlapping active sleep" do
     baby = BabyCreator.create!(
       user: users(:one),
