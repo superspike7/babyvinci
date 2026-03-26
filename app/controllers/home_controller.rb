@@ -12,6 +12,7 @@ class HomeController < ApplicationController
     @last_diaper = latest_started_event_for("diaper")
     @active_sleep = current_baby.care_events.active_sleep.first
     @last_sleep = latest_started_event_for("sleep")
+    @guidance_notes = Guidance.for_age_in_days(baby_age_in_days(current_baby))
   end
 
   private
@@ -21,5 +22,9 @@ class HomeController < ApplicationController
 
     def latest_started_event_for(kind)
       visible_care_events.for_kind(kind).first
+    end
+
+    def baby_age_in_days(baby)
+      ((Time.zone.today - baby.birth_at.to_date).to_i + 1).clamp(0, Float::INFINITY)
     end
 end

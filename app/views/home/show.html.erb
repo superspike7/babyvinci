@@ -178,6 +178,33 @@
     <% end %>
   </section>
 
+  <% if @guidance_notes.any? %>
+    <section class="rounded-[26px] border border-vinci-border/60 bg-vinci-base p-5">
+      <details class="group">
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 marker:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vinci-accent/15 [&::-webkit-details-marker]:hidden">
+          <div class="flex items-center gap-3">
+            <div class="flex size-10 items-center justify-center rounded-full bg-vinci-accent-tint/60">
+              <svg viewBox="0 0 24 24" fill="currentColor" class="size-5 text-vinci-accent">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+              </svg>
+            </div>
+            <p class="text-sm font-semibold uppercase tracking-[0.24em] text-vinci-label">At this age</p>
+          </div>
+          <span class="flex size-10 items-center justify-center rounded-full text-vinci-text transition group-open:rotate-180" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="size-5">
+              <path d="m6 9 6 6 6-6"/>
+            </svg>
+          </span>
+        </summary>
+        <div class="mt-4 space-y-3 pl-13">
+          <% @guidance_notes.each do |note| %>
+            <p class="text-base leading-6 text-vinci-ink"><%= note %></p>
+          <% end %>
+        </div>
+      </details>
+    </section>
+  <% end %>
+
   <section class="rounded-[26px] border border-vinci-border bg-vinci-base p-5">
     <div class="flex items-center justify-between gap-4">
       <p class="text-sm font-semibold uppercase tracking-[0.18em] text-vinci-label">Recent activity</p>

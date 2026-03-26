@@ -19,7 +19,7 @@ Active canonical product spec
 
 - Current phase: Phase 3 - Sleep + Age-Based Guidance
 - Current milestone: Phase 3 in progress
-- Current task: P3-01 Sleep start / end flow [COMPLETE]
+- Current task: P3-03 Guidance notes on Today [COMPLETE]
 - Blockers: None
 - Last updated: 2026-03-26
 
@@ -38,6 +38,10 @@ Active canonical product spec
 - 2026-03-25: `agent-browser` verified P2-04 on `http://127.0.0.1:3000`: new account creation, baby profile setup, setting reminder via 1-hour preset, reminder appearing in scheduled state, manually triggering sync failure state, and confirming the calm failure message displays correctly with "Calendar sync failed. Your reminder is saved in BabyVinci." and "Tap edit to try again." guidance.
 - 2026-03-26: `bin/rails test` passed for all 81 tests including 8 new sleep tests (6 model tests, 4 integration tests) covering sleep creation, ending, validation, overlapping prevention, scope queries, and timeline rendering.
 - 2026-03-26: `agent-browser` verified P3-01 on `http://127.0.0.1:3000`: Sleep button visible in sticky action bar, Start sleep form with time picker, active sleep card showing "Sleeping now" with live duration timer, End sleep button working inline, sticky bar transforming from "Sleep | Feed | Diaper" to "End sleep | Feed | Diaper", and completed sleep appearing in Timeline with timestamp.
+- 2026-03-26: `bin/rails test` passed for all 81 tests with no regressions after P3-02 verification.
+- 2026-03-26: `agent-browser` verified P3-02 on `http://127.0.0.1:3000`: Today clearly shows active sleep state with "Sleep status" header, "Now" label, "Sleeping now" text, live elapsed timer showing "Started 1 minute ago", and "End sleep →" button. When sleep ends, Today displays "Last sleep" card with duration (e.g., "52 min") and timestamp (e.g., "Today at 10:32 PM"). Sticky action bar correctly transforms from "Sleep | Feed | Diaper" to "End sleep | Feed | Diaper" during active sleep. Sleep state shares screen cleanly with feed, diaper, reminder, and timeline content.
+- 2026-03-26: `bin/rails test` passed for all 100 tests including 19 new guidance tests covering age bucket selection, content loading, max 2 notes enforcement, edge cases (negative ages, ages beyond buckets), and Today page integration.
+- 2026-03-26: `agent-browser` verified P3-03 on `http://127.0.0.1:3000`: "At this age" section now uses accordion/summary UI that expands/collapses on tap, saving screen space. Evidence-based content updated from AAP (American Academy of Pediatrics) and Stanford Medicine Children's Health research. For 6-day-old baby shows: "Breastfed babies typically feed 10-12 times per 24 hours. Bottle-fed babies usually eat every 2-3 hours. Both are normal." and "Newborns sleep about 16-17 hours per day, waking every few hours to eat. This is expected." Sources cited in code: AAP HealthyChildren.org (Dr. Sanjeev Jain, MD, FAAP & Dr. Maya Bunik, MD, MPH, FAAP) and Stanford Medicine Children's Health "Newborn Sleep Patterns". No dosage recommendations included per PRD "no medical theater" principle. Guidance section positioned after reminder card to keep reminders prominent. Accordion uses info icon and rotate chevron for clear affordance.
 
 ### Phase 1 tracker
 - [x] P1-01 Parent sign up / sign in
@@ -60,8 +64,8 @@ Active canonical product spec
 
 ### Phase 3 tracker
 - [x] P3-01 Sleep start / end flow
-- [ ] P3-02 Today sleep state
-- [ ] P3-03 Guidance notes on Today
+- [x] P3-02 Today sleep state
+- [x] P3-03 Guidance notes on Today
 - [ ] P3-04 Guidance content seeds
 
 ### Phase 4 tracker
@@ -863,11 +867,17 @@ Once reminder delivery is useful, the next step is helping parents understand sl
   - Guidance content is age-bucketed and easy to review.
   - Missing or unused content does not break `Today`.
   - Copy follows the product tone rules.
+  - Content is evidence-based from reputable pediatric sources (AAP, Stanford Medicine).
 - Written test proof:
   - Seeded guidance content loads for the defined age buckets.
   - Missing-content handling fails safely.
 - QA evidence:
   - Spot-check each seeded age bucket in the browser.
+- Research basis:
+  - AAP HealthyChildren.org: "How Often and How Much Should Your Baby Eat?" by Dr. Sanjeev Jain, MD, FAAP & Dr. Maya Bunik, MD, MPH, FAAP (AAP Section on Breastfeeding Chair)
+  - Stanford Medicine Children's Health: "Newborn Sleep Patterns"
+  - AAP Well-Child Visit Schedule for milestone timing
+  - No specific dosage recommendations (per pediatrician discretion and PRD "no medical theater" principle)
 
 #### Acceptance criteria
 - Parent can start or end sleep from Today in one tap.

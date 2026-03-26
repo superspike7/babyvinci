@@ -39,6 +39,11 @@ A newborn tracking app for co-parents, designed for use in complete darkness wit
 - For non-trivial work, get an independent review when an appropriate reviewer is available.
 - If a requirement is unverified, say so plainly and keep the task in progress.
 
+## Task Completion Authority
+- **NEVER mark PRD tasks as complete.** Only the user decides when a task is done.
+- Present test results and QA evidence, then ask: "Ready to mark complete?"
+- Wait for explicit user approval before updating PRD.md progress trackers.
+
 ## Verification
 - Don't assume code works. Always verify or ask how to verify.
 - Do not add Rails system tests. Prefer integration/controller/model tests for app coverage, and use `agent-browser` for end-to-end verification.
