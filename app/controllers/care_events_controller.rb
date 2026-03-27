@@ -2,17 +2,13 @@ class CareEventsController < ApplicationController
   before_action :require_current_baby
   before_action :set_care_event
   before_action :set_return_path
-  before_action :reject_sleep_edits, only: [ :edit, :update ]
 
   def edit
     render edit_template
   end
 
   def update
-    @care_event.assign_attributes(
-      started_at: started_at_from_params,
-      payload: payload_for(@care_event)
-    )
+    @care_event.assign_attributes(update_attributes)
 
     if @care_event.save
       redirect_to @return_path, notice: "#{@care_event.kind.capitalize} updated."
@@ -47,12 +43,37 @@ class CareEventsController < ApplicationController
     end
 
     def edit_template
-      @care_event.feed? ? "feeds/edit" : "diapers/edit"
+      if @care_event.feed?
+        "feeds/edit"
+      elsif @care_event.diaper?
+        "diapers/edit"
+      else
+        "sleeps/edit"
+      end
+    end
+
+    def update_attributes
+      attributes = {
+        started_at: started_at_from_params,
+        payload: payload_for(@care_event)
+      }
+
+      attributes[:ended_at] = ended_at_from_params if @care_event.completed_sleep?
+      attributes
     end
 
     def started_at_from_params
       value = care_event_params[:started_at]
-      return Time.zone.now.change(sec: 0) if value.blank?
+      return nil if value.blank?
+
+      Time.zone.parse(value)
+    rescue ArgumentError, TypeError
+      nil
+    end
+
+    def ended_at_from_params
+      value = care_event_params[:ended_at]
+      return nil if value.blank?
 
       Time.zone.parse(value)
     rescue ArgumentError, TypeError
@@ -60,11 +81,13 @@ class CareEventsController < ApplicationController
     end
 
     def payload_for(care_event)
+      return {} if care_event.sleep?
+
       care_event.feed? ? feed_payload : diaper_payload
     end
 
     def care_event_params
-      params.fetch(:care_event, ActionController::Parameters.new).permit(:started_at, :mode, :amount_ml, :side, :duration_min, :diaper_type, :color)
+      params.fetch(:care_event, ActionController::Parameters.new).permit(:started_at, :ended_at, :mode, :amount_ml, :side, :duration_min, :diaper_type, :color)
     end
 
     def feed_payload
@@ -97,11 +120,5 @@ class CareEventsController < ApplicationController
 
     def require_current_baby
       redirect_to new_baby_path unless current_baby
-    end
-
-    def reject_sleep_edits
-      if @care_event.sleep?
-        redirect_to @return_path, alert: "Sleep events cannot be edited."
-      end
     end
 end

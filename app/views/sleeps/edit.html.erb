@@ -1,0 +1,12 @@
+<%= render "sleeps/form",
+  care_event: @care_event,
+  form_url: care_event_path(@care_event),
+  back_path: @return_path,
+  back_label: @return_label,
+  page_title: "Edit sleep",
+  chip_label: (@care_event.active_sleep? ? "Active" : "Recent event"),
+  intro: (@care_event.active_sleep? ? "Adjust when this sleep started. Use End sleep when the nap is over." : "Update this sleep or remove it if it was logged by mistake."),
+  submit_label: "Save changes",
+  delete_url: care_event_path(@care_event),
+  return_to: @return_path,
+  show_ended_at: @care_event.completed_sleep? %>

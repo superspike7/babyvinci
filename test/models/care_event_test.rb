@@ -91,7 +91,7 @@ class CareEventTest < ActiveSupport::TestCase
     assert_equal 120, sleep.duration_minutes
   end
 
-  test "sleep duration does not go negative" do
+  test "active sleep duration does not go negative when start time is in the future" do
     baby = BabyCreator.create!(
       user: users(:one),
       first_name: "Milo",
@@ -102,12 +102,51 @@ class CareEventTest < ActiveSupport::TestCase
       baby: baby,
       user: users(:one),
       kind: "sleep",
-      started_at: Time.zone.local(2026, 3, 23, 9, 30),
-      ended_at: Time.zone.local(2026, 3, 23, 7, 30),
+      started_at: 1.hour.from_now,
       payload: {}
     )
 
     assert_equal 0, sleep.duration_minutes
+  end
+
+  test "sleep end must be after start time" do
+    baby = BabyCreator.create!(
+      user: users(:one),
+      first_name: "Milo",
+      birth_at: Time.zone.local(2026, 3, 20, 3, 45)
+    )
+
+    sleep = CareEvent.create!(
+      baby: baby,
+      user: users(:one),
+      kind: "sleep",
+      started_at: Time.zone.local(2026, 3, 23, 7, 30),
+      ended_at: Time.zone.local(2026, 3, 23, 8, 30),
+      payload: {}
+    )
+
+    assert_not sleep.update(started_at: Time.zone.local(2026, 3, 23, 9, 30), ended_at: Time.zone.local(2026, 3, 23, 8, 30))
+    assert_includes sleep.errors[:ended_at], "must be after the start time"
+  end
+
+  test "completed sleep cannot be reopened" do
+    baby = BabyCreator.create!(
+      user: users(:one),
+      first_name: "Milo",
+      birth_at: Time.zone.local(2026, 3, 20, 3, 45)
+    )
+
+    sleep = CareEvent.create!(
+      baby: baby,
+      user: users(:one),
+      kind: "sleep",
+      started_at: Time.zone.local(2026, 3, 23, 7, 30),
+      ended_at: Time.zone.local(2026, 3, 23, 8, 30),
+      payload: {}
+    )
+
+    assert_not sleep.update(ended_at: nil)
+    assert_includes sleep.errors[:ended_at], "can't be blank"
   end
 
   test "cannot create overlapping active sleep" do

@@ -21,6 +21,8 @@ class CareEvent < ApplicationRecord
   validates :feed_duration_min, numericality: { only_integer: true, greater_than: 0 }, allow_blank: true, if: :feed?
   validates :diaper_type, presence: true, inclusion: { in: DIAPER_TYPES }, if: :diaper?
   validate :cannot_overlap_active_sleep, if: :sleep?, on: :create
+  validate :sleep_end_cannot_precede_start, if: :sleep?
+  validate :completed_sleep_cannot_reopen, if: :sleep?
 
   scope :chronological_desc, -> { order(started_at: :desc, id: :desc) }
   scope :for_kind, ->(kind) { where(kind: kind) }
@@ -114,5 +116,20 @@ class CareEvent < ApplicationRecord
       if existing
         errors.add(:base, "Cannot start a new sleep while another is active")
       end
+    end
+
+    def sleep_end_cannot_precede_start
+      return if ended_at.blank? || started_at.blank?
+      return unless ended_at < started_at
+
+      errors.add(:ended_at, "must be after the start time")
+    end
+
+    def completed_sleep_cannot_reopen
+      return unless persisted?
+      return unless attribute_in_database("ended_at").present?
+      return unless ended_at.blank?
+
+      errors.add(:ended_at, "can't be blank")
     end
 end

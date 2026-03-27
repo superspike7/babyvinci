@@ -834,15 +834,23 @@ Once reminder delivery is useful, the next step is helping parents understand sl
 - Expected behavior:
   - Start defaults to `now`.
   - End resolves the current active sleep for the baby.
+  - Completed sleeps can be corrected later by editing start and end times.
+  - Active sleeps can correct the start time without exposing direct end-time editing.
+  - Any sleep can be deleted if it was logged by mistake.
   - Only one active sleep can exist at a time.
   - Overlapping active sleeps are blocked.
 - Written test proof:
   - Sleep start creates one active sleep.
   - Sleep end closes the active sleep correctly.
   - A second active sleep cannot start while one is open.
+  - Completed sleeps can be edited without reopening them.
+  - Active sleeps can update the start time without bypassing the end flow.
+  - Active and completed sleeps can be deleted cleanly.
 - QA evidence:
   - Start sleep, refresh, and confirm it stays active.
   - End sleep and confirm the result looks correct.
+  - Edit one completed sleep and confirm the updated time and duration look correct.
+  - Delete one mistaken sleep and confirm `Today` and `Timeline` both update.
 
 ##### P3-02 Today sleep state
 - Contract: `Today` clearly shows whether the baby is sleeping now or what the latest sleep was.

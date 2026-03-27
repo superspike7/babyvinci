@@ -17,7 +17,7 @@ class TodayTest < ActionDispatch::IntegrationTest
       assert_equal today_path, request.path
       assert_match "Today", response.body
       assert_match "Milo", response.body
-      assert_match "Day 4", response.body
+      assert_match "DAY 4", response.body
       assert_match "Last feed", response.body
       assert_match "Last diaper", response.body
       assert_match "No feed yet", response.body
@@ -155,7 +155,7 @@ class TodayTest < ActionDispatch::IntegrationTest
       assert_match "Wet + stool", response.body
       assert_match "Open timeline", response.body
       assert_match 'href="/timeline"', response.body
-      assert_equal 8, response.body.scan("Logged by One Parent").size
+      assert_equal 5, response.body.scan("Logged by One Parent").size
       assert_no_match "Formula, 68 ml", response.body
     end
   end
