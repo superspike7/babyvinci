@@ -21,3 +21,11 @@ bin/dev
 ```bash
 bin/rails test
 ```
+
+## Production DB sync
+
+```bash
+bin/pull-production-db
+```
+
+The script snapshots production SQLite through `bin/kamal`, backs up your current local database, and replaces `storage/development.sqlite3` by default.

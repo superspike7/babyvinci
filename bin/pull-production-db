@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+REMOTE_DB_PATH="${REMOTE_DB_PATH:-/rails/storage/production.sqlite3}"
+REMOTE_TMP_DB="${REMOTE_TMP_DB:-/tmp/$(basename "$REMOTE_DB_PATH")}"
+LOCAL_DB_PATH="${LOCAL_DB_PATH:-$ROOT/storage/development.sqlite3}"
+TMP_DIR="${TMP_DIR:-$ROOT/tmp/db_sync}"
+ENCODED_PATH="$TMP_DIR/$(basename "$REMOTE_DB_PATH").base64"
+DOWNLOADED_PATH="$TMP_DIR/$(basename "$REMOTE_DB_PATH")"
+TIMESTAMP="$(date +%Y%m%d_%H%M%S)"
+
+mkdir -p "$TMP_DIR"
+
+if [[ -f "$LOCAL_DB_PATH" ]]; then
+  BACKUP_PATH="${LOCAL_DB_PATH}.backup.${TIMESTAMP}"
+  cp "$LOCAL_DB_PATH" "$BACKUP_PATH"
+  echo "Backed up local DB to $BACKUP_PATH"
+fi
+
+rm -f "${LOCAL_DB_PATH}-shm" "${LOCAL_DB_PATH}-wal"
+
+echo "Creating production snapshot from $REMOTE_DB_PATH..."
+REMOTE_RUBY="require 'sqlite3'; source = ENV.fetch('REMOTE_DB_PATH'); target = ENV.fetch('REMOTE_TMP_DB'); File.delete(target) if File.exist?(target); escaped = target.gsub(%q('), %q('')); db = SQLite3::Database.new(source); db.execute(%Q{VACUUM INTO '#{escaped}'}); puts File.size(target)"
+bin/kamal app exec --reuse "env REMOTE_DB_PATH=$REMOTE_DB_PATH REMOTE_TMP_DB=$REMOTE_TMP_DB bundle exec ruby -e \"$REMOTE_RUBY\""
+
+echo "Downloading snapshot to $DOWNLOADED_PATH..."
+bin/kamal app exec --reuse "base64 $REMOTE_TMP_DB" | perl -ne 'print if m{^[A-Za-z0-9+/=]+$}' > "$ENCODED_PATH"
+
+ruby -e "require 'base64'; File.binwrite(ARGV[1], Base64.decode64(File.read(ARGV[0])))" "$ENCODED_PATH" "$DOWNLOADED_PATH"
+cp "$DOWNLOADED_PATH" "$LOCAL_DB_PATH"
+
+echo "Local database replaced at $LOCAL_DB_PATH"
+
+ruby -e "require 'sqlite3'; db = SQLite3::Database.new(ARGV[0], readonly: true); puts({users: db.get_first_value('select count(*) from users'), babies: db.get_first_value('select count(*) from babies'), care_events: db.get_first_value('select count(*) from care_events')}.inspect)" "$LOCAL_DB_PATH"
