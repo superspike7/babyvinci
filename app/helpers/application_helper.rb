@@ -37,7 +37,7 @@ module ApplicationHelper
   end
 
   def baby_age_label(baby)
-    "Day #{baby_age_in_days(baby)}"
+    "Day #{baby_age_in_days(baby) + 1}"
   end
 
   def timeline_day_label(date)
@@ -270,9 +270,10 @@ module ApplicationHelper
       [ ((time - Time.current) / 60.0).ceil, 0 ].max
     end
 
-    def baby_age_in_days(baby)
-      ((Time.zone.today - baby.birth_at.to_date).to_i + 1).clamp(0, Float::INFINITY)
-    end
+  def baby_age_in_days(baby)
+    elapsed_seconds = Time.current - baby.birth_at
+    (elapsed_seconds / 1.day).floor.clamp(0, Float::INFINITY)
+  end
 
     def feed_detail(event)
       parts = [ feed_mode_label(event.payload["mode"]) ]

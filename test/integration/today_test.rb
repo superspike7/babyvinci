@@ -2,12 +2,12 @@ require "test_helper"
 
 class TodayTest < ActionDispatch::IntegrationTest
   test "signed in parent sees the today dashboard" do
-    travel_to Time.zone.local(2026, 3, 23, 8, 0) do
+    travel_to Time.zone.local(2026, 3, 28, 8, 0) do
       user = users(:one)
       BabyCreator.create!(
         user: user,
         first_name: "Milo",
-        birth_at: Time.zone.local(2026, 3, 20, 3, 45)
+        birth_at: Time.zone.local(2026, 3, 20, 8, 0)
       )
 
       post session_path, params: { email: user.email, password: "password" }
@@ -17,7 +17,8 @@ class TodayTest < ActionDispatch::IntegrationTest
       assert_equal today_path, request.path
       assert_match "Today", response.body
       assert_match "Milo", response.body
-      assert_match "DAY 4", response.body
+      assert_match "DAY 9", response.body
+      assert_match "8 days old", response.body
       assert_match "Feeds", response.body
       assert_match "Wet", response.body
       assert_match "Stool", response.body

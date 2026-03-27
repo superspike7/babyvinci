@@ -247,18 +247,19 @@ class DoctorSummaryTest < ActionDispatch::IntegrationTest
   end
 
   test "doctor summary shows correct baby age" do
-    baby = BabyCreator.create!(
-      user: users(:one),
-      first_name: "Milo",
-      birth_at: 7.days.ago
-    )
+    travel_to Time.zone.local(2026, 3, 28, 8, 0) do
+      BabyCreator.create!(
+        user: users(:one),
+        first_name: "Milo",
+        birth_at: Time.zone.local(2026, 3, 20, 8, 0)
+      )
 
-    sign_in_as(users(:one))
+      sign_in_as(users(:one))
 
-    get doctor_summary_path
-    assert_response :success
-    # Baby born 7 days ago will be "8 days old" (inclusive counting)
-    assert_match /days old/i, response.body
+      get doctor_summary_path
+      assert_response :success
+      assert_match "Milo, 8 days old", response.body
+    end
   end
 
   test "doctor summary is accessible from more page" do

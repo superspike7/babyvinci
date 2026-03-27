@@ -7,13 +7,15 @@ class TodayGuidanceTest < ActionDispatch::IntegrationTest
       BabyCreator.create!(
         user: user,
         first_name: "Milo",
-        birth_at: Time.zone.local(2026, 3, 24, 3, 45) # 3 days old
+        birth_at: Time.zone.local(2026, 3, 24, 8, 0) # 2 days old
       )
 
       post session_path, params: { email: user.email, password: "password" }
       follow_redirect!
 
       assert_response :success
+      assert_match "DAY 3", response.body
+      assert_match "2 days old", response.body
       assert_match "At this age", response.body
       assert_match "Breastfed babies typically feed 10-12 times per 24 hours", response.body
       assert_match "Newborns sleep about 16-17 hours per day", response.body

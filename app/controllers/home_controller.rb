@@ -124,6 +124,7 @@ class HomeController < ApplicationController
     end
 
     def baby_age_in_days(baby)
-      ((Time.zone.today - baby.birth_at.to_date).to_i + 1).clamp(0, Float::INFINITY)
+      elapsed_seconds = Time.current - baby.birth_at
+      (elapsed_seconds / 1.day).floor.clamp(0, Float::INFINITY)
     end
 end
