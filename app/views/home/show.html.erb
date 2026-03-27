@@ -86,7 +86,7 @@
                 <%= form_with model: @next_feed_reminder, url: next_feed_reminder_path, method: :patch, class: "space-y-3" do |f| %>
                   <%= f.datetime_local_field :target_at, value: next_feed_reminder_input_value(@next_feed_reminder), class: "block w-full rounded-xl border-vinci-border bg-vinci-surface text-sm font-medium focus:ring-vinci-accent/20" %>
                   <div class="grid grid-cols-2 gap-2">
-                    <%= button_to next_feed_reminder_path, method: :delete, class: "flex h-10 items-center justify-center rounded-full border border-vinci-border bg-vinci-base text-vinci-urgent" do %>
+                    <%= link_to next_feed_reminder_path, data: { turbo_method: :delete }, class: "flex h-10 items-center justify-center rounded-full border border-vinci-border bg-vinci-base text-vinci-urgent" do %>
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="size-4"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                     <% end %>
                     <%= f.submit "Save", class: "rounded-full bg-vinci-accent text-xs font-bold text-vinci-base" %>
