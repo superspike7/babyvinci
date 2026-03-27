@@ -8,40 +8,67 @@
         <h1 class="text-4xl font-black tracking-tighter text-vinci-ink">Today</h1>
       </div>
       <div class="flex flex-col items-end">
-        <div class="rounded-2xl bg-vinci-ink text-white px-4 py-2.5 shadow-lg shadow-vinci-ink/10">
+        <div class="rounded-2xl bg-vinci-ink px-4 py-2.5 text-white shadow-lg shadow-vinci-ink/10">
           <p class="text-[10px] font-black uppercase tracking-widest leading-none"><%= baby_age_label(current_baby).upcase %></p>
         </div>
       </div>
     </div>
-    <p class="text-base font-medium text-vinci-text/60">
+    <p class="text-base font-medium text-vinci-text/70">
       <span class="font-bold text-vinci-ink"><%= current_baby.first_name %></span> is <%= baby_age_in_words(current_baby) %>.
     </p>
   </header>
 
   <%= render "shared/primary_nav", current: :today %>
 
-  <%# ACTIVE STATUS DASHBOARD %>
+  <section class="space-y-3">
+    <p class="text-sm font-bold uppercase tracking-[0.12em] text-vinci-label">Today totals</p>
+    <div class="rounded-3xl border border-vinci-border bg-vinci-base p-5 shadow-sm">
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex-1 text-center border-r border-vinci-border last:border-0">
+          <p class="text-2xl font-black tracking-tight text-vinci-ink"><%= @today_feed_count %></p>
+          <p class="text-[9px] font-bold uppercase tracking-widest text-vinci-text/60">Feeds</p>
+        </div>
+        <div class="flex-1 text-center border-r border-vinci-border last:border-0">
+          <p class="text-2xl font-black tracking-tight text-vinci-ink"><%= @today_wet_diaper_count %></p>
+          <p class="text-[9px] font-bold uppercase tracking-widest text-vinci-text/60">Wet</p>
+        </div>
+        <div class="flex-1 text-center border-r border-vinci-border last:border-0">
+          <p class="text-2xl font-black tracking-tight text-vinci-ink"><%= @today_stool_diaper_count %></p>
+          <p class="text-[9px] font-bold uppercase tracking-widest text-vinci-text/60">Stool</p>
+        </div>
+        <div class="flex-[1.2] text-center">
+          <p class="text-2xl font-black tracking-tight text-vinci-ink"><%= today_sleep_total_label(@today_sleep_total_minutes) %></p>
+          <p class="text-[9px] font-bold uppercase tracking-widest text-vinci-text/60">Sleep</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <div class="space-y-3">
-    <% if @active_sleep %>
-      <div class="rounded-[28px] border border-vinci-border bg-vinci-accent px-5 py-5 text-vinci-surface shadow-md">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="flex size-10 items-center justify-center rounded-full bg-vinci-surface/20">
+    <div class="rounded-[28px] border border-vinci-border bg-vinci-accent px-5 py-5 text-vinci-surface shadow-md">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="flex size-10 items-center justify-center rounded-full bg-vinci-surface/20">
+            <% if @active_sleep %>
               <svg viewBox="0 0 24 24" fill="currentColor" class="size-5"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
-            </div>
-            <div>
-              <p class="text-xs font-bold uppercase tracking-widest opacity-70">Sleeping now</p>
-              <p class="text-lg font-black tracking-tight" data-controller="sleep-timer" data-sleep-timer-started-at-value="<%= @active_sleep.started_at.to_i %>" data-sleep-timer-target="elapsed">
-                <%= care_event_elapsed_label(@active_sleep.started_at) %>
-              </p>
-            </div>
+            <% else %>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="size-5"><path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+            <% end %>
           </div>
-          <div class="flex items-center gap-2">
-            <span class="rounded-full bg-vinci-surface/20 px-2 py-1 text-[10px] font-black uppercase tracking-widest">Active</span>
+          <div>
+            <p class="text-xs font-bold uppercase tracking-widest opacity-70"><%= @today_guidance[:eyebrow] %></p>
+            <% if @today_guidance[:sleep_started_at] %>
+              <p class="text-lg font-black tracking-tight" data-controller="sleep-timer" data-sleep-timer-started-at-value="<%= @today_guidance[:sleep_started_at] %>" data-sleep-timer-prefix-value="Sleeping for" data-sleep-timer-include-ago-value="false" data-sleep-timer-target="elapsed">
+                <%= @today_guidance[:headline] %>
+              </p>
+            <% else %>
+              <p class="text-lg font-black tracking-tight"><%= @today_guidance[:headline] %></p>
+            <% end %>
+            <p class="mt-1 text-sm font-semibold text-vinci-surface/80"><%= @today_guidance[:support] %></p>
           </div>
         </div>
       </div>
-    <% end %>
+    </div>
 
     <div class="rounded-[28px] border border-vinci-border/80 bg-vinci-accent-tint p-5 shadow-sm">
       <div class="flex items-center justify-between gap-4">
@@ -50,33 +77,24 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="size-5"><path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
           </div>
           <div>
-            <p class="text-[10px] font-bold uppercase tracking-widest text-vinci-label">Next feed reminder</p>
-            <p class="text-xl font-black tracking-tight text-vinci-accent">
-              <% if @next_feed_reminder.persisted? %>
-                <%= next_feed_reminder_label(@next_feed_reminder) %>
-              <% else %>
-                No reminder set
-              <% end %>
-            </p>
-           <% if @next_feed_reminder.persisted? %>
-              <p class="text-[10px] font-bold uppercase tracking-wider <%= @next_feed_reminder.target_at <= Time.current ? 'text-vinci-urgent' : 'text-vinci-text' %>">
-                <%= next_feed_reminder_state_label(@next_feed_reminder) %>
-              </p>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-vinci-label">Feed reminder</p>
+            <p class="text-xl font-black tracking-tight text-vinci-accent"><%= next_feed_reminder_title(@next_feed_reminder) %></p>
+            <% if @next_feed_reminder.persisted? %>
+              <p class="text-[11px] font-bold tracking-wide text-vinci-text/75"><%= next_feed_reminder_timing_label(@next_feed_reminder) %></p>
               <% if @next_feed_reminder.calendar_sync_failed_at.present? %>
                 <div class="mt-2 space-y-1">
                   <p class="text-[11px] font-semibold text-vinci-urgent">Calendar sync failed. Your reminder is saved in BabyVinci.</p>
                   <p class="text-[11px] text-vinci-text/70">Tap edit to try again.</p>
                 </div>
               <% end %>
+            <% else %>
+              <p class="text-[11px] font-semibold text-vinci-text/75">Add one if a shared nudge would help.</p>
             <% end %>
           </div>
         </div>
 
         <% if @next_feed_reminder.persisted? %>
           <div class="flex items-center gap-2">
-            <span class="hidden rounded-full bg-vinci-surface/60 px-2 py-1 text-[9px] font-black uppercase tracking-tighter text-vinci-text sm:inline-block">
-              <%= next_feed_reminder_compact_status(@next_feed_reminder) %>
-            </span>
             <details class="group relative">
               <summary class="flex size-10 cursor-pointer list-none items-center justify-center rounded-full bg-vinci-accent text-vinci-base shadow-sm transition active:scale-95">
                 <span class="sr-only">Edit reminder</span>
@@ -84,7 +102,7 @@
               </summary>
               <div class="absolute right-0 top-12 z-20 w-64 space-y-4 rounded-[24px] border border-vinci-border/70 bg-vinci-base p-5 shadow-2xl">
                 <div>
-                  <p class="text-[10px] font-bold uppercase tracking-widest text-vinci-label mb-3">Reset nudge</p>
+                  <p class="mb-3 text-[10px] font-bold uppercase tracking-widest text-vinci-label">Reset nudge</p>
                   <% reminder_presets = [[30, "30m"], [60, "1h"], [120, "2h"], [180, "3h"]] %>
                   <div class="grid grid-cols-2 gap-2">
                     <% reminder_presets.each do |minutes, label| %>
@@ -129,25 +147,50 @@
     </div>
   </div>
 
-  <%# HISTORY SNAPSHOT %>
   <div class="grid grid-cols-2 gap-3">
-    <div class="rounded-[28px] border border-vinci-border bg-vinci-base p-5 shadow-sm">
-      <p class="text-[10px] font-bold uppercase tracking-widest text-vinci-label">Last feed</p>
-      <p class="mt-2 text-xl font-black tracking-tight text-vinci-ink">
-        <%= @last_feed ? latest_care_event_label(@last_feed) { "feed" } : "No feed yet" %>
-      </p>
+    <div class="rounded-[28px] border border-vinci-border bg-vinci-base p-4 shadow-sm">
+      <p class="text-[9px] font-bold uppercase tracking-widest text-vinci-label">Last feed</p>
       <% if @last_feed %>
-        <p class="mt-1 text-[11px] font-bold leading-tight text-vinci-text/50 line-clamp-1 truncate"><%= care_event_detail(@last_feed) %></p>
+        <div class="mt-2 space-y-1.5">
+          <div class="flex items-baseline justify-between">
+            <p class="text-sm font-bold text-vinci-ink">Time</p>
+            <p class="text-sm font-black text-vinci-ink"><%= care_event_time(@last_feed) %></p>
+          </div>
+          <div class="flex items-baseline justify-between">
+            <p class="text-[10px] font-bold text-vinci-text/60">Since</p>
+            <p class="text-[10px] font-bold text-vinci-text/60"><%= compact_sleep_duration_label(elapsed_minutes_since(@last_feed.started_at)) %></p>
+          </div>
+          <div class="flex items-baseline justify-between">
+            <p class="text-[10px] font-bold text-vinci-text/60">Today</p>
+            <p class="text-[10px] font-bold text-vinci-text/60"><%= @today_feed_count %></p>
+          </div>
+          <p class="mt-1 rounded-lg bg-vinci-accent-tint/30 p-2 text-[10px] font-semibold text-vinci-accent"><%= care_event_detail(@last_feed) %></p>
+        </div>
+      <% else %>
+        <p class="mt-2 text-sm font-medium text-vinci-text/40 italic">No feed yet</p>
       <% end %>
     </div>
 
-    <div class="rounded-[28px] border border-vinci-border bg-vinci-base p-5 shadow-sm">
-      <p class="text-[10px] font-bold uppercase tracking-widest text-vinci-label">Last diaper</p>
-      <p class="mt-2 text-xl font-black tracking-tight text-vinci-ink">
-        <%= @last_diaper ? latest_care_event_label(@last_diaper) { "diaper" } : "No diaper yet" %>
-      </p>
+    <div class="rounded-[28px] border border-vinci-border bg-vinci-base p-4 shadow-sm">
+      <p class="text-[9px] font-bold uppercase tracking-widest text-vinci-label">Last diaper</p>
       <% if @last_diaper %>
-        <p class="mt-1 text-[11px] font-bold leading-tight text-vinci-text/50 line-clamp-1 truncate"><%= care_event_detail(@last_diaper) %></p>
+        <div class="mt-2 space-y-1.5">
+          <div class="flex items-baseline justify-between">
+            <p class="text-sm font-bold text-vinci-ink">Time</p>
+            <p class="text-sm font-black text-vinci-ink"><%= care_event_time(@last_diaper) %></p>
+          </div>
+          <div class="flex items-baseline justify-between">
+            <p class="text-[10px] font-bold text-vinci-text/60">Since</p>
+            <p class="text-[10px] font-bold text-vinci-text/60"><%= compact_sleep_duration_label(elapsed_minutes_since(@last_diaper.started_at)) %></p>
+          </div>
+          <div class="flex items-baseline justify-between gap-1">
+            <p class="text-[10px] font-bold text-vinci-text/60">Today</p>
+            <p class="text-[10px] font-bold text-vinci-text/60 truncate"><%= @today_wet_diaper_count %>W · <%= @today_stool_diaper_count %>S</p>
+          </div>
+          <p class="mt-1 rounded-lg bg-vinci-accent-tint/30 p-2 text-[10px] font-semibold text-vinci-accent"><%= care_event_detail(@last_diaper) %></p>
+        </div>
+      <% else %>
+        <p class="mt-2 text-sm font-medium text-vinci-text/40 italic">No diaper yet</p>
       <% end %>
     </div>
 
@@ -156,13 +199,11 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-[10px] font-bold uppercase tracking-widest text-vinci-label">Last sleep</p>
-            <p class="mt-1 text-lg font-black tracking-tight text-vinci-ink">
-              <%= @last_sleep ? sleep_duration_label(@last_sleep.duration_minutes) : "None yet" %>
-            </p>
+            <p class="mt-1 text-lg font-black tracking-tight text-vinci-ink"><%= @last_sleep ? sleep_duration_label(@last_sleep.duration_minutes) : "None yet" %></p>
           </div>
           <div class="flex items-center gap-3">
             <% if @last_sleep %>
-              <p class="text-xs font-bold text-vinci-text/40"><%= sleep_detail_label(@last_sleep) %></p>
+              <p class="text-xs font-bold text-vinci-text/50"><%= sleep_detail_label(@last_sleep) %></p>
               <%= link_to "Edit", edit_care_event_path(@last_sleep, return_to: today_path), class: "inline-flex min-h-10 items-center text-xs font-black uppercase tracking-widest text-vinci-accent underline decoration-vinci-accent/60 decoration-2 underline-offset-4 transition-colors hover:text-vinci-ink hover:decoration-vinci-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vinci-accent/25" %>
             <% end %>
           </div>
@@ -171,7 +212,6 @@
     <% end %>
   </div>
 
-  <%# SECONDARY / SCREENING %>
   <div class="space-y-3 pt-2">
     <section class="rounded-[28px] border border-vinci-border bg-vinci-base p-5 shadow-sm">
       <details class="group">
@@ -223,7 +263,7 @@
     <% end %>
 
     <section class="rounded-[28px] border border-vinci-border bg-vinci-base p-5 shadow-sm">
-      <div class="flex items-center justify-between gap-4 mb-4">
+      <div class="mb-4 flex items-center justify-between gap-4">
         <p class="text-[10px] font-black uppercase tracking-widest text-vinci-label">Recent activity</p>
         <%= link_to "Open timeline", timeline_path, class: "text-[10px] font-black uppercase tracking-widest text-vinci-accent underline underline-offset-4" %>
       </div>
@@ -243,4 +283,5 @@
   </div>
 
   <%= render "shared/sticky_action_bar" %>
+
 </section>

@@ -3,7 +3,9 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = ["elapsed"]
   static values = {
-    startedAt: Number
+    startedAt: Number,
+    prefix: { type: String, default: "Started" },
+    includeAgo: { type: Boolean, default: true }
   }
 
   connect() {
@@ -25,19 +27,23 @@ export default class extends Controller {
 
     let elapsedText
     if (diffMinutes < 1) {
-      elapsedText = "just now"
+      elapsedText = this.includeAgoValue ? "just now" : "0 min"
     } else if (diffMinutes < 60) {
-      elapsedText = `${diffMinutes} min ago`
+      elapsedText = `${diffMinutes} min`
     } else {
       const hours = Math.floor(diffMinutes / 60)
       const mins = diffMinutes % 60
       if (mins === 0) {
-        elapsedText = `${hours} hr ago`
+        elapsedText = `${hours} hr`
       } else {
-        elapsedText = `${hours} hr ${mins} min ago`
+        elapsedText = `${hours} hr ${mins} min`
       }
     }
 
-    this.elapsedTarget.textContent = `Started ${elapsedText}`
+    if (this.includeAgoValue && elapsedText !== "just now") {
+      elapsedText = `${elapsedText} ago`
+    }
+
+    this.elapsedTarget.textContent = `${this.prefixValue} ${elapsedText}`.trim()
   }
 }

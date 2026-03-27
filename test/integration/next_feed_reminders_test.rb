@@ -24,10 +24,9 @@ class NextFeedRemindersTest < ActionDispatch::IntegrationTest
       get today_path
 
       assert_response :success
-      assert_match "Next feed reminder", response.body
-      assert_match "Scheduled", response.body
-      assert_match "10:30 AM", response.body
-      assert_match "IN 1H 30M", response.body
+      assert_match "Feed reminder", response.body
+      assert_match "Set for 10:30 AM", response.body
+      assert_match "in 1 hr 30 min", response.body
     end
   end
 
@@ -65,7 +64,7 @@ class NextFeedRemindersTest < ActionDispatch::IntegrationTest
     assert_redirected_to today_path
     follow_redirect!
     assert_match "Next feed reminder cleared.", response.body
-    assert_match "No reminder set", response.body
+    assert_match "No feed reminder set", response.body
   end
 
   test "reminder access remains scoped to the correct baby workspace" do
@@ -81,7 +80,7 @@ class NextFeedRemindersTest < ActionDispatch::IntegrationTest
       get today_path
 
       assert_response :success
-      assert_match "No reminder set", response.body
+      assert_match "No feed reminder set", response.body
       assert_no_match "12:00 PM", response.body
 
       post next_feed_reminder_path, params: {
@@ -102,7 +101,7 @@ class NextFeedRemindersTest < ActionDispatch::IntegrationTest
     get today_path
 
     assert_response :success
-    assert_match "No reminder set", response.body
+    assert_match "No feed reminder set", response.body
     assert_match "Quick presets", response.body
     assert_match "30 min", response.body
     assert_match "1 hour", response.body
@@ -140,9 +139,9 @@ class NextFeedRemindersTest < ActionDispatch::IntegrationTest
       get today_path
 
       assert_response :success
-      assert_match "Scheduled", response.body
-      assert_match "4:30 PM", response.body
-      assert_match "IN 45M", response.body
+      assert_match "Feed reminder", response.body
+      assert_match "Set for 4:30 PM", response.body
+      assert_match "in 45 min", response.body
       assert_match "Edit reminder", response.body
       assert_match "Clear reminder", response.body
     end
@@ -158,9 +157,10 @@ class NextFeedRemindersTest < ActionDispatch::IntegrationTest
       get today_path
 
       assert_response :success
-      assert_match "Overdue", response.body
-      assert_match "3:00 PM", response.body
-      assert_match "OVERDUE 45M", response.body
+      assert_match "Feed reminder", response.body
+      assert_match "Set for 3:00 PM", response.body
+      assert_match "45 min ago", response.body
+      assert_no_match "Overdue", response.body
     end
   end
 

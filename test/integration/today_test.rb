@@ -18,10 +18,16 @@ class TodayTest < ActionDispatch::IntegrationTest
       assert_match "Today", response.body
       assert_match "Milo", response.body
       assert_match "DAY 4", response.body
+      assert_match "Feeds", response.body
+      assert_match "Wet", response.body
+      assert_match "Stool", response.body
+      assert_match "Sleep", response.body
       assert_match "Last feed", response.body
       assert_match "Last diaper", response.body
       assert_match "No feed yet", response.body
       assert_match "No diaper yet", response.body
+      assert_match "Today is still quiet", response.body
+      assert_match "No feed reminder set", response.body
       assert_match "Recent activity", response.body
       assert_match "Nothing logged yet", response.body
       assert_match 'href="/feeds/new"', response.body
@@ -59,7 +65,9 @@ class TodayTest < ActionDispatch::IntegrationTest
 
       assert_match "Feed logged", response.body
       assert_match "6 minutes ago", response.body
+      assert_match "7:54 AM", response.body
       assert_match "Formula, 90 ml", response.body
+      assert_match ">Today</p>", response.body
       assert_match "Logged by One Parent", response.body
     end
   end
@@ -90,7 +98,9 @@ class TodayTest < ActionDispatch::IntegrationTest
 
       assert_match "Diaper logged", response.body
       assert_match "6 minutes ago", response.body
+      assert_match "7:54 AM", response.body
       assert_match "Wet \+ stool, Yellow", response.body
+      assert_match "1W · 1S", response.body
       assert_match "Logged by One Parent", response.body
     end
   end
@@ -153,6 +163,7 @@ class TodayTest < ActionDispatch::IntegrationTest
       assert_match "2 minutes ago", response.body
       assert_match "Formula, 60 ml", response.body
       assert_match "Wet + stool", response.body
+      assert_match "4W · 1S", response.body
       assert_match "Open timeline", response.body
       assert_match 'href="/timeline"', response.body
       assert_equal 5, response.body.scan("Logged by One Parent").size
@@ -191,10 +202,11 @@ class TodayTest < ActionDispatch::IntegrationTest
       follow_redirect!
 
       assert_response :success
-      last_feed_section = response.body[/Last feed.*?<\/article>/m]
+      last_feed_section = response.body[/Last feed.*?Last diaper/m]
 
       assert_not_nil last_feed_section
-      assert_match "about 4 hours ago", last_feed_section
+      assert_match "11:00 PM", last_feed_section
+      assert_match "4h 15m", last_feed_section
     end
   end
 
@@ -225,11 +237,12 @@ class TodayTest < ActionDispatch::IntegrationTest
       post session_path, params: { email: user.email, password: "password" }
       follow_redirect!
 
-      last_feed_section = response.body[/Last feed.*?<\/article>/m]
+      last_feed_section = response.body[/Last feed.*?Last diaper/m]
 
       assert_not_nil last_feed_section
-      assert_match "about 5 hours ago", last_feed_section
-      assert_no_match "about 9 hours", last_feed_section
+      assert_match "11:00 PM", last_feed_section
+      assert_match "5h", last_feed_section
+      assert_no_match "1:30 PM", last_feed_section
     end
   end
 
@@ -276,12 +289,13 @@ class TodayTest < ActionDispatch::IntegrationTest
 
       assert_response :success
 
-      last_diaper_section = response.body[/Last diaper.*?<\/article>/m]
+      last_diaper_section = response.body[/Last diaper.*?(?:Last sleep|Concerned\?)/m]
       recent_activity_section = response.body[/Recent activity.*?<\/section>/m]
 
       assert_not_nil last_diaper_section
       assert_not_nil recent_activity_section
-      assert_match "about 5 hours ago", last_diaper_section
+      assert_match "11:30 PM", last_diaper_section
+      assert_match "4h 52m", last_diaper_section
       assert_no_match "No diaper yet", last_diaper_section
       assert_match "11:30 PM", recent_activity_section
       assert_match "11:00 PM", recent_activity_section
@@ -372,17 +386,95 @@ class TodayTest < ActionDispatch::IntegrationTest
 
       assert_response :success
 
-      last_diaper_section = response.body[/Last diaper.*?<\/article>/m]
+      last_diaper_section = response.body[/Last diaper.*?(?:Last sleep|Concerned\?)/m]
       recent_activity_section = response.body[/Recent activity.*?<\/section>/m]
 
       assert_not_nil last_diaper_section
       assert_not_nil recent_activity_section
+      assert_match "4:30 AM", last_diaper_section
       assert_match "just now", last_diaper_section
       assert_match "Wet \+ stool", last_diaper_section
       assert_match "Diaper", recent_activity_section
       assert_match "4:30 AM", recent_activity_section
       assert_match "just now", recent_activity_section
       assert_not_includes recent_activity_section, "1:30 PM"
+    end
+  end
+
+  test "today shows soft feed guidance when the last feed is getting stale" do
+    travel_to Time.zone.local(2026, 3, 23, 8, 0) do
+      user = users(:one)
+      baby = BabyCreator.create!(
+        user: user,
+        first_name: "Milo",
+        birth_at: Time.zone.local(2026, 3, 20, 3, 45)
+      )
+
+      CareEvent.create!(
+        baby: baby,
+        user: user,
+        kind: "feed",
+        started_at: Time.zone.local(2026, 3, 23, 5, 55),
+        payload: { "mode" => "formula", "amount_ml" => 75 }
+      )
+      CareEvent.create!(
+        baby: baby,
+        user: user,
+        kind: "diaper",
+        started_at: Time.zone.local(2026, 3, 23, 6, 40),
+        payload: { "pee" => true, "poop" => false }
+      )
+
+      post session_path, params: { email: user.email, password: "password" }
+      follow_redirect!
+
+      assert_response :success
+      assert_match "Feed likely soon", response.body
+      assert_match "Last feed was 2 hr 5 min ago", response.body
+      assert_match "1W · 0S", response.body
+    end
+  end
+
+  test "today sleep total includes overnight sleep and active sleep overlap" do
+    travel_to Time.zone.local(2026, 3, 23, 8, 0) do
+      user = users(:one)
+      baby = BabyCreator.create!(
+        user: user,
+        first_name: "Milo",
+        birth_at: Time.zone.local(2026, 3, 20, 3, 45)
+      )
+
+      CareEvent.create!(
+        baby: baby,
+        user: user,
+        kind: "feed",
+        started_at: Time.zone.local(2026, 3, 23, 6, 0),
+        payload: { "mode" => "breast", "duration_min" => 20 }
+      )
+      CareEvent.create!(
+        baby: baby,
+        user: user,
+        kind: "sleep",
+        started_at: Time.zone.local(2026, 3, 22, 23, 30),
+        ended_at: Time.zone.local(2026, 3, 23, 1, 0),
+        payload: {}
+      )
+      CareEvent.create!(
+        baby: baby,
+        user: user,
+        kind: "sleep",
+        started_at: Time.zone.local(2026, 3, 23, 6, 48),
+        payload: {}
+      )
+
+      post session_path, params: { email: user.email, password: "password" }
+      follow_redirect!
+
+      assert_response :success
+      assert_match "2h 12m", response.body
+      assert_match "Sleeping for 1 hr 12 min", response.body
+      assert_match "Last feed was 2 hr ago", response.body
+      assert_match "End sleep", response.body
     end
   end
 

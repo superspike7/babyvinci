@@ -28,7 +28,7 @@ class SleepFlowTest < ActionDispatch::IntegrationTest
     follow_redirect!
 
     assert_response :success
-    assert_select "p", text: /Sleeping now/i
+    assert_select "p", text: /Sleeping for/i
     assert_select "button", text: /End sleep/i
   end
 
@@ -51,7 +51,7 @@ class SleepFlowTest < ActionDispatch::IntegrationTest
 
     get today_path
     assert_response :success
-    assert_select "p", text: /Sleeping now/i
+    assert_select "p", text: /Sleeping for/i
 
     post end_sleep_sleeps_path
     assert_redirected_to today_path
@@ -207,7 +207,7 @@ class SleepFlowTest < ActionDispatch::IntegrationTest
       assert_redirected_to timeline_path
       follow_redirect!
       assert_match "Sleep deleted", response.body
-      assert_no_match "Sleeping now", response.body
+      assert_no_match "Sleeping for", response.body
     end
   end
 
@@ -268,7 +268,7 @@ class SleepFlowTest < ActionDispatch::IntegrationTest
       follow_redirect!
 
       assert_match "Sleep deleted", response.body
-      assert_no_match "Sleeping now", response.body
+      assert_no_match "Sleeping for", response.body
       assert_no_match "End sleep", response.body
     end
   end

@@ -128,6 +128,65 @@ module ApplicationHelper
     "#{time_ago_in_words(time)} ago"
   end
 
+  def precise_elapsed_label(time)
+    return "just now" if time.blank? || time >= Time.current
+
+    elapsed_minutes = elapsed_minutes_since(time)
+    return "just now" if elapsed_minutes.zero?
+
+    "#{sleep_duration_label(elapsed_minutes)} ago"
+  end
+
+  def relative_time_label(time)
+    return nil if time.blank?
+
+    if time > Time.current
+      "in #{sleep_duration_label(elapsed_minutes_until(time))}"
+    elsif time == Time.current
+      "just now"
+    else
+      precise_elapsed_label(time)
+    end
+  end
+
+  def today_feed_count_label(count)
+    "#{pluralize(count, "feed")} today"
+  end
+
+  def today_diaper_count_label(count, kind)
+    "#{count} #{kind} today"
+  end
+
+  def today_sleep_total_label(minutes)
+    compact_sleep_duration_label(minutes) || "0 min"
+  end
+
+  def compact_sleep_duration_label(minutes)
+    return nil unless minutes
+
+    hours, mins = minutes.divmod(60)
+
+    if hours.positive? && mins.positive?
+      "#{hours}h #{mins}m"
+    elsif hours.positive?
+      "#{hours}h"
+    else
+      "#{mins}m"
+    end
+  end
+
+  def next_feed_reminder_title(reminder)
+    return "No feed reminder set" unless reminder&.persisted?
+
+    "Set for #{next_feed_reminder_label(reminder)}"
+  end
+
+  def next_feed_reminder_timing_label(reminder)
+    return nil unless reminder&.persisted? && reminder.target_at
+
+    relative_time_label(reminder.target_at)
+  end
+
   def next_feed_reminder_label(reminder)
     return unless reminder&.target_at
 
@@ -201,6 +260,14 @@ module ApplicationHelper
       else
         "#{minutes}M"
       end
+    end
+
+    def elapsed_minutes_since(time)
+      [ ((Time.current - time) / 60.0).floor, 0 ].max
+    end
+
+    def elapsed_minutes_until(time)
+      [ ((time - Time.current) / 60.0).ceil, 0 ].max
     end
 
     def baby_age_in_days(baby)
