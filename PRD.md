@@ -5,8 +5,8 @@ canonical: true
 source_of_truth: PRD.md
 design_reference: DESIGN.md
 progress_tracker: PRD.md#progress-tracker
-current_phase: "Phase 3 - Sleep + Age-Based Guidance"
-last_updated: 2026-03-27
+current_phase: "Phase 5 - Hotwire Native + Custom Notifications"
+last_updated: 2026-03-28
 agent_instruction: "Use this file as the canonical product spec and progress tracker. Continue in phase order unless explicitly directed otherwise. Update the progress tracker after completed work."
 ---
 
@@ -17,11 +17,11 @@ Active canonical product spec
 
 ## Progress Tracker
 
-- Current phase: Phase 3 - Sleep + Age-Based Guidance
-- Current milestone: Phase 3 in progress
-- Current task: P4-04 Recent concern results [COMPLETE]
+- Current phase: Phase 5 - Hotwire Native + Custom Notifications
+- Current milestone: Phase 5 planned
+- Current task: P5-01 Android Hotwire Native shell [NEXT]
 - Blockers: None
-- Last updated: 2026-03-27
+- Last updated: 2026-03-28
 
 ### Latest verification
 - 2026-03-23: `bin/rails test` passed for all written Phase 1 coverage.
@@ -79,10 +79,12 @@ Active canonical product spec
 - [x] P4-04 Recent concern results
 
 ### Phase 5 tracker
-- [ ] P5-01 Appointments (optional)
-- [ ] P5-02 Milestones (optional)
-- [ ] P5-03 Offline core event queue (optional)
-- [ ] P5-04 Pending sync and retry UX (optional)
+- [ ] P5-01 Android Hotwire Native shell
+- [ ] P5-02 Android notification proof
+- [ ] P5-03 Rails-managed shared push delivery
+- [ ] P5-04 iOS Hotwire Native shell
+- [ ] P5-05 iOS notification parity
+- [ ] P5-06 Notification polish / family QA
 
 ## Purpose
 Build a brain-dead simple shared app for two parents to care for one infant from birth onward.
@@ -222,6 +224,8 @@ Fast deployment matters more than store packaging.
 - 1-2 age-based guidance notes on Today
 - a small set of conservative concern flows
 - printable doctor summary
+- Hotwire Native Android and iOS shells for internal family testing
+- app-owned next-feed notification delivery to every registered parent device
 - optional appointments, milestones, and offline experiments only if real use justifies them
 
 ### Out of scope
@@ -1027,92 +1031,145 @@ It is still narrow enough to remain trustworthy.
 
 ---
 
-### Phase 5 — Appointments + Milestones + Offline Core
+### Phase 5 — Hotwire Native + Custom Notifications
 
 #### Goal
-Round out the product only if real use proves these additions matter.
+Ship thin Hotwire Native shells and BabyVinci-owned next-feed notifications that reach every registered family device.
 
 #### Why this phase exists
-These features help with continuity of care, but they are weaker than the earlier phases, so they come later.
+The app already proves shared reminder value, but delivery still depends on external tools.
 
-#### What may ship
-- simple appointments list with notes
-- milestone check-ins at 2, 4, and 6 months
-- basic offline support for creating core care events
+This phase makes reminder delivery feel like BabyVinci itself while keeping the product web-first and small.
+
+#### What ships
+- Android Hotwire Native shell for internal testing
+- Android notification proof using the BabyVinci reminder flow
+- Rails-managed push delivery for shared next-feed reminders
+- iOS Hotwire Native shell distributed for internal family testing
+- iOS notification parity using the same shared reminder backend
+- notification deep links, permission states, and calm failure handling
 
 #### Keep it simple
-- no deep vaccine schedule intelligence
-- no milestone scoring or comparison dashboard
-- no advanced offline conflict-resolution UI
-- do not build offline unless real users actually hit this problem
+- keep the product web-first; existing Rails routes remain the primary UI
+- use Hotwire Native shells, not a React or fully native rewrite
+- internal testing only; do not expand this phase into public store release work
+- Rails remains the source of truth for reminder state and notification scheduling
+- prefer one push backend path that can serve Android now and iOS later
+- no badges, marketing pushes, or broad notification settings matrix
+- no offline queue work in this phase
+- each P5 task must fit in one opencode session and be manually verifiable by the product owner
 
 #### Task contracts
 
-##### P5-01 Appointments (optional)
-- Contract: If appointments ship, a parent can track upcoming and completed appointments with minimal effort.
+##### P5-01 Android Hotwire Native shell
+- Contract: The existing BabyVinci Rails app runs inside a thin Android Hotwire Native shell that is usable for daily family testing.
 - Expected behavior:
-  - Create an appointment with the smallest useful set of details.
-  - Mark an appointment complete.
-  - Upcoming and completed states are easy to distinguish.
+  - Sign in, Today, Timeline, More, and existing form flows work inside the Android shell.
+  - The shell uses path configuration so presentation rules can evolve without rewriting the app.
+  - The shell can open a BabyVinci URL from a notification tap and land in useful context.
+  - The Android build can be installed by the product owner for internal testing.
 - Written test proof:
-  - Appointment creation works.
-  - Completion state updates correctly.
-  - Data stays scoped to the correct baby.
+  - Any Rails changes needed for native entry or deep-link support are covered by written tests.
+  - The Android project includes at least one automated smoke check for app launch or path configuration loading.
 - QA evidence:
-  - Add an appointment and mark it complete.
+  - Install the Android app on a real phone.
+  - Sign in, navigate Today / Timeline / More, log a feed, and set a reminder.
 
-##### P5-02 Milestones (optional)
-- Contract: If milestones ship, parents can record age-based milestone observations without judgment language.
+##### P5-02 Android notification proof
+- Contract: On Android, BabyVinci can trigger a branded next-feed notification from the existing reminder flow, proving permission, copy, and deep-link behavior before cross-device push rollout is complete.
 - Expected behavior:
-  - Milestone prompts are discussion-oriented, not evaluative.
-  - The first buckets are 2, 4, and 6 months.
-  - No milestone screen uses `behind` language.
+  - The reminder flow can request notification permission with calm copy where required.
+  - Setting a reminder can schedule one Android notification tied to BabyVinci reminder state.
+  - Tapping the notification opens the app to a useful reminder context.
+  - Editing or clearing the reminder on that device prevents stale future notifications.
+  - This task may use a temporary Android-only path; shared multi-device correctness is completed in P5-03 and later tasks.
 - Written test proof:
-  - Age buckets resolve correctly.
-  - Milestone records persist.
-  - Protected copy rules prevent disallowed language.
+  - Any Rails changes needed for notification payloads or deep links are covered by written tests.
+  - Android automated coverage exists for scheduling or canceling the reminder notification where practical.
 - QA evidence:
-  - Complete milestone check-ins for each shipped bucket.
+  - Set a reminder on Android, lock the phone, receive the notification, tap it, then edit and clear the reminder and verify stale delivery does not survive on that device.
 
-##### P5-03 Offline core event queue (optional)
-- Contract: If offline support ships, parents can create core care events without connectivity and sync them later.
+##### P5-03 Rails-managed shared push delivery
+- Contract: BabyVinci owns reminder delivery for every registered family device by scheduling push notifications from Rails whenever shared reminder state changes.
 - Expected behavior:
-  - Offline queue covers only the shipped core event types.
-  - Queued events retry after connectivity returns.
-  - Retry does not create duplicates.
+  - Device installs and push tokens are stored per app install, not just per user.
+  - Creating, updating, or clearing the shared next-feed reminder schedules or cancels push delivery from Rails.
+  - The backend is ready to fan out to Android and iOS devices using one shared reminder model.
+  - Repeated reminder edits do not create duplicate future deliveries.
+  - Notification send failures never remove the shared in-app reminder.
+  - Google Calendar may remain as fallback during rollout, but it is no longer the required primary delivery path.
 - Written test proof:
-  - Events enqueue offline.
-  - Queued events retry successfully.
-  - Duplicate prevention holds during retry.
+  - Device registration is scoped correctly to users and installs.
+  - Reminder create, update, and clear behavior schedules or cancels push work correctly.
+  - Duplicate suppression is covered for repeated reminder changes.
+  - A failed push send does not lose BabyVinci reminder state.
 - QA evidence:
-  - Go offline, create core events, reconnect, and confirm sync.
+  - Register at least one Android device, set a reminder, verify server-driven delivery, then update and clear the reminder and confirm the notification behavior follows the latest shared state.
 
-##### P5-04 Pending sync and retry UX (optional)
-- Contract: If offline support ships, a parent can see pending or failed sync states and recover without guessing.
+##### P5-04 iOS Hotwire Native shell
+- Contract: The existing BabyVinci Rails app runs inside a thin iOS Hotwire Native shell that can be distributed to the family for internal testing.
 - Expected behavior:
-  - Pending and failed sync states are visible.
-  - Failure copy is calm and action-oriented.
-  - Parent can retry or otherwise recover from failure.
+  - Sign in, Today, Timeline, More, and existing form flows work inside the iOS shell.
+  - The shell can open BabyVinci URLs from notification taps.
+  - Distribution is internal-testing friendly, with no requirement for public App Store release in this phase.
+  - The family has a workable installation path for iPhone testing, such as TestFlight.
 - Written test proof:
-  - Failed-sync states render.
-  - Recovery and retry flows work.
+  - Any Rails changes needed for iOS native entry or deep-link support are covered by written tests.
+  - The iOS project includes at least one automated smoke check for app launch or path configuration loading.
 - QA evidence:
-  - Simulate a failed sync and verify the recovery flow.
+  - Install the iOS app on a real iPhone, sign in, navigate Today / Timeline / More, log a feed, and set a reminder.
+
+##### P5-05 iOS notification parity
+- Contract: iPhone devices can receive BabyVinci next-feed notifications from the same Rails-managed shared reminder system used by Android.
+- Expected behavior:
+  - iOS notification permission flow is calm and recoverable.
+  - The shared reminder backend can send to registered iPhone devices as well as Android devices.
+  - Tapping the notification opens the app to a useful reminder context.
+  - Editing or clearing the shared reminder prevents stale future notifications on registered iPhones.
+  - Android and iOS stay on one shared notification model rather than separate reminder systems.
+- Written test proof:
+  - Mixed-platform device registration and fanout behavior are covered by written tests.
+  - Reminder job tests include Android and iOS installs for the same baby workspace.
+- QA evidence:
+  - Install the iOS build on at least one family iPhone, set, update, and clear reminders, and verify delivery follows the latest shared state.
+
+##### P5-06 Notification polish / family QA
+- Contract: Phase 5 is only complete when the real family group can install the internal builds and trust reminder delivery across their actual phones.
+- Expected behavior:
+  - All family members can install the internal Android or iOS builds available to them.
+  - Notification copy stays short, calm, and clearly owned by BabyVinci.
+  - Notification taps always land in useful context.
+  - Permission-denied and temporarily unavailable states explain what happened and what to do next.
+  - The final flow avoids duplicate or contradictory notifications in normal reminder edits.
+- Written test proof:
+  - Core Rails tests, push scheduling tests, and native smoke checks all pass.
+- QA evidence:
+  - Verify the full family flow on one Android phone and two iPhones: create a reminder, update it from another account, clear it from a third account, and confirm delivery and in-app state stay understandable on each device.
 
 #### Acceptance criteria
-- Parent can create and complete appointments if appointments ship.
-- Milestones do not use "behind" language if milestones ship.
-- Core logs can be created offline and later retried if offline support ships.
-- Failed sync states are visible and recoverable if offline support ships.
+- The existing BabyVinci Rails product is usable inside thin Android and iOS Hotwire Native shells.
+- A shared next-feed reminder can notify every registered family device.
+- Editing or clearing a reminder keeps future delivery aligned with the latest shared reminder state.
+- Notification taps open BabyVinci into useful context instead of a dead end.
+- The family can install internal builds without requiring a public store launch.
 
 #### QA / verification
-- Add and complete an appointment if appointments ship.
-- Complete milestone check-ins for each age bucket if milestones ship.
-- Go offline, create core events, restore network, and confirm sync if offline support ships.
-- Confirm no duplicate events are created during retry.
+- Install the Android shell and verify the existing core Rails flows work normally.
+- Verify Android notification permission, delivery, tap behavior, update behavior, and clear behavior.
+- Install the iOS shell and verify the existing core Rails flows work normally.
+- Verify iOS notification permission, delivery, tap behavior, update behavior, and clear behavior.
+- Run one real family shared-reminder test across the product owner's Android phone and two family iPhones.
+- Confirm reminder edits do not leave duplicate or stale notifications queued.
 
 #### Release check
-If this phase is done, the app is a strong private family tool and can be used with confidence day to day.
+If this phase is done, BabyVinci becomes an installable private family app with app-owned reminder delivery on the real family devices that use it.
+
+#### Archived / deferred ideas
+- appointments
+- milestones
+- offline core event queue
+- pending sync and retry UX
+- Revisit these only if real family use proves they matter more than notification reliability or shell polish.
 
 ---
 
@@ -1130,7 +1187,9 @@ If this phase is done, the app is a strong private family tool and can be used w
 9. seeded guidance notes if Phase 3 starts
 10. fixed concern flows + recent concern results if Phase 4 starts
 11. printable export view if Phase 4 starts
-12. appointments, milestones, and offline only after real use proves they matter
+12. Android Hotwire Native shell + Android notification proof if Phase 5 starts
+13. Rails-managed shared push delivery + iOS shell + iOS parity if Phase 5 starts
+14. appointments, milestones, and offline only after real use proves they matter
 
 ### Keep implementation boring
 Prefer:
@@ -1259,7 +1318,7 @@ Use it yourselves starting at Phase 1.
 - Phase 2 adds practical reminders without splitting the product across multiple apps
 - Phase 3 makes it feel meaningfully better day to day
 - Phase 4 adds trust and utility
-- Phase 5 rounds it out without blocking launch
+- Phase 5 turns the web app into a private family app with BabyVinci-owned reminder delivery without forcing a rewrite
 
 ---
 
