@@ -26,7 +26,7 @@ class TodayTest < ActionDispatch::IntegrationTest
       assert_match "Last diaper", response.body
       assert_match "No feed yet", response.body
       assert_match "No diaper yet", response.body
-      assert_match "Today is still quiet", response.body
+      assert_no_match "Right now", response.body
       assert_match "No feed reminder set", response.body
       assert_match "Recent activity", response.body
       assert_match "Nothing logged yet", response.body
@@ -67,7 +67,6 @@ class TodayTest < ActionDispatch::IntegrationTest
       assert_match "6 minutes ago", response.body
       assert_match "7:54 AM", response.body
       assert_match "Formula, 90 ml", response.body
-      assert_match ">Today</p>", response.body
       assert_match "Logged by One Parent", response.body
     end
   end
@@ -392,11 +391,12 @@ class TodayTest < ActionDispatch::IntegrationTest
       assert_not_nil last_diaper_section
       assert_not_nil recent_activity_section
       assert_match "4:30 AM", last_diaper_section
-      assert_match "just now", last_diaper_section
+      assert_match "0m", last_diaper_section
       assert_match "Wet \+ stool", last_diaper_section
       assert_match "Diaper", recent_activity_section
       assert_match "4:30 AM", recent_activity_section
       assert_match "just now", recent_activity_section
+      assert_no_match "Right now", response.body
       assert_not_includes recent_activity_section, "1:30 PM"
     end
   end
@@ -429,8 +429,8 @@ class TodayTest < ActionDispatch::IntegrationTest
       follow_redirect!
 
       assert_response :success
-      assert_match "Feed likely soon", response.body
-      assert_match "Last feed was 2 hr 5 min ago", response.body
+      assert_no_match "Feed likely soon", response.body
+      assert_no_match "Right now", response.body
       assert_match "1W · 0S", response.body
     end
   end
@@ -473,7 +473,7 @@ class TodayTest < ActionDispatch::IntegrationTest
       assert_response :success
       assert_match "2h 12m", response.body
       assert_match "Sleeping for 1 hr 12 min", response.body
-      assert_match "Last feed was 2 hr ago", response.body
+      assert_match "Last sleep was 1 hr 12 min ago", response.body
       assert_match "End sleep", response.body
     end
   end

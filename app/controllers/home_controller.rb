@@ -78,7 +78,7 @@ class HomeController < ApplicationController
       {
         eyebrow: "Right now",
         headline: "Sleeping for #{helpers.sleep_duration_label(@active_sleep.duration_minutes)}",
-        support: @last_feed ? "Last feed was #{helpers.precise_elapsed_label(@last_feed.started_at)}" : "No feed logged yet.",
+        support: "Last sleep was #{helpers.precise_elapsed_label(@last_sleep.started_at)}",
         sleep_started_at: @active_sleep.started_at.to_i
       }
     end
