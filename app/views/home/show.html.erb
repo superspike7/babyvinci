@@ -65,15 +65,15 @@
     <% end %>
 
     <div class="rounded-[28px] border border-vinci-border/80 bg-vinci-accent-tint p-5 shadow-sm">
-      <div class="flex items-center justify-between gap-4">
-        <div class="flex items-center gap-3">
-          <div class="flex size-10 items-center justify-center rounded-full bg-vinci-surface/80 text-vinci-accent shadow-inner">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="size-5"><path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
-          </div>
-          <div>
-            <p class="text-[10px] font-bold uppercase tracking-widest text-vinci-label">Feed reminder</p>
-            <p class="text-xl font-black tracking-tight text-vinci-accent"><%= next_feed_reminder_title(@next_feed_reminder) %></p>
-            <% if @next_feed_reminder.persisted? %>
+      <% if @next_feed_reminder.persisted? %>
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div class="flex size-10 items-center justify-center rounded-full bg-vinci-surface/80 text-vinci-accent shadow-inner">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="size-5"><path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+            </div>
+            <div>
+              <p class="text-[10px] font-bold uppercase tracking-widest text-vinci-label">Feed reminder</p>
+              <p class="text-xl font-black tracking-tight text-vinci-accent"><%= next_feed_reminder_title(@next_feed_reminder) %></p>
               <p class="text-[11px] font-bold tracking-wide text-vinci-text/75"><%= next_feed_reminder_timing_label(@next_feed_reminder) %></p>
               <% if @next_feed_reminder.calendar_sync_failed_at.present? %>
                 <div class="mt-2 space-y-1">
@@ -81,13 +81,9 @@
                   <p class="text-[11px] text-vinci-text/70">Tap edit to try again.</p>
                 </div>
               <% end %>
-            <% else %>
-              <p class="text-[11px] font-semibold text-vinci-text/75">Add one if a shared nudge would help.</p>
-            <% end %>
+            </div>
           </div>
-        </div>
 
-        <% if @next_feed_reminder.persisted? %>
           <div class="flex items-center gap-2">
             <details class="group relative">
               <summary class="flex size-10 cursor-pointer list-none items-center justify-center rounded-full bg-vinci-accent text-vinci-base shadow-sm transition active:scale-95">
@@ -107,7 +103,7 @@
                 <%= form_with model: @next_feed_reminder, url: next_feed_reminder_path, method: :patch, class: "space-y-3" do |f| %>
                   <%= f.datetime_local_field :target_at, value: next_feed_reminder_input_value(@next_feed_reminder), class: "block w-full rounded-xl border-vinci-border bg-vinci-surface text-sm font-medium focus:ring-vinci-accent/20" %>
                   <div class="grid grid-cols-2 gap-2">
-                    <%= link_to next_feed_reminder_path, data: { turbo_method: :delete }, class: "flex h-10 items-center justify-center rounded-full border border-vinci-border bg-vinci-base text-vinci-urgent" do %>
+                    <%= button_to next_feed_reminder_path, method: :delete, form_class: "contents", class: "flex h-10 items-center justify-center rounded-full border border-vinci-border bg-vinci-base text-vinci-urgent" do %>
                       <span class="sr-only">Clear reminder</span>
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="size-4"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                     <% end %>
@@ -117,27 +113,44 @@
               </div>
             </details>
           </div>
-        <% else %>
-          <div class="w-full max-w-[11rem] space-y-3">
-            <div>
-              <p class="mb-2 text-[10px] font-bold uppercase tracking-widest text-vinci-label">Quick presets</p>
-              <div class="flex flex-wrap gap-1.5">
-                <% [[30, "30 min"], [60, "1 hour"], [120, "2 hours"], [180, "3 hours"]].each do |minutes, label| %>
-                  <%= button_to label, next_feed_reminder_path, method: :post, params: { preset_minutes: minutes }, form_class: "inline-block", class: "flex h-9 min-w-10 items-center justify-center rounded-full bg-vinci-surface px-2 text-[10px] font-black uppercase tracking-widest text-vinci-accent shadow-sm transition active:scale-95" %>
+        </div>
+      <% else %>
+        <div class="space-y-6">
+          <div class="flex items-start gap-4">
+            <div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-vinci-surface/80 text-vinci-accent shadow-inner">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="size-5"><path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+            </div>
+            <div class="space-y-1">
+              <p class="text-[10px] font-bold uppercase tracking-widest text-vinci-label">Feed reminder</p>
+              <p class="text-xl font-black tracking-tight text-vinci-accent leading-tight"><%= next_feed_reminder_title(@next_feed_reminder) %></p>
+              <p class="text-[11px] font-semibold text-vinci-text/70">Add one if a shared nudge would help.</p>
+            </div>
+          </div>
+
+          <div class="space-y-5 rounded-[24px] bg-vinci-surface/30 p-4">
+            <div class="space-y-3">
+              <p class="text-[10px] font-bold uppercase tracking-widest text-vinci-label opacity-60">Quick presets</p>
+              <div class="grid grid-cols-4 gap-2">
+                <% [[30, "30m"], [60, "1h"], [120, "2h"], [180, "3h"]].each do |minutes, label| %>
+                  <%= button_to label, next_feed_reminder_path, method: :post, params: { preset_minutes: minutes }, form_class: "w-full", class: "flex h-10 w-full items-center justify-center rounded-full bg-vinci-surface px-1 text-[11px] font-black uppercase tracking-widest text-vinci-accent shadow-sm transition active:scale-95" %>
                 <% end %>
               </div>
             </div>
 
-            <%= form_with model: @next_feed_reminder, url: next_feed_reminder_path, class: "space-y-2" do |f| %>
-              <div class="space-y-1">
-                <%= f.label :target_at, "Exact time", class: "text-[10px] font-bold uppercase tracking-widest text-vinci-label" %>
-                <%= f.datetime_local_field :target_at, class: "block w-full rounded-xl border-vinci-border bg-vinci-surface text-sm font-medium focus:ring-vinci-accent/20" %>
+            <%= form_with model: @next_feed_reminder, url: next_feed_reminder_path, class: "space-y-3" do |f| %>
+              <div class="space-y-1.5">
+                <p class="text-[10px] font-bold uppercase tracking-widest text-vinci-label opacity-60">Exact time</p>
+                <div class="flex items-center gap-2">
+                  <div class="min-w-0 flex-1">
+                    <%= f.datetime_local_field :target_at, class: "block w-full rounded-xl border-vinci-border bg-vinci-surface py-2.5 pl-3 pr-2 text-sm font-medium focus:ring-vinci-accent/20" %>
+                  </div>
+                  <%= f.submit "Save", class: "h-[42px] shrink-0 rounded-xl bg-vinci-accent px-5 text-[11px] font-black uppercase tracking-widest text-vinci-base transition active:scale-95" %>
+                </div>
               </div>
-              <%= f.submit "Save", class: "w-full rounded-full bg-vinci-accent px-3 py-2 text-[10px] font-black uppercase tracking-widest text-vinci-base" %>
             <% end %>
           </div>
-        <% end %>
-      </div>
+        </div>
+      <% end %>
     </div>
   </div>
 

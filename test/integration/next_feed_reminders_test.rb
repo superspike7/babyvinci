@@ -67,6 +67,25 @@ class NextFeedRemindersTest < ActionDispatch::IntegrationTest
     assert_match "No feed reminder set", response.body
   end
 
+  test "clearing the reminder renders button with proper delete method" do
+    travel_to Time.zone.local(2026, 3, 24, 9, 0) do
+      owner = users(:one)
+      baby = create_baby_for(owner)
+      baby.create_next_feed_reminder!(target_at: Time.zone.local(2026, 3, 24, 10, 0))
+
+      sign_in_as(owner)
+      get today_path
+
+      assert_response :success
+      # The clear button should use button_to (form) for DELETE, not link_to with turbo_method
+      # This ensures the delete action works even when nested in a form
+      # button_to generates: <form method="post"><input type="hidden" name="_method" value="delete">...
+      assert_select "form[action=?]", next_feed_reminder_path do
+        assert_select "input[name='_method'][value='delete']"
+      end
+    end
+  end
+
   test "reminder access remains scoped to the correct baby workspace" do
     travel_to Time.zone.local(2026, 3, 24, 9, 0) do
       owner = users(:one)
@@ -103,10 +122,10 @@ class NextFeedRemindersTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_match "No feed reminder set", response.body
     assert_match "Quick presets", response.body
-    assert_match "30 min", response.body
-    assert_match "1 hour", response.body
-    assert_match "2 hours", response.body
-    assert_match "3 hours", response.body
+    assert_match "30m", response.body
+    assert_match "1h", response.body
+    assert_match "2h", response.body
+    assert_match "3h", response.body
     assert_match "Exact time", response.body
     assert_select "input[type='datetime-local'][name='next_feed_reminder[target_at]']", 1
   end
