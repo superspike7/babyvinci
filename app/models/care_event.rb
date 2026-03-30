@@ -29,6 +29,7 @@ class CareEvent < ApplicationRecord
   scope :started_on_or_before, ->(time) { where(started_at: ..time) }
   scope :started_after, ->(time) { where(started_at: time..) }
   scope :active_sleep, -> { where(kind: "sleep", ended_at: nil) }
+  scope :completed_sleep, -> { where(kind: "sleep").where.not(ended_at: nil) }
 
   def feed?
     kind == "feed"

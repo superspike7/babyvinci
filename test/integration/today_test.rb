@@ -474,8 +474,47 @@ class TodayTest < ActionDispatch::IntegrationTest
       assert_response :success
       assert_match "2h 12m", response.body
       assert_match "Sleeping for 1 hr 12 min", response.body
-      assert_match "Last sleep was 1 hr 12 min ago", response.body
+      assert_match "Last sleep was 7 hr ago", response.body
       assert_match "End sleep", response.body
+    end
+  end
+
+  test "today shows time since previous sleep ended when there is an active sleep" do
+    travel_to Time.zone.local(2026, 3, 23, 8, 0) do
+      user = users(:one)
+      baby = BabyCreator.create!(
+        user: user,
+        first_name: "Milo",
+        birth_at: Time.zone.local(2026, 3, 20, 3, 45)
+      )
+
+      # Previous sleep ended at 1:00 AM
+      CareEvent.create!(
+        baby: baby,
+        user: user,
+        kind: "sleep",
+        started_at: Time.zone.local(2026, 3, 22, 23, 30),
+        ended_at: Time.zone.local(2026, 3, 23, 1, 0),
+        payload: {}
+      )
+      # Current active sleep started at 6:48 AM
+      CareEvent.create!(
+        baby: baby,
+        user: user,
+        kind: "sleep",
+        started_at: Time.zone.local(2026, 3, 23, 6, 48),
+        payload: {}
+      )
+
+      post session_path, params: { email: user.email, password: "password" }
+      follow_redirect!
+
+      assert_response :success
+      # Current sleep has been active for 1 hr 12 min (6:48 to 8:00)
+      assert_match "Sleeping for 1 hr 12 min", response.body
+      # Last sleep was should show time since PREVIOUS sleep ended (1:00 AM to 8:00 AM = 7 hours)
+      # NOT time since current sleep started (1 hr 12 min)
+      assert_match "Last sleep was 7 hr ago", response.body
     end
   end
 

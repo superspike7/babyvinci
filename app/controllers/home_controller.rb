@@ -13,7 +13,7 @@ class HomeController < ApplicationController
     @last_feed = latest_started_event_for("feed")
     @last_diaper = latest_started_event_for("diaper")
     @active_sleep = current_baby.care_events.active_sleep.first
-    @last_sleep = latest_started_event_for("sleep")
+    @last_sleep = latest_completed_sleep || latest_started_event_for("sleep")
     set_today_totals
     @today_guidance = build_today_guidance
     @guidance_notes = Guidance.for_age_in_days(baby_age_in_days(current_baby))
@@ -26,6 +26,10 @@ class HomeController < ApplicationController
 
     def latest_started_event_for(kind)
       visible_care_events.for_kind(kind).first
+    end
+
+    def latest_completed_sleep
+      visible_care_events.completed_sleep.first
     end
 
     def set_today_totals
@@ -78,7 +82,7 @@ class HomeController < ApplicationController
       {
         eyebrow: "Right now",
         headline: "Sleeping for #{helpers.sleep_duration_label(@active_sleep.duration_minutes)}",
-        support: "Last sleep was #{helpers.precise_elapsed_label(@last_sleep.started_at)}",
+        support: "Last sleep was #{helpers.precise_elapsed_label(@last_sleep.ended_at)}",
         sleep_started_at: @active_sleep.started_at.to_i
       }
     end
