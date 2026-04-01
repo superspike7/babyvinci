@@ -86,6 +86,38 @@ class NextFeedRemindersTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "active reminder editor keeps save and clear actions in separate forms after browser parsing" do
+    travel_to Time.zone.local(2026, 3, 24, 9, 0) do
+      owner = users(:one)
+      baby = create_baby_for(owner)
+      baby.create_next_feed_reminder!(target_at: Time.zone.local(2026, 3, 24, 10, 0))
+
+      sign_in_as(owner)
+      get today_path
+
+      assert_response :success
+
+      document = Nokogiri::HTML5(response.body)
+      save_button = document.at_css("input[type='submit'][value='Save']")
+      assert save_button, "expected active reminder editor to render a Save submit"
+
+      save_form = save_button.ancestors("form").first
+      assert save_form, "expected Save to belong to the PATCH reminder form"
+      assert_equal next_feed_reminder_path, save_form["action"]
+      assert save_form.at_css("input[name='_method'][value='patch']")
+      assert save_form.at_css("input[type='datetime-local'][name='next_feed_reminder[target_at]']")
+
+      delete_method = document.at_css("form input[name='_method'][value='delete']")
+      assert delete_method, "expected clear reminder to render a DELETE form"
+
+      delete_form = delete_method.ancestors("form").first
+      assert_equal next_feed_reminder_path, delete_form["action"]
+      assert_not_equal save_form, delete_form
+      assert delete_form.at_css("button")
+      assert_nil delete_form.at_css("input[type='datetime-local']")
+    end
+  end
+
   test "reminder access remains scoped to the correct baby workspace" do
     travel_to Time.zone.local(2026, 3, 24, 9, 0) do
       owner = users(:one)
