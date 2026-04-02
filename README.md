@@ -1,6 +1,12 @@
 # BabyVinci
 
+> **Built while my newborn slept.** I started this project the day I became a father — coding in the hospital during those precious quiet moments when baby was napping. Born from the chaos of night shifts and handoff confusion, this is the app I wish we'd had from hour one.
+
 A shared baby tracking app for two sleep-deprived co-parents. Designed for use in complete darkness with one hand.
+
+---
+
+**Quick Pitch:** BabyVinci eliminates information asymmetry during shift handoffs. When one parent wakes up at 3 AM to take over, they instantly see: last feed, last diaper, is baby sleeping now, and what's next — no questions needed, no waking the other parent.
 
 ## What is BabyVinci?
 
